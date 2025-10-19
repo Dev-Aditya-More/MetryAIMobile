@@ -1,6 +1,6 @@
-import { useEffect } from "react";
 import { useRouter } from "expo-router";
-import { View, ActivityIndicator } from "react-native";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function Index() {
     return () => clearTimeout(timeout);
   }, [router]);
 
+  
   return (
     <View
       style={{
