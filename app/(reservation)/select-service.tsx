@@ -54,7 +54,7 @@ export default function SelectService() {
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleContinue = () => {
-    if (selected) router.replace("/(reservation)/select-staff");
+    if (selected) router.push("/select-staff");
     console.log("Selected service ID:", selected);
   };
 
