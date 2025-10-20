@@ -5,12 +5,13 @@ import React, { useState } from "react";
 import {
   Dimensions,
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -18,7 +19,7 @@ const services = [
   {
     id: "1",
     image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80", // Hair Salon
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80",
     title: "Hair Salon",
     duration: "60 min",
     price: "$65",
@@ -26,7 +27,7 @@ const services = [
   {
     id: "2",
     image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80", // Massage
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80",
     title: "Massage",
     duration: "45 min",
     price: "$75",
@@ -34,7 +35,7 @@ const services = [
   {
     id: "3",
     image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80", // Facial
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80",
     title: "Facial",
     duration: "60 min",
     price: "$85",
@@ -42,7 +43,7 @@ const services = [
   {
     id: "4",
     image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80", // Manicure
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&h=600&q=80",
     title: "Manicure",
     duration: "90 min",
     price: "$120",
@@ -55,12 +56,9 @@ export default function SelectService() {
 
   const handleContinue = () => {
     if (selected) router.push("/select-staff");
-    console.log("Selected service ID:", selected);
   };
 
-  const handleCancel = () => {
-    setSelected(null);
-  };
+  const handleCancel = () => setSelected(null);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,6 +67,8 @@ export default function SelectService() {
         <Text style={styles.title}>Select Service</Text>
         <Text style={styles.stepText}>Step 1 of 5</Text>
       </View>
+
+      <View style={styles.divider} />
 
       {/* Service List */}
       <FlatList
@@ -80,17 +80,22 @@ export default function SelectService() {
           const isSelected = item.id === selected;
           return (
             <TouchableOpacity
-              style={[
-                styles.card,
-                isSelected && {
-                  borderColor: "#bfa78a",
-                  backgroundColor: "#f7f4f0",
-                },
-              ]}
+              style={[styles.card, isSelected && styles.cardSelected]}
               activeOpacity={0.8}
               onPress={() => setSelected(item.id)}
             >
-              {/* Service Image */}
+              {/* Checkmark on selected */}
+              {isSelected && (
+                <View style={styles.checkIcon}>
+                  <MaterialIcons
+                    name="check-circle"
+                    size={22}
+                    color="#BFA78A"
+                  />
+                </View>
+              )}
+
+              {/* Image */}
               <Image
                 source={{ uri: item.image }}
                 style={styles.image}
@@ -98,23 +103,18 @@ export default function SelectService() {
                 cachePolicy="disk"
               />
 
-              {/* Service Info */}
+              {/* Info */}
               <View style={styles.info}>
                 <Text style={styles.serviceTitle}>{item.title}</Text>
                 <Text style={styles.details}>{item.duration}</Text>
                 <Text style={styles.details}>{item.price}</Text>
               </View>
-
-              {/* Checkmark icon for selected item */}
-              {isSelected && (
-                <MaterialIcons name="check-circle" size={24} color="#bfa78a" />
-              )}
             </TouchableOpacity>
           );
         }}
       />
 
-      {/* Buttons */}
+      {/* Footer Buttons */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={[styles.continueBtn, !selected && styles.disabledBtn]}
@@ -135,35 +135,47 @@ export default function SelectService() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#222",
+    color: "#1C1C1C",
   },
   stepText: {
     fontSize: 14,
-    color: "#999",
-    marginTop: 2,
+    color: "#8C8C8C",
+    marginTop: 4,
   },
   list: {
-    paddingBottom: 20,
+    paddingBottom: 30,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#eee",
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 10,
-    backgroundColor: "#fff",
+    borderColor: "#E5E5E5",
+    marginBottom: 14,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  cardSelected: {
+    backgroundColor: "#F5F0EB",
+    borderColor: "#BFA78A",
+  },
+  checkIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
   image: {
     width: width * 0.18,
@@ -176,47 +188,45 @@ const styles = StyleSheet.create({
   serviceTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#222",
+    color: "#2E2C2C",
   },
   details: {
     fontSize: 14,
-    color: "#777",
+    color: "#6E6E6E",
     marginTop: 2,
-  },
-  radioDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#bfa78a",
   },
   footer: {
     marginTop: "auto",
   },
   continueBtn: {
-    backgroundColor: "#bfa78a",
-    borderRadius: 8,
+    backgroundColor: "#BFA78A",
+    borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",
   },
   disabledBtn: {
-    backgroundColor: "#ddd",
+    backgroundColor: "#E0E0E0",
   },
   continueText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
   cancelBtn: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    backgroundColor: "#F2F2F2",
+    borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 10,
   },
   cancelText: {
-    color: "#444",
+    color: "#7A7A7A",
     fontSize: 16,
     fontWeight: "500",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E5E5E5", // light gray line
+    marginVertical: 10,
   },
 });

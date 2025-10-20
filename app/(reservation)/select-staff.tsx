@@ -3,13 +3,14 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Staff = {
   id: string;
@@ -30,10 +31,8 @@ export default function SelectStaff() {
     { id: "4", name: "Olivia Davis", specialty: "Facial Expert" },
   ];
 
-  // When user taps dropdown again after selecting someone
   const toggleDropdown = () => {
     if (showSelectedCard) {
-      // Hide card and reopen list
       setShowSelectedCard(false);
       setShowList(true);
     } else {
@@ -43,7 +42,6 @@ export default function SelectStaff() {
 
   const handleSelect = (item: Staff) => {
     setShowList(false);
-    // Show selected card after short delay
     setTimeout(() => {
       setSelectedStaff(item);
       setShowSelectedCard(true);
@@ -57,7 +55,7 @@ export default function SelectStaff() {
   };
 
   const handleBack = () => {
-    router.back();
+    router.push("/select-service");
   };
 
   return (
@@ -70,6 +68,9 @@ export default function SelectStaff() {
             <Text style={styles.stepText}>Step 2 of 5</Text>
           </View>
 
+          {/* Divider */}
+          <View style={styles.divider} />
+
           {/* Label */}
           <Text style={styles.label}>Choose your preferred staff member</Text>
 
@@ -81,7 +82,12 @@ export default function SelectStaff() {
               onPress={toggleDropdown}
               activeOpacity={0.8}
             >
-              <Text style={styles.dropdownText}>
+              <Text
+                style={[
+                  styles.dropdownText,
+                  !selectedStaff && { color: "#999" },
+                ]}
+              >
                 {selectedStaff ? selectedStaff.name : "Select staff member"}
               </Text>
               <MaterialIcons
@@ -157,7 +163,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 6,
   },
   title: {
     fontSize: 22,
@@ -169,10 +175,16 @@ const styles = StyleSheet.create({
     color: "#999",
     marginTop: 2,
   },
+  divider: {
+    height: 1,
+    backgroundColor: "#E5E5E5",
+    marginVertical: 12,
+  },
   label: {
     fontSize: 15,
-    color: "#555",
-    marginBottom: 10,
+    color: "#444",
+    marginBottom: 12,
+    lineHeight: 20,
   },
   dropdown: {
     borderWidth: 1,
@@ -183,6 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: "#FAFAFA",
   },
   dropdownText: {
     fontSize: 16,
@@ -209,7 +222,6 @@ const styles = StyleSheet.create({
   },
   staffName: {
     fontSize: 16,
-    fontWeight: "600",
     color: "#222",
   },
   selectedCard: {
