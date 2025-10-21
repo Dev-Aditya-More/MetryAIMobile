@@ -213,7 +213,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   cancelBtn: {
-    backgroundColor: "#F2F2F2",
+    borderWidth: 1,
+    borderColor: "#ddd",
     borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",

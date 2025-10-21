@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   continueBtn: {
     backgroundColor: "#bfa78a",
-    borderRadius: 8,
+    borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   backBtn: {
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 8,
+    borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 10,
