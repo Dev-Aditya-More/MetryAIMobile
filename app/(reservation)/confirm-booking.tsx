@@ -91,7 +91,7 @@ export default function ConfirmBooking() {
                 <View style={styles.detailBlock}>
                   <View style={styles.row}>
                     <Ionicons
-                      name={item.icon as any}
+                      name={item.icon}
                       size={18}
                       color="#9C9C9C"
                       style={styles.icon}
