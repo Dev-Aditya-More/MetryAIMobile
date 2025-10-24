@@ -86,7 +86,8 @@ export default function SelectDateTime() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
-  const isContinueEnabled = selectedDate !== undefined && selectedTimes.length > 0;
+  const isContinueEnabled =
+    selectedDate !== undefined && selectedTimes.length > 0;
 
   const showPopup = (message) => {
     setPopupMessage(message);
@@ -152,7 +153,10 @@ export default function SelectDateTime() {
         </View>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Select Date & Time</Text>
           <Text style={styles.stepText}>Step 3 of 5</Text>
@@ -166,14 +170,20 @@ export default function SelectDateTime() {
 
           <View style={styles.calendar}>
             <View style={styles.calendarHeader}>
-              <TouchableOpacity><Text style={styles.navArrow}>{"<"}</Text></TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.navArrow}>{"<"}</Text>
+              </TouchableOpacity>
               <Text style={styles.monthYear}>{MONTH_YEAR}</Text>
-              <TouchableOpacity><Text style={styles.navArrow}>{">"}</Text></TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.navArrow}>{">"}</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.weekDays}>
               {DAYS_OF_WEEK.map((day) => (
-                <Text key={day} style={styles.weekDay}>{day}</Text>
+                <Text key={day} style={styles.weekDay}>
+                  {day}
+                </Text>
               ))}
             </View>
 
@@ -184,7 +194,9 @@ export default function SelectDateTime() {
                   style={[
                     styles.dateItem,
                     !d.available && styles.unavailableItem,
-                    selectedDate === d.date && d.available && styles.selectedDateItem,
+                    selectedDate === d.date &&
+                      d.available &&
+                      styles.selectedDateItem,
                   ]}
                   onPress={() => handleDatePress(d)}
                 >
@@ -192,7 +204,9 @@ export default function SelectDateTime() {
                     style={[
                       styles.dateText,
                       !d.available && styles.unavailableText,
-                      selectedDate === d.date && d.available && styles.selectedDateText,
+                      selectedDate === d.date &&
+                        d.available &&
+                        styles.selectedDateText,
                     ]}
                   >
                     {d.date}
@@ -213,7 +227,9 @@ export default function SelectDateTime() {
                 style={[
                   styles.timeSlot,
                   !slot.available && styles.unavailableItem,
-                  selectedTimes.includes(slot.time) && slot.available && styles.selectedTimeSlot,
+                  selectedTimes.includes(slot.time) &&
+                    slot.available &&
+                    styles.selectedTimeSlot,
                 ]}
                 onPress={() => handleTimePress(slot)}
               >
@@ -221,7 +237,9 @@ export default function SelectDateTime() {
                   style={[
                     styles.timeText,
                     !slot.available && styles.unavailableText,
-                    selectedTimes.includes(slot.time) && slot.available && styles.selectedTimeText,
+                    selectedTimes.includes(slot.time) &&
+                      slot.available &&
+                      styles.selectedTimeText,
                   ]}
                 >
                   {slot.time}
@@ -234,7 +252,10 @@ export default function SelectDateTime() {
         {/* Footer */}
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.continueBtn, !isContinueEnabled && styles.disabledBtn]}
+            style={[
+              styles.continueBtn,
+              !isContinueEnabled && styles.disabledBtn,
+            ]}
             disabled={!isContinueEnabled}
             onPress={handleContinue}
           >
@@ -251,14 +272,38 @@ export default function SelectDateTime() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFF" },
-  scrollContainer: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF",
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
   header: { marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: "700", color: "#1C1C1C" },
-  stepText: { fontSize: 14, color: "#8C8C8C", marginTop: 2 },
-  divider: { height: 1, backgroundColor: "#E5E5E5", marginVertical: 10 },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1C1C1C",
+  },
+  stepText: {
+    fontSize: 14,
+    color: "#8C8C8C",
+    marginTop: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E5E5E5",
+    marginVertical: 10,
+  },
   section: { marginBottom: 28 },
-  sectionTitle: { fontSize: 16, fontWeight: "600", color: "#2E2C2C", marginBottom: 10 },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2E2C2C",
+    marginBottom: 10,
+  },
   calendar: {
     backgroundColor: "#FAFAFA",
     borderWidth: 1,
@@ -272,11 +317,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  monthYear: { fontSize: 16, fontWeight: "600", color: "#333" },
-  navArrow: { fontSize: 20, color: "#666" },
-  weekDays: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  monthYear: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  navArrow: {
+    fontSize: 20,
+    color: "#666",
+  },
+  weekDays: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
   weekDay: { flex: 1, textAlign: "center", fontWeight: "500", color: "#AAA" },
-  datesGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+  datesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   dateItem: {
     width: (width - 80) / 7,
     height: 36,
@@ -287,10 +347,20 @@ const styles = StyleSheet.create({
   },
   selectedDateItem: { backgroundColor: "#BFA78A" },
   unavailableItem: { backgroundColor: "#F2F2F2" },
-  dateText: { fontSize: 15, color: "#444" },
-  selectedDateText: { color: "#FFF", fontWeight: "600" },
+  dateText: {
+    fontSize: 15,
+    color: "#444",
+  },
+  selectedDateText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
   unavailableText: { color: "#BBB" },
-  timeGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+  timeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   timeSlot: {
     width: (width - 80) / 4,
     paddingVertical: 10,
@@ -301,9 +371,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  selectedTimeSlot: { backgroundColor: "#BFA78A", borderColor: "#BFA78A" },
-  timeText: { fontSize: 14, color: "#333" },
-  selectedTimeText: { color: "#FFF", fontWeight: "600" },
+  selectedTimeSlot: {
+    backgroundColor: "#BFA78A",
+    borderColor: "#BFA78A",
+  },
+  timeText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedTimeText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
   footer: { marginTop: 10 },
   continueBtn: {
     backgroundColor: "#BFA78A",
@@ -312,7 +391,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   disabledBtn: { backgroundColor: "#E0E0E0" },
-  continueText: { color: "#FFF", fontSize: 16, fontWeight: "600" },
+  continueText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   backBtn: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -337,7 +420,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "75%",
   },
-  modalText: { fontSize: 16, color: "#333", textAlign: "center", marginBottom: 15 },
+  modalText: {
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 15,
+  },
   modalButton: {
     backgroundColor: "#BFA78A",
     paddingVertical: 10,
