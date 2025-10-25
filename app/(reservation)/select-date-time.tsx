@@ -13,44 +13,36 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
-const SERVICE_DURATION_MINUTES = 60;
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth(); // 0 = Jan, 11 = Dec
+const currentYear = currentDate.getFullYear();
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+const START_DAY_INDEX = new Date(currentYear, currentMonth, 1).getDay(); // Sunday = 0, Monday = 1, ... Saturday = 6
+
+// const CALENDAR_DATES = [{date:1, available:true}]
+const CALENDAR_DATES = Array.from({ length: daysInMonth }, (_, i) => ({
+  date: i + 1,
+  available: Math.random() > 0.2, //  replace with real data
+}));
+
+// Add empty slots before the first date
+const paddedDates = [
+  ...Array(START_DAY_INDEX).fill({ date: null, available: false }),
+  ...CALENDAR_DATES,
+];
+
+// Adding Padding At End (Ensure total items are multiple of 7 so the grid is complete)
+const totalCells = paddedDates.length;
+const remainder = totalCells % 7;
+if (remainder !== 0) {
+  const emptyCells = 7 - remainder;
+  paddedDates.push(...Array(emptyCells).fill({ date: null, available: false }));
+}
+
+const SERVICE_DURATION_MINUTES = 30;
 
 const MONTH_YEAR = "October 2024";
 const DAYS_OF_WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-
-const CALENDAR_DATES = [
-  { date: 1, available: true },
-  { date: 2, available: true },
-  { date: 3, available: false },
-  { date: 4, available: true },
-  { date: 5, available: false },
-  { date: 6, available: true },
-  { date: 7, available: true },
-  { date: 8, available: true },
-  { date: 9, available: true },
-  { date: 10, available: false },
-  { date: 11, available: true },
-  { date: 12, available: true },
-  { date: 13, available: true },
-  { date: 14, available: false },
-  { date: 15, available: true },
-  { date: 16, available: true },
-  { date: 17, available: true },
-  { date: 18, available: true },
-  { date: 19, available: true },
-  { date: 20, available: true },
-  { date: 21, available: false },
-  { date: 22, available: true },
-  { date: 23, available: true },
-  { date: 24, available: true },
-  { date: 25, available: true },
-  { date: 26, available: false },
-  { date: 27, available: true },
-  { date: 28, available: true },
-  { date: 29, available: true },
-  { date: 30, available: true },
-  { date: 31, available: true },
-];
 
 const TIME_SLOTS = [
   { time: "09:00", available: true },
@@ -188,28 +180,29 @@ export default function SelectDateTime() {
             </View>
 
             <View style={styles.datesGrid}>
-              {CALENDAR_DATES.map((d, i) => (
+              {paddedDates.map((d, i) => (
                 <TouchableOpacity
                   key={i}
+                  disabled={!d.date}
                   style={[
                     styles.dateItem,
-                    !d.available && styles.unavailableItem,
+                    !d.available && d.date && styles.unavailableItem,
                     selectedDate === d.date &&
                       d.available &&
                       styles.selectedDateItem,
                   ]}
-                  onPress={() => handleDatePress(d)}
+                  onPress={() => d.date && handleDatePress(d)}
                 >
                   <Text
                     style={[
                       styles.dateText,
-                      !d.available && styles.unavailableText,
+                      !d.available && d.date && styles.unavailableText,
                       selectedDate === d.date &&
                         d.available &&
                         styles.selectedDateText,
                     ]}
                   >
-                    {d.date}
+                    {d.date ? d.date : ""}
                   </Text>
                 </TouchableOpacity>
               ))}
