@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   Dimensions,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -20,7 +21,16 @@ export default function CustomerDetails() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Mock reservation details (replace with actual data from previous screens)
+  // Popup state
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+  const showPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisible(true);
+  };
+
+  // Mock reservation details
   const reservation = {
     service: "Massage",
     staff: "Emma Johnson",
@@ -31,9 +41,19 @@ export default function CustomerDetails() {
   const isContinueEnabled = name.trim() !== "" && phone.trim() !== "";
 
   const handleContinue = () => {
-    if (isContinueEnabled) {
-      router.push("/confirm-booking"); 
+    if (!isContinueEnabled) {
+      showPopup("Please enter both name and phone number.");
+      return;
     }
+
+    const cleanedPhone = phone.replace(/\D/g, ""); // remove non-digit characters
+
+    if (cleanedPhone.length !== 10) {
+      showPopup("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    router.push("/confirm-booking");
   };
 
   const handleBack = () => {
@@ -42,6 +62,26 @@ export default function CustomerDetails() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Popup Modal */}
+      <Modal
+        visible={popupVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPopupVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalText}>{popupMessage}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setPopupVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
@@ -113,7 +153,6 @@ export default function CustomerDetails() {
                 !isContinueEnabled && styles.continueButtonDisabled,
               ]}
               onPress={handleContinue}
-              disabled={!isContinueEnabled}
             >
               <Text
                 style={[
@@ -144,9 +183,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  header: {
-    marginBottom: 16,
-  },
+  header: { marginBottom: 16 },
   title: {
     fontSize: 22,
     fontWeight: "700",
@@ -162,9 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#E5E5E5",
     marginVertical: 14,
   },
-  formSection: {
-    marginBottom: 20,
-  },
+  formSection: { marginBottom: 20 },
   label: {
     fontSize: 15,
     fontWeight: "600",
@@ -203,27 +238,21 @@ const styles = StyleSheet.create({
     color: "#111",
     fontWeight: "500",
   },
-  footer: {
-    marginTop: "auto",
-  },
+  footer: { marginTop: "auto" },
   continueButton: {
     backgroundColor: "#BFA78A",
     borderRadius: 6,
     paddingVertical: 14,
     alignItems: "center",
   },
-  continueButtonDisabled: {
-    backgroundColor: "#E5E1DC",
-  },
+  continueButtonDisabled: { backgroundColor: "#E5E1DC" },
   continueText: {
     color: "#FFF",
     fontSize: 16,
     fontWeight: "600",
   },
-  continueTextDisabled: {
-    color: "#C7C1B9",
-  },
-    backButton: {
+  continueTextDisabled: { color: "#C7C1B9" },
+  backButton: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 6,
@@ -235,5 +264,36 @@ const styles = StyleSheet.create({
     color: "#B0A698",
     fontSize: 16,
     fontWeight: "500",
+  },
+
+  // Popup Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    backgroundColor: "#FFF",
+    padding: 25,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "75%",
+  },
+  modalText: {
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  modalButton: {
+    backgroundColor: "#BFA78A",
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 6,
+  },
+  modalButtonText: {
+    color: "#FFF",
+    fontWeight: "600",
   },
 });
