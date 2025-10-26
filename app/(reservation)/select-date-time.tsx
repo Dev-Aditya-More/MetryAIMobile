@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Modal,
@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/ReservationContext";
 
 const { width } = Dimensions.get("window");
 
@@ -39,9 +40,9 @@ if (remainder !== 0) {
   paddedDates.push(...Array(emptyCells).fill({ date: null, available: false }));
 }
 
-const SERVICE_DURATION_MINUTES = 30;
+const MONTH_YEAR =
+  currentDate.toLocaleString("default", { month: "long" }) + " " + currentYear;
 
-const MONTH_YEAR = "October 2024";
 const DAYS_OF_WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const TIME_SLOTS = [
@@ -72,21 +73,34 @@ const TIME_SLOTS = [
 ];
 
 export default function SelectDateTime() {
+  const { booking, updateDateTime, resetAfterStaff } = useBooking();
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(undefined);
-  const [selectedTimes, setSelectedTimes] = useState([]);
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
 
-  const isContinueEnabled =
-    selectedDate !== undefined && selectedTimes.length > 0;
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [popupVisible, setPopupVisible] = useState<boolean>(false);
+  const [popupMessage, setPopupMessage] = useState<string>("");
 
-  const showPopup = (message) => {
+  const SERVICE_DURATION_MINUTES: number = booking.service?.duration || 30;
+
+  useEffect(() => {
+    if (booking.date && booking.time) {
+      setSelectedDate(booking.date);
+      setSelectedTimes([booking.time]);
+    }
+  }, [booking.date, booking.time]);
+
+  const isContinueEnabled = selectedDate !== null && selectedTimes.length > 0;
+
+  const showPopup = (message: string) => {
     setPopupMessage(message);
     setPopupVisible(true);
   };
 
-  const handleDatePress = (dateObj) => {
+  const handleDatePress = (dateObj: {
+    available: boolean;
+    date: number | null;
+  }) => {
     if (!dateObj.available) {
       showPopup("This date is full or unavailable.");
       return;
@@ -94,32 +108,48 @@ export default function SelectDateTime() {
     setSelectedDate(dateObj.date);
   };
 
-  const handleTimePress = (slotObj) => {
+  const handleTimePress = (slotObj: { time: string; available: boolean }) => {
     if (!slotObj.available) {
       showPopup("This time slot is full or unavailable.");
       return;
     }
 
-    if (SERVICE_DURATION_MINUTES === 60) {
-      const currentIndex = TIME_SLOTS.findIndex((s) => s.time === slotObj.time);
-      const nextSlot = TIME_SLOTS[currentIndex + 1];
+    // Handle SERVICE_DURATION_MINUTES: 30, 45, 60, 90 etc.
+    const SLOT_DURATION = 30; // each slot is 30 minutes
+    const slotsNeeded = Math.ceil(SERVICE_DURATION_MINUTES / SLOT_DURATION);
+    const currentIndex = TIME_SLOTS.findIndex((s) => s.time === slotObj.time);
+
+    let selected: string[] = [slotObj.time];
+    let allAvailable = true;
+
+    for (let i = 1; i < slotsNeeded; i++) {
+      const nextSlot = TIME_SLOTS[currentIndex + i];
       if (nextSlot && nextSlot.available) {
-        setSelectedTimes([slotObj.time, nextSlot.time]);
+        selected.push(nextSlot.time);
       } else {
-        showPopup("The next slot is not available for a 1-hour booking.");
+        allAvailable = false;
+        break;
       }
+    }
+
+    if (allAvailable && selected.length === slotsNeeded) {
+      setSelectedTimes(selected);
     } else {
-      setSelectedTimes([slotObj.time]);
+      showPopup(
+        `Not enough consecutive slots available for a ${SERVICE_DURATION_MINUTES}-minute booking.`
+      );
     }
   };
 
   const handleContinue = () => {
     if (isContinueEnabled) {
+      updateDateTime(selectedDate as number, selectedTimes[0]);
       router.push("/customer-details");
     }
   };
 
   const handleBack = () => {
+    resetAfterStaff();
     router.push("/select-staff");
   };
 
@@ -324,7 +354,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  weekDay: { flex: 1, textAlign: "center", fontWeight: "500", color: "#AAA" },
+  weekDay: {
+    flex: 1,
+    textAlign: "center",
+    fontWeight: "500",
+    color: "#AAA",
+  },
   datesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -397,9 +432,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  backText: { color: "#7A7A7A", fontSize: 16, fontWeight: "500" },
-
-  // Popup styles
+  backText: {
+    color: "#7A7A7A",
+    fontSize: 16,
+    fontWeight: "500",
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -425,5 +462,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 6,
   },
-  modalButtonText: { color: "#FFF", fontWeight: "600" },
+  modalButtonText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
 });
