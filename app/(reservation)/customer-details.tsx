@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   KeyboardAvoidingView,
@@ -13,10 +13,13 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/ReservationContext";
 
 const { width } = Dimensions.get("window");
 
 export default function CustomerDetails() {
+
+  const {booking,updateCustomerDetails,resetAfterDateTime} = useBooking();
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -25,17 +28,24 @@ export default function CustomerDetails() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
-  const showPopup = (message) => {
+  useEffect(()=>{
+    if(booking.customerDetails){
+      setName(booking.customerDetails.name);
+      setPhone(booking.customerDetails.phone.toString());
+    }
+  },[booking.customerDetails])
+
+  const showPopup = (message: React.SetStateAction<string>) => {
     setPopupMessage(message);
     setPopupVisible(true);
   };
 
   // Mock reservation details
   const reservation = {
-    service: "Massage",
-    staff: "Emma Johnson",
-    date: "Oct 21",
-    time: "09:00",
+    service: booking.service?.title || "N/A",
+    staff: booking.staff?.name || "N/A",
+    date: booking.date || "N/A",
+    time: booking.time || "N/A",
   };
 
   const isContinueEnabled = name.trim() !== "" && phone.trim() !== "";
@@ -53,10 +63,17 @@ export default function CustomerDetails() {
       return;
     }
 
+    updateCustomerDetails({
+      name: name.trim(),
+      email: "",
+      phone: Number(cleanedPhone),
+    });
+
     router.push("/confirm-booking");
   };
 
   const handleBack = () => {
+    resetAfterDateTime();
     router.push("/select-date-time");
   };
 

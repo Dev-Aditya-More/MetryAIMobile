@@ -31,7 +31,6 @@ export default function SelectStaff() {
     if(booking.staff){
     setSelectedStaff(booking.staff);
     setShowSelectedCard(true);
-    console.log("Updated Staff:", booking.staff);
     }
 
   },[booking.staff])

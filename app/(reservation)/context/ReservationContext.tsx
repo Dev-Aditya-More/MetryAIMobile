@@ -13,7 +13,7 @@ type BookingData = {
     name: string;
     specialty: string;
   } | null;
-  date: string | null;
+  date: number | null;
   time: string | null;
   customerDetails: {
     name: string;
@@ -32,7 +32,7 @@ type BookingContextType = {
     price: number;
   }) => void;
   updateStaff: (staff: { id: string; name: string; specialty: string }) => void;
-  updateDateTime: (date: string, time: string) => void;
+  updateDateTime: (date: number, time: string) => void;
   updateCustomerDetails: (details: {
     name: string;
     email: string;
@@ -87,7 +87,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  const updateDateTime = (date: string, time: string) => {
+  const updateDateTime = (date: number, time: string) => {
     setBooking((prev) => ({
       ...prev,
       date,

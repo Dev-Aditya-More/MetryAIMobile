@@ -12,22 +12,25 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/ReservationContext";
 
 export default function ConfirmBooking() {
+  const { booking } = useBooking();
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
 
   const bookingDetails = {
-    service: "Massage",
-    staff: "Emma Johnson",
-    date: "Tue, Oct 21, 2025",
-    time: "09:00",
-    customerName: "David",
-    customerPhone: "15213131321",
-    total: "$120",
+    service: booking.service?.title || "N/A",
+    staff: booking.staff?.name || "N/A",
+    date: booking.date || "Tue, Oct 21, 2025",
+    time: booking.time || "09:00 AM",
+    customerName: booking.customerDetails?.name || "N/A",
+    customerPhone: String(booking.customerDetails?.phone),
+    total: "$" + String(booking.service?.price) || "$0.00",
   };
 
   const handleConfirm = () => {
+    console.log("Booking confirmed:", booking);
     setShowPopup(true);
   };
 
@@ -91,7 +94,7 @@ export default function ConfirmBooking() {
                 <View style={styles.detailBlock}>
                   <View style={styles.row}>
                     <Ionicons
-                      name={item.icon}
+                      name={item.icon as any}
                       size={18}
                       color="#9C9C9C"
                       style={styles.icon}
