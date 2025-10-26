@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/ReservationContext";
 
 type Staff = {
   id: string;
@@ -19,10 +20,21 @@ type Staff = {
 };
 
 export default function SelectStaff() {
+
+  const { booking, updateStaff, resetAfterService  } = useBooking();
   const router = useRouter();
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [showList, setShowList] = useState(false);
   const [showSelectedCard, setShowSelectedCard] = useState(false);
+
+  useEffect(()=>{
+    if(booking.staff){
+    setSelectedStaff(booking.staff);
+    setShowSelectedCard(true);
+    console.log("Updated Staff:", booking.staff);
+    }
+
+  },[booking.staff])
 
   const staffList: Staff[] = [
     { id: "1", name: "Emma Johnson", specialty: "Professional Specialist" },
@@ -48,13 +60,15 @@ export default function SelectStaff() {
     }, 400);
   };
 
-  const handleContinue = () => {
+  const handleContinue = (item: Staff) => {
     if (selectedStaff) {
+      updateStaff(item)
       router.push("/select-date-time");
     }
   };
 
   const handleBack = () => {
+    resetAfterService();
     router.push("/select-service");
   };
 
@@ -140,7 +154,7 @@ export default function SelectStaff() {
             <TouchableOpacity
               style={[styles.continueBtn, !selectedStaff && styles.disabledBtn]}
               disabled={!selectedStaff}
-              onPress={handleContinue}
+              onPress={()=>handleContinue(selectedStaff!)}
             >
               <Text style={styles.continueText}>Continue</Text>
             </TouchableOpacity>

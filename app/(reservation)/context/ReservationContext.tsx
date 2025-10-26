@@ -9,8 +9,8 @@ type BookingData = {
     price: number;
   } | null;
   staff: {
-    id: String;
-    name: String;
+    id: string;
+    name: string;
     specialty: string;
   } | null;
   date: string | null;
@@ -74,8 +74,8 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateStaff = (staff: {
-    id: String;
-    name: String;
+    id: string;
+    name: string;
     specialty: string;
   }) => {
     setBooking((prev) => ({
