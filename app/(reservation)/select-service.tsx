@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/ReservationContext";
 
 const { width } = Dimensions.get("window");
 
@@ -51,14 +52,35 @@ const services = [
 ];
 
 export default function SelectService() {
+  const { booking, updateService, resetBooking } = useBooking();
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
 
+  // to see weather the booking.service is updated or not
+  useEffect(() => {
+    if (booking.service) {
+      setSelected(booking.service.id);
+      console.log("Updated Service:", booking.service);
+    }
+  }, [booking.service]);
+
   const handleContinue = () => {
+    const service = services.find((s) => s.id === selected);
+    if (service) {
+      updateService({
+        id: service.id,
+        title: service.title,
+        duration: parseInt(service.duration.replace(" min", "")),
+        price: parseInt(service.price.replace("$", "")),
+      });
+    }
+
     if (selected) router.push("/select-staff");
   };
 
-  const handleCancel = () => setSelected(null);
+  const handleCancel = () => {
+    setSelected(null);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
