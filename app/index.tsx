@@ -7,8 +7,7 @@ export default function Index() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      // router.replace("/(onboarding)/signup-phone");
-      router.replace("/(reservation)/select-service");
+      router.replace("/(onboarding)/signup-phone");
     }, 100); // small delay to ensure RootLayout mounts
 
     return () => clearTimeout(timeout);

@@ -175,6 +175,16 @@ export default function ConfirmBooking() {
                     successfully.
                   </Text>
                 </View>
+                <TouchableOpacity
+                  onPress={handleClosePopup}
+                  style={styles.closeButton}
+                >
+                  <Ionicons
+                    name="close"
+                    size={20}
+                    color="#999"
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -320,5 +330,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#444",
     flexShrink: 1,
+  },
+  closeButton: {
+    padding: 4,
+    marginLeft: 8,
   },
 });

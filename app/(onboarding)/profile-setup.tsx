@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, router } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 // Card width: responsive — narrow on phones, moderate on tablets / large screens
@@ -66,19 +66,12 @@ export default function ProfileSetup() {
     if (!canContinue) {
       return Alert.alert("Incomplete", "Please fill required fields and select at least one service.");
     }
-    Alert.alert(
-      "Onboarding Ended",
-      "Thank you",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            Keyboard.dismiss();
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    
+    // Dismiss keyboard and navigate to reservation flow
+    Keyboard.dismiss();
+    
+    // Navigate to the reservation flow after onboarding completion
+    router.push("/(reservation)/select-service" as any);
   };
 
   return (

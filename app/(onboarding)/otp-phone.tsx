@@ -118,7 +118,7 @@ export default function OtpPhone() {
       return;
     }
     Keyboard.dismiss();
-    router.push("/profile-setup");
+    router.push("/(onboarding)/profile-setup");
   };
 
   const handleBack = () => router.back();

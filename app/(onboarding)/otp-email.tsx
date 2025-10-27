@@ -91,12 +91,12 @@ export default function OtpEmail() {
     if (code.length !== DIGITS) {
       return Alert.alert("Invalid code", "Please enter the complete OTP.");
     }
-    // simulate verify -> go to signup next step
+    
     setSending(true);
     setTimeout(() => {
       setSending(false);
       Keyboard.dismiss();
-      router.push("/profile-setup");
+      router.push("/(onboarding)/profile-setup");
     }, 800);
   };
 
