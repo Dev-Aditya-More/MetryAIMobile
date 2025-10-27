@@ -1,21 +1,20 @@
+import { FontAwesome } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  Alert,
   Dimensions,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  SafeAreaView,
+  View,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 const CARD_MAX_WIDTH = Math.min(1200, Math.max(560, width - 80));
 const DIGITS = 6;
