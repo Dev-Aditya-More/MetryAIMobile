@@ -14,7 +14,10 @@ export default function Index() {
         const href: Href = value === "true" ? ("/(home)" as Href) : ("/(onboarding)/signup-phone" as Href);
         if (isMounted) setTarget(href);
       } catch {
-        if (isMounted) setTarget("/(onboarding)/signup-phone" as Href);
+        if (isMounted) {
+          // setTarget("/(onboarding)/signup-phone" as Href)
+          setTarget("/(home)" as Href);
+        };
       }
     })();
     return () => {

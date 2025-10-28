@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack.Screen name="(reservation)" options={{ headerShown: false }} />
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
         <Stack.Screen name="(contact)" options={{ headerShown: false }} />
+        <Stack.Screen name="(calendar)" options={{ headerShown: false }} />
         <Stack.Screen name="(sales)" options={{ headerShown: false }} />
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
       </Stack>
