@@ -1,9 +1,9 @@
 import { Stack } from "expo-router";
-import { BookingProvider } from "./context/ReservationContext";
+import { BookingProvider } from "./_context/ReservationContext";
 export default function OnboardingLayout() {
   return (
     <BookingProvider>
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
       <Stack.Screen name="select-service" />
       <Stack.Screen name="select-staff" />
       <Stack.Screen name="select-date-time" />

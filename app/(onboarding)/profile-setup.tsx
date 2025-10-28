@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
-import { useRouter, router } from "expo-router";
+import { Href, useRouter, router } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 // Card width: responsive — narrow on phones, moderate on tablets / large screens
@@ -62,16 +62,25 @@ export default function ProfileSetup() {
     Alert.alert("Upload", "Image upload not implemented in this mock.\nUse camera or gallery integration.");
   };
 
-  const onContinue = () => {
+  const onContinue = async () => {
     if (!canContinue) {
       return Alert.alert("Incomplete", "Please fill required fields and select at least one service.");
     }
     
     // Dismiss keyboard and navigate to reservation flow
     Keyboard.dismiss();
-    
-    // Navigate to the reservation flow after onboarding completion
-    router.push("/(reservation)/select-service" as any);
+
+    try {
+      const SecureStore = (require("expo-secure-store") as any).default || require("expo-secure-store");
+      await SecureStore.setItemAsync?.("onboarding_completed", "true");
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      if (fullName) {
+        await SecureStore.setItemAsync?.("customer_name", fullName);
+      }
+    } catch {}
+
+    // Navigate to home after onboarding completion
+    router.replace("/(home)" as Href);
   };
 
   return (

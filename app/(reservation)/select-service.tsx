@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useBooking } from "./context/ReservationContext";
+import { useBooking } from "./_context/ReservationContext";
 
 const { width } = Dimensions.get("window");
 
@@ -80,6 +80,7 @@ export default function SelectService() {
 
   const handleCancel = () => {
     setSelected(null);
+    router.replace("/(home)" as Href);
   };
 
   return (
