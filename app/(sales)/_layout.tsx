@@ -3,8 +3,10 @@ import React from "react";
 
 export default function SalesLayout() {
   return (
-    <Stack screenOptions={{ animation: 'none' }}>
+    <Stack screenOptions={{ animation: 'none',headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+       <Stack.Screen name="order-sent" options={{ headerShown: false }} />
+        <Stack.Screen name="order-summary" options={{ headerShown: false }} />
     </Stack>
   );
 }
