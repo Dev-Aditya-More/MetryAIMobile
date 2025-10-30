@@ -111,8 +111,11 @@ const vieworder = () => {
   console.log(selectedServiceObjects)
   setServices(selectedServiceObjects);
 
-  // ✅ Set customer details as before
-  setCustomer(selectedCustomer);
+  // ✅ Set customer details as before — ensure phone is a number
+  const numericPhone = Number(
+    String(selectedCustomer.phone).replace(/\D/g, "")
+  );
+  setCustomer({ ...selectedCustomer, phone: numericPhone });
 
   // ✅ Navigate to Order Summary
   router.push("/order-summary");
