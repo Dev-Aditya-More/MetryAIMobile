@@ -4,19 +4,25 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SalesScreen from ".";
+import { useBooking } from "./context/SalesContext";
 
 export default function OrderSent() {
   const router = useRouter();
+ const {booking} = useBooking()
 
   const order = {
     id: "#ORD-529540",
-    customer: "Sarah Johnson",
-    services: [
-      { name: "Haircut", staff: "Emily Chen", price: 50.0 },
-      { name: "Manicure", staff: "Emily Chen", price: 35.0 },
-    ],
+    customer: booking.customerDetails?.name,
+    // services: [
+    //   { name: "Haircut", staff: "Emily Chen", price: 50.0 },
+    //   { name: "Manicure", staff: "Emily Chen", price: 35.0 },
+    // ],
+    services:booking.services,
     total: 91.8,
   };
+
+ 
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -65,10 +71,10 @@ export default function OrderSent() {
               Services & Staff
             </Text>
             {order.services.map((s) => (
-              <View key={s.name} style={styles.serviceRow}>
+              <View key={s.title} style={styles.serviceRow}>
                 <View>
-                  <Text style={styles.serviceName}>{s.name}</Text>
-                  <Text style={styles.staff}>{s.staff}</Text>
+                  <Text style={styles.serviceName}>{s.title}</Text>
+                  {/* <Text style={styles.staff}>{s.staff}</Text> */}
                 </View>
                 <Text style={styles.servicePrice}>${s.price.toFixed(2)}</Text>
               </View>

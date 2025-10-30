@@ -6,7 +6,7 @@ import profileImg from "@/assets/images/profile.jpg";
 import BottomNav from "@/components/BottomNav";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -19,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/SalesContext";
 
 const categories = ["All", "Hair", "Nails", "Facial"];
 
@@ -55,8 +56,12 @@ export default function SalesScreen() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(CUSTOMERS[0]);
   const [searchText, setSearchText] = useState("");
-
+  const {booking,setCustomer, setServices} = useBooking()
   const router = useRouter();
+
+  useEffect(()=>{
+    console.log(booking.services)
+  },[booking.services])
 
   const filteredCustomers = CUSTOMERS.filter((c) =>
     c.name.toLowerCase().includes(searchText.toLowerCase())
@@ -96,10 +101,24 @@ export default function SalesScreen() {
       Keyboard.dismiss();
     }
   };
+const vieworder = () => {
+  // Filter and map selected services
+  const selectedServiceObjects = SERVICES
+    .filter((s) => selectedServices.includes(s.id))
+    .map(({ id, title, price }) => ({ id, title, price }));
 
-  const vieworder = () => {
-    router.push("/order-summary");
-  };
+  // ✅ Now we use setServices instead of setService
+  console.log(selectedServiceObjects)
+  setServices(selectedServiceObjects);
+
+  // ✅ Set customer details as before
+  setCustomer(selectedCustomer);
+
+  // ✅ Navigate to Order Summary
+  router.push("/order-summary");
+};
+
+
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>

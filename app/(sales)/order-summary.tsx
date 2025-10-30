@@ -5,7 +5,7 @@
 import profileImg from "@/assets/images/profile.jpg";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -15,15 +15,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "./context/SalesContext";
 
 export default function OrderSummary() {
   const router = useRouter();
-  const customer = {
-    name: "Sarah Johnson",
-    email: "sarah.j@email.com",
-    phone: "(555) 123-4567",
-    image: profileImg,
-  };
+
+  const { booking, updateServices, resetBooking } = useBooking();
+
+  const customer = { ...booking.customerDetails, image: profileImg };
 
   const [services, setServices] = useState([
     { id: "1", title: "Haircut", price: 50.0 },
@@ -31,13 +30,24 @@ export default function OrderSummary() {
     { id: "3", title: "Hair Treatment", price: 60.0 },
   ]);
 
+  useEffect(() => {
+    if (booking.services?.length) {
+      setServices(booking.services);
+      console.log(booking.services);
+      console.log(booking.customerDetails);
+    }
+  }, [booking.services]);
+
   const handleRemoveService = (id: string) => {
+    const updatedServices = services.filter((s) => s.id !== id);
     if (services.length === 1) {
       // If only one service left, remove & redirect (existing behavior)
       setServices([]);
+      resetBooking();
       router.push("/");
     } else {
       setServices((prev) => prev.filter((s) => s.id !== id));
+      updateServices(updatedServices);
     }
   };
 
@@ -49,6 +59,7 @@ export default function OrderSummary() {
   const handleCancel = () => {
     // Clear services and go back (or redirect to desired route)
     setServices([]);
+    resetBooking();
     // Use router.back() to go to previous screen, or router.push('/') to go home
     router.push("/");
   };
