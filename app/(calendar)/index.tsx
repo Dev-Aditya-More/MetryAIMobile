@@ -4,14 +4,12 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   Image,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -104,10 +102,6 @@ export default function CalendarScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
         {/* Search */}
         <View style={styles.searchContainer}>
           <MaterialIcons name="search" size={22} color="#777" />
@@ -258,7 +252,6 @@ export default function CalendarScreen() {
         <View style={styles.bottomNavContainer}>
           <BottomNav />
         </View>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
