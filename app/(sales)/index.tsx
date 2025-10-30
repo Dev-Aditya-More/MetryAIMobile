@@ -240,8 +240,22 @@ export default function SalesScreen() {
               <Text style={styles.totalAmount}>${totalAmount.toFixed(2)}</Text>
             </Text>
           </View>
-          <TouchableOpacity style={styles.viewOrderButton} onPress={vieworder}>
-            <Text style={styles.viewOrderText}>View Order</Text>
+          <TouchableOpacity
+            style={[
+              styles.viewOrderButton,
+              selectedServices.length === 0 && { backgroundColor: "#E5E7EB" }, // gray out
+            ]}
+            onPress={selectedServices.length > 0 ? vieworder : undefined}
+            disabled={selectedServices.length === 0}
+          >
+            <Text
+              style={[
+                styles.viewOrderText,
+                selectedServices.length === 0 && { color: "#9CA3AF" },
+              ]}
+            >
+              View Order
+            </Text>
           </TouchableOpacity>
         </View>
 
