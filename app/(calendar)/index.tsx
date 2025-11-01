@@ -9,7 +9,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -33,10 +33,19 @@ export default function CalendarScreen() {
       id: "1",
       title: "Milbon 4-Step",
       staff: "David",
-      start: 8,
-      end: 10,
+      start: 1,
+      end: 3,
       date: dayjs().startOf("week").format("YYYY-MM-DD"),
       color: "#FFF3D4",
+    },
+    {
+      id: "3",
+      title: "Hair Styling",
+      staff: "David",
+      start: 4,
+      end: 5,
+      date: dayjs().startOf("week").format("YYYY-MM-DD"),
+      color: "#E5E7FF",
     },
     {
       id: "2",
@@ -67,7 +76,7 @@ export default function CalendarScreen() {
     },
   ];
 
-  // Sort appointments automatically
+  // Sort appointments automatically and filter based on selection
   const filteredAppointments = appointments
     .filter(
       (a) =>
@@ -78,12 +87,14 @@ export default function CalendarScreen() {
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
+  // Move to previous week
   const goToPreviousWeek = () => {
     const newWeek = currentWeekStart.subtract(1, "week");
     setCurrentWeekStart(newWeek);
-    setSelectedDate(newWeek);
+    setSelectedDate(newWeek); // reset to first day of new week
   };
 
+  // Move to next week
   const goToNextWeek = () => {
     const newWeek = currentWeekStart.add(1, "week");
     setCurrentWeekStart(newWeek);
@@ -102,160 +113,172 @@ export default function CalendarScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-        {/* Search */}
-        <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={22} color="#777" />
-          <TextInput
-            placeholder="Search"
-            placeholderTextColor="#aaa"
-            style={styles.searchInput}
-          />
-        </View>
+      {/* Search */}
+      <View style={styles.searchContainer}>
+        <MaterialIcons name="search" size={22} color="#777" />
+        <TextInput
+          placeholder="Search"
+          placeholderTextColor="#aaa"
+          style={styles.searchInput}
+        />
+      </View>
 
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={goToPreviousWeek}>
-            <MaterialIcons name="chevron-left" size={26} color="#333" />
-          </TouchableOpacity>
-
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerDate}>
-              {selectedDate.format("DD MMMM")}
-            </Text>
-            <MaterialIcons name="calendar-today" size={18} color="#777" />
-          </View>
-
-          <TouchableOpacity onPress={goToNextWeek}>
-            <MaterialIcons name="chevron-right" size={26} color="#333" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Week Days */}
-        <View style={styles.weekRow}>
-          {days.map((day, index) => {
-            const isSelected =
-              day.format("YYYY-MM-DD") === selectedDate.format("YYYY-MM-DD");
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[styles.dayItem, isSelected && styles.daySelected]}
-                onPress={() => setSelectedDate(day)}
-              >
-                <Text
-                  style={[
-                    styles.dayLabel,
-                    isSelected && styles.dayLabelSelected,
-                  ]}
-                >
-                  {day.format("dd").toUpperCase()}
-                </Text>
-                <Text
-                  style={[
-                    styles.dayNumber,
-                    isSelected && styles.dayLabelSelected,
-                  ]}
-                >
-                  {day.format("D")}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Dropdown */}
-        <TouchableOpacity
-          style={styles.dropdown}
-          onPress={() => setShowDropdown((prev) => !prev)}
-        >
-          <View style={styles.dropdownLeft}>
-            <Image
-              source={{
-                uri: "https://randomuser.me/api/portraits/men/32.jpg",
-              }}
-              style={styles.avatar}
-            />
-            <Text style={styles.dropdownText}>{selectedStaff}</Text>
-          </View>
-          <MaterialIcons
-            name={showDropdown ? "keyboard-arrow-up" : "keyboard-arrow-down"}
-            size={22}
-            color="#777"
-          />
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={goToPreviousWeek}>
+          <MaterialIcons name="chevron-left" size={26} color="#333" />
         </TouchableOpacity>
 
-        {showDropdown && (
-          <View style={styles.dropdownList}>
-            {staffList.map((staff, i) => (
-              <TouchableOpacity
-                key={i}
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setSelectedStaff(staff);
-                  setShowDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>{staff}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerDate}>
+            {selectedDate.format("DD MMMM")}
+          </Text>
+          <MaterialIcons name="calendar-today" size={18} color="#777" />
+        </View>
 
-        {/* Schedule (scrollable area only) */}
-        <ScrollView
-          style={{ marginTop: 10, marginBottom: 70 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {filteredAppointments.length === 0 ? (
-            <Text style={styles.noEvents}>No appointments for this day</Text>
-          ) : (
-            hours.map((hour) => (
+        <TouchableOpacity onPress={goToNextWeek}>
+          <MaterialIcons name="chevron-right" size={26} color="#333" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Week Days */}
+      <View style={styles.weekRow}>
+        {days.map((day, index) => {
+          const isSelected =
+            day.format("YYYY-MM-DD") === selectedDate.format("YYYY-MM-DD");
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.dayItem,
+                isSelected && styles.daySelected,
+                styles.shadowEffect, // 🔥 Added shadow
+              ]}
+              onPress={() => setSelectedDate(day)}
+            >
+              <Text
+                style={[styles.dayLabel, isSelected && styles.dayLabelSelected]}
+              >
+                {day.format("dd").toUpperCase()}
+              </Text>
+              <Text
+                style={[
+                  styles.dayNumber,
+                  isSelected && styles.dayLabelSelected,
+                ]}
+              >
+                {day.format("D")}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Dropdown */}
+      <TouchableOpacity
+        style={styles.dropdown}
+        onPress={() => setShowDropdown((prev) => !prev)}
+      >
+        <View style={styles.dropdownLeft}>
+          <Image
+            source={{
+              uri: "https://randomuser.me/api/portraits/men/32.jpg",
+            }}
+            style={styles.avatar}
+          />
+          <Text style={styles.dropdownText}>{selectedStaff}</Text>
+        </View>
+        <MaterialIcons
+          name={showDropdown ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+          size={22}
+          color="#777"
+        />
+      </TouchableOpacity>
+
+      {showDropdown && (
+        <View style={styles.dropdownList}>
+          {staffList.map((staff, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.dropdownItem}
+              onPress={() => {
+                setSelectedStaff(staff);
+                setShowDropdown(false);
+              }}
+            >
+              <Text style={styles.dropdownItemText}>{staff}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* Schedule */}
+      {/* Schedule (scrollable area only) */}
+      <ScrollView
+        style={{ marginTop: 10, marginBottom: 70 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredAppointments.length === 0 ? (
+          <Text style={styles.noEvents}>No appointments for this day</Text>
+        ) : (
+          <View style={{ height: 24 * 80 }}>
+            {/* 80px per hour (adjust for your design) */}
+            {hours.map((hour) => (
               <View key={hour} style={styles.timeRow}>
                 <Text style={styles.timeLabel}>
                   {dayjs().hour(hour).format("h A")}
                 </Text>
-                <View style={styles.eventColumn}>
-                  {filteredAppointments
-                    .filter((a) => a.start >= hour && a.start < hour + 1)
-                    .map((event) => (
-                      <View
-                        key={event.id}
-                        style={[
-                          styles.eventCard,
-                          { backgroundColor: event.color },
-                        ]}
-                      >
-                        <View style={styles.eventCardHeader}>
-                          <Text style={styles.eventTitle}>{event.title}</Text>
-                          <MaterialIcons
-                            name="more-vert"
-                            size={18}
-                            color="#555"
-                          />
-                        </View>
-
-                        <View style={styles.eventFooterRow}>
-                          <Text style={styles.eventStaff}>{event.staff}</Text>
-                          <View style={styles.dot} />
-                          <Text style={styles.eventTime}>
-                            {`${event.start}:00 - ${event.end}:00`}
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
-                </View>
+                <View style={styles.eventColumn} />
               </View>
-            ))
-          )}
-        </ScrollView>
+            ))}
 
-        {/* ✅ Fixed Bottom Navigation */}
-        <View style={styles.bottomNavContainer}>
-          <BottomNav />
-        </View>
+            {/* Absolute-positioned events covering start → end time */}
+            {filteredAppointments.map((event) => {
+              const top = event.start * 80; // 80 = height per hour
+              const height = (event.end - event.start) * 80;
+              return (
+                <View
+                  key={event.id}
+                  style={[
+                    styles.eventCard,
+                    {
+                      position: "absolute",
+                      left: 60, // keep room for time labels
+                      right: 10,
+                      top,
+                      height,
+                      backgroundColor: event.color,
+                    },
+                  ]}
+                >
+                  <View style={styles.eventCardHeader}>
+                    <Text style={styles.eventTitle}>{event.title}</Text>
+                    <MaterialIcons name="more-vert" size={18} color="#555" />
+                  </View>
+
+                  <View style={styles.eventFooterRow}>
+                    <Text style={styles.eventStaff}>{event.staff}</Text>
+                    <View style={styles.dot} />
+                    <Text style={styles.eventTime}>
+                      {`${event.start}:00 - ${event.end}:00`}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+
+      {/* ✅ Fixed Bottom Navigation */}
+      <View style={styles.bottomNavContainer}>
+        <BottomNav />
+      </View>
     </SafeAreaView>
   );
 }
 
+// 🧱 Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 16 },
   searchContainer: {
@@ -287,8 +310,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 10,
+    backgroundColor: "#fff",
   },
   daySelected: { backgroundColor: "#C2B19C" },
+  shadowEffect: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
   dayLabel: { fontSize: 12, color: "#777" },
   dayNumber: { fontSize: 16, color: "#333", fontWeight: "600" },
   dayLabelSelected: { color: "#fff" },
@@ -323,17 +354,6 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: { fontSize: 15, color: "#333" },
 
-  timeRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
-    paddingVertical: 8,
-  },
-  timeLabel: { width: 50, color: "#999", fontSize: 12 },
-  eventColumn: { flex: 1, gap: 6 },
-
-  // 🔥 Updated event card design
   eventCard: {
     borderRadius: 12,
     paddingVertical: 10,
@@ -385,5 +405,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 10,
+  },
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F2",
+    height: 80, // height per hour
+  },
+  timeLabel: {
+    width: 50,
+    color: "#999",
+    fontSize: 12,
+    textAlign: "right",
+    marginRight: 10,
+  },
+  eventColumn: {
+    flex: 1,
   },
 });
