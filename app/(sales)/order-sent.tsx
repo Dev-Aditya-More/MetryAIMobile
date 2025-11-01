@@ -18,7 +18,7 @@ export default function OrderSent() {
     //   { name: "Manicure", staff: "Emily Chen", price: 35.0 },
     // ],
     services:booking.services,
-    total: 91.8,
+    total: 90,
   };
 
  
