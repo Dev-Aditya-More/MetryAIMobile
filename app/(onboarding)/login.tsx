@@ -101,6 +101,9 @@ export default function LoginScreen() {
     );
   };
 
+  const handleForgotPassword = () => {
+    router.push("/(onboarding)/forgot-pass");
+  };
   return (
     <SafeAreaView style={styles.screen}>
       <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -179,6 +182,11 @@ export default function LoginScreen() {
                   returnKeyType="done"
                 />
               </View>
+
+              {/* Forgot Password */}
+              <TouchableOpacity onPress={handleForgotPassword}>
+                <Text style={styles.forgotText}>Forgot Password?</Text>
+              </TouchableOpacity>
 
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -344,4 +352,11 @@ const styles = StyleSheet.create({
   footer: { marginTop: 16, color: "#374151", textAlign: "center" },
   linkText: { color: "#F97316", fontWeight: "600" },
   terms: { marginTop: 10, fontSize: 12, textAlign: "center", color: "#9AA3AD" },
+  forgotText: {
+    alignSelf: "flex-end",
+    color: "#007AFF",
+    fontWeight: "500",
+    marginTop: 4,
+    marginBottom: 16,
+  },
 });
