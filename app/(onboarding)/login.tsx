@@ -94,7 +94,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSocialPress = (platform: string) => {
+  const handleSocialPress = (platform) => {
     Alert.alert(
       `${platform} pressed`,
       "You can integrate actual SDK here later!"
