@@ -35,14 +35,11 @@ export default function ForgotPass() {
 
       // 🔹 TODO: replace with actual API call
       AuthService.resetPassword(input.email)
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-
       Alert.alert(
         "Reset Link Sent",
-        `A password reset link has been sent to ${input}`
+        `A password reset link has been sent to ${input.email}`
       );
 
-      router.back();
     } catch (err) {
       Alert.alert("Error", "Something went wrong, please try again.");
     } finally {

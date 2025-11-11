@@ -1,41 +1,25 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { router, Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { Linking } from 'react-native';
-import 'react-native-reanimated';
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useResetPasswordDeepLink } from "@/utils/deepLinkHeandler";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import "react-native-reanimated";
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-
-   useEffect(() => {
-    const handleDeepLink = (event) => {
-      const url = event.url;
-      if (url.includes('reset-password')) {
-        router.push('/(onboarding)/reset-password');
-      }
-    };
-
-    const sub = Linking.addEventListener('url', handleDeepLink);
-
-    Linking.getInitialURL().then((url) => {
-      if (url && url.includes('reset-password')) {
-        router.push('/(onboarding)/reset-password');
-      }
-    });
-
-    return () => sub.remove();
-  }, []);
-
+  useResetPasswordDeepLink();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ animation: 'none' }}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack screenOptions={{ animation: "none" }}>
         {/* here the order of the screens is important for android to work properly */}
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
