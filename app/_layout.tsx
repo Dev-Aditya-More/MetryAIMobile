@@ -15,6 +15,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ animation: 'none' }}>
+        {/* here the order of the screens is important for android to work properly */}
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(reservation)" options={{ headerShown: false }} />
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
