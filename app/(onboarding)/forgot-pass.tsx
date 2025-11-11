@@ -2,18 +2,20 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthService } from "../../utils/auth";
+
 
 export default function ForgotPass() {
   const { email } = useLocalSearchParams();
@@ -32,6 +34,7 @@ export default function ForgotPass() {
       Keyboard.dismiss();
 
       // 🔹 TODO: replace with actual API call
+      AuthService.resetPassword(input.email)
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
       Alert.alert(

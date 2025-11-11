@@ -11,6 +11,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="profile-setup" />
       <Stack.Screen name="signup-pass" />
       <Stack.Screen name="login" />
+       <Stack.Screen name="reset-password" />
     </Stack>
   );
 }
