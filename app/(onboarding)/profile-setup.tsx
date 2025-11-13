@@ -1,86 +1,102 @@
+import { handleError } from "@/utils/handleError";
+import { FontAwesome } from "@expo/vector-icons";
+import { Href, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
+  Alert,
   Dimensions,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
+  Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
   Pressable,
-  Alert,
-  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
-import { Href, useRouter, router } from "expo-router";
+import api from "../../constants/api";
 
 const { width, height } = Dimensions.get("window");
-// Card width: responsive — narrow on phones, moderate on tablets / large screens
 const CARD_WIDTH = Math.min(420, Math.max(320, Math.floor(Math.min(width, 900) * 0.48)));
-
-const SERVICES = [
-  "Haircut & Styling",
-  "Hair Coloring",
-  "Spa & Wellness",
-  "Manicure & Pedicure",
-  "Facial Treatments",
-  "Massage Therapy",
-  "Eyebrow & Lashes",
-  "Makeup Services",
-];
 
 export default function ProfileSetup() {
   const router = useRouter();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [gender, setGender] = useState<string | null>(null);
-  const [showGenderOptions, setShowGenderOptions] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phone, setPhone] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  // --- Validation Logic
   const canContinue = useMemo(
     () =>
       firstName.trim().length > 0 &&
       lastName.trim().length > 0 &&
-      gender !== null &&
-      selectedServices.length >= 1,
-    [firstName, lastName, gender, selectedServices]
+      countryCode.trim().length > 0 &&
+      phone.trim().length >= 6,
+    [firstName, lastName, countryCode, phone]
   );
 
-  const toggleService = (s: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+  // --- Profile API Call
+  const profileSetup = async () => {
+    return api.post("/auth/complete-profile", {
+      user_id:"e359157c-697a-4a34-8c1f-97c3732865a2",
+      first_name: firstName,
+      last_name: lastName,
+      phone: phone,
+      // avatar_url can be included here later if you upload it to Supabase storage
+    });
+  };
+
+  // --- Upload Button
+  const onUploadPress = () => {
+    Alert.alert(
+      "Upload",
+      "Image upload not implemented in this mock.\nYou can integrate ImagePicker later."
     );
   };
 
-  const onUploadPress = () => {
-    Alert.alert("Upload", "Image upload not implemented in this mock.\nUse camera or gallery integration.");
-  };
-
+  // --- Continue Handler
   const onContinue = async () => {
     if (!canContinue) {
-      return Alert.alert("Incomplete", "Please fill required fields and select at least one service.");
+      Alert.alert("Incomplete", "Please fill all required fields before continuing.");
+      return;
     }
-    
-    // Dismiss keyboard and navigate to reservation flow
+
     Keyboard.dismiss();
+    setLoading(true);
 
     try {
-      const SecureStore = (require("expo-secure-store") as any).default || require("expo-secure-store");
+      // Save onboarding completion flags
+      const SecureStore =
+        (require("expo-secure-store") as any).default ||
+        require("expo-secure-store");
+
       await SecureStore.setItemAsync?.("onboarding_completed", "true");
+
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
       if (fullName) {
         await SecureStore.setItemAsync?.("customer_name", fullName);
       }
-    } catch {}
 
-    // Navigate to home after onboarding completion
-    router.replace("/(home)" as Href);
+      // Call API
+      await profileSetup();
+
+      // Navigate to home
+      router.replace("/(home)" as Href);
+    } catch (err) {
+      const message = handleError(err)
+      console.error("message:", err);
+      Alert.alert("Error", "Something went wrong while saving your profile.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,7 +111,12 @@ export default function ProfileSetup() {
               contentContainerStyle={styles.outerScrollContent}
               showsVerticalScrollIndicator={false}
             >
-              <View style={[styles.card, { width: CARD_WIDTH, minHeight: Math.min(900, height - 120) }]}>
+              <View
+                style={[
+                  styles.card,
+                  { width: CARD_WIDTH, minHeight: Math.min(900, height - 120) },
+                ]}
+              >
                 {/* header: back + progress */}
                 <View style={styles.headerRow}>
                   <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -111,7 +132,7 @@ export default function ProfileSetup() {
                   </View>
                 </View>
 
-                {/* scrollable content inside card so header remains visible on small screens */}
+                {/* scrollable content inside card */}
                 <ScrollView
                   style={styles.innerScroll}
                   contentContainerStyle={styles.contentInner}
@@ -120,7 +141,11 @@ export default function ProfileSetup() {
                 >
                   <View style={styles.titleWrap}>
                     <View style={styles.avatarArea}>
-                      <TouchableOpacity onPress={onUploadPress} style={styles.avatarCircle} accessibilityLabel="Upload avatar">
+                      <TouchableOpacity
+                        onPress={onUploadPress}
+                        style={styles.avatarCircle}
+                        accessibilityLabel="Upload avatar"
+                      >
                         {avatarUri ? (
                           <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
                         ) : (
@@ -133,11 +158,12 @@ export default function ProfileSetup() {
                     </View>
 
                     <Text style={styles.heading}>Complete Your Profile</Text>
-                    <Text style={styles.subheading}>Tell us about yourself and your preferences</Text>
+                    <Text style={styles.subheading}>Tell us about yourself</Text>
                   </View>
 
                   {/* form */}
                   <View style={styles.form}>
+                    {/* First and Last Name */}
                     <View style={styles.row}>
                       <View style={styles.field}>
                         <Text style={styles.label}>First Name</Text>
@@ -164,71 +190,47 @@ export default function ProfileSetup() {
                       </View>
                     </View>
 
-                    <View style={{ marginTop: 12 }}>
-                      <Text style={styles.label}>Gender</Text>
-                      <TouchableOpacity
-                        style={styles.select}
-                        onPress={() => setShowGenderOptions((s) => !s)}
-                        activeOpacity={0.9}
-                      >
-                        <Text style={[styles.selectText, !gender && { color: "#9AA3AD" }]}>
-                          {gender ?? "Select your gender"}
-                        </Text>
-                        <FontAwesome name="sort-down" size={18} color="#9AA3AD" />
-                      </TouchableOpacity>
-
-                      {showGenderOptions && (
-                        <View style={styles.options}>
-                          {["Male", "Female", "Non-binary", "Prefer not to say"].map((g) => (
-                            <TouchableOpacity
-                              key={g}
-                              style={styles.optionRow}
-                              onPress={() => {
-                                setGender(g);
-                                setShowGenderOptions(false);
-                                Keyboard.dismiss();
-                              }}
-                            >
-                              <Text style={styles.optionText}>{g}</Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      )}
-                    </View>
-
+                    {/* Country Code and Phone */}
                     <View style={{ marginTop: 16 }}>
-                      <Text style={styles.label}>Services You're Interested In</Text>
-                      <Text style={styles.helper}>Select all that apply (minimum 1)</Text>
-
-                      <View style={styles.chipsWrap}>
-                        {SERVICES.map((s) => {
-                          const active = selectedServices.includes(s);
-                          return (
-                            <TouchableOpacity
-                              key={s}
-                              onPress={() => toggleService(s)}
-                              style={[styles.chip, active && styles.chipActive]}
-                              activeOpacity={0.9}
-                            >
-                              <Text style={[styles.chipText, active && styles.chipTextActive]}>{s}</Text>
-                            </TouchableOpacity>
-                          );
-                        })}
+                      <Text style={styles.label}>Phone Number</Text>
+                      <View style={styles.phoneRow}>
+                        <TextInput
+                          value={countryCode}
+                          onChangeText={setCountryCode}
+                          style={[styles.input, styles.countryCodeInput]}
+                          keyboardType="phone-pad"
+                          placeholder="+91"
+                          maxLength={5}
+                          placeholderTextColor="#cbd5e1"
+                        />
+                        <TextInput
+                          value={phone}
+                          onChangeText={setPhone}
+                          style={[styles.input, styles.phoneInput]}
+                          keyboardType="phone-pad"
+                          placeholder="1234567890"
+                          placeholderTextColor="#cbd5e1"
+                        />
                       </View>
                     </View>
 
                     <View style={{ height: 18 }} />
 
+                    {/* Continue Button */}
                     <TouchableOpacity
-                      style={[styles.continueBtn, !canContinue && styles.continueDisabled]}
+                      style={[
+                        styles.continueBtn,
+                        !canContinue && styles.continueDisabled,
+                      ]}
                       onPress={onContinue}
-                      activeOpacity={0.9}
-                      disabled={!canContinue}
+                      activeOpacity={0.8}
+                      disabled={!canContinue || loading}
                     >
-                      <Text style={styles.continueText}>Continue</Text>
+                      <Text style={styles.continueText}>
+                        {loading ? "Please wait..." : "Continue"}
+                      </Text>
                     </TouchableOpacity>
 
-                    {/* small bottom spacer so last element can scroll above card edge */}
                     <View style={{ height: 28 }} />
                   </View>
                 </ScrollView>
@@ -241,6 +243,7 @@ export default function ProfileSetup() {
   );
 }
 
+/* ------------------------------ STYLES ------------------------------ */
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#EAF6FB" },
   wrapper: { flex: 1 },
@@ -280,20 +283,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     overflow: "hidden",
   },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#1F2937",
-  },
+  progressBarFill: { height: "100%", backgroundColor: "#1F2937" },
 
-  innerScroll: {
-    flex: 1,
-  },
-  contentInner: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-  },
+  innerScroll: { flex: 1 },
+  contentInner: { paddingHorizontal: 20, paddingBottom: 8 },
 
-  titleWrap: { alignItems: "center", paddingVertical: 18, borderBottomWidth: 1, borderBottomColor: "#F3F6F9" },
+  titleWrap: {
+    alignItems: "center",
+    paddingVertical: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F6F9",
+  },
   avatarArea: { marginBottom: 12 },
   avatarCircle: {
     width: 84,
@@ -322,8 +322,6 @@ const styles = StyleSheet.create({
   form: { paddingTop: 18 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   field: { flex: 1, minWidth: 0, marginRight: 8 },
-  // ensure last field doesn't get extra right margin
-  fieldLast: { marginRight: 0 },
   label: { fontSize: 12, color: "#6B7280", marginBottom: 6 },
   input: {
     backgroundColor: "#F8FAFB",
@@ -332,47 +330,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     color: "#111827",
   },
-
-  select: {
-    marginTop: 6,
-    backgroundColor: "#F8FAFB",
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+  phoneRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    gap: 8,
   },
-  selectText: { color: "#111827" },
-
-  options: {
-    marginTop: 8,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#EEF2F6",
-    overflow: "hidden",
+  countryCodeInput: {
+    flex: 0.3,
+    textAlign: "center",
   },
-  optionRow: { paddingVertical: 10, paddingHorizontal: 12 },
-  optionText: { color: "#111827" },
-
-  helper: { color: "#9AA3AD", fontSize: 12, marginTop: 4, marginBottom: 8 },
-
-  chipsWrap: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
-  chip: {
-    borderWidth: 1,
-    borderColor: "#E6EEF6",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 18,
-    marginRight: 8,
-    marginBottom: 8,
-    backgroundColor: "#fff",
+  phoneInput: {
+    flex: 0.7,
   },
-  chipActive: { backgroundColor: "#FFFBF2", borderColor: "#F97316" },
-  chipText: { color: "#111827", fontSize: 13 },
-  chipTextActive: { color: "#F97316", fontWeight: "600" },
-
   continueBtn: {
     marginTop: 18,
     backgroundColor: "#F97316",
