@@ -82,7 +82,10 @@ export default function SignupScreen() {
       Keyboard.dismiss();
 
       if (data?.session.access_token) {
-        saveToSecureStore("access_token", data.session.access_token);
+        saveToSecureStore({
+          access_token: data.session.access_token,
+          user_id: data.user.id,
+        });
       }
 
       router.push({

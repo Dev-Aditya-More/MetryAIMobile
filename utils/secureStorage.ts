@@ -1,10 +1,25 @@
 import * as SecureStore from "expo-secure-store";
  
- export const saveToSecureStore = async (key, value) => {
-    try {
+ export const saveToSecureStore = async (items = {}) => {
+  try {
+    const entries = Object.entries(items);
+
+    for (const [key, value] of entries) {
       await SecureStore.setItemAsync(key, value);
       console.log(`🔐 Saved ${key} successfully`);
-    } catch (error) {
-      console.log("❌ SecureStore save error:", error);
     }
-  };
+  } catch (error) {
+    console.log("❌ SecureStore save error:", error);
+  }
+};
+
+
+export const getFromSecureStore = async (key, defaultValue = null) => {
+  try {
+    const value = await SecureStore.getItemAsync(key);
+    return value ?? defaultValue;
+  } catch (error) {
+    console.log("❌ SecureStore get error:", error);
+    return defaultValue;
+  }
+};

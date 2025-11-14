@@ -1,4 +1,5 @@
 import { handleError } from "@/utils/handleError";
+import { getFromSecureStore, saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -21,7 +22,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../constants/api";
 
 const { width, height } = Dimensions.get("window");
-const CARD_WIDTH = Math.min(420, Math.max(320, Math.floor(Math.min(width, 900) * 0.48)));
+const CARD_WIDTH = Math.min(
+  420,
+  Math.max(320, Math.floor(Math.min(width, 900) * 0.48))
+);
 
 export default function ProfileSetup() {
   const router = useRouter();
@@ -46,7 +50,7 @@ export default function ProfileSetup() {
   // --- Profile API Call
   const profileSetup = async () => {
     return api.post("/auth/complete-profile", {
-      user_id:"e359157c-697a-4a34-8c1f-97c3732865a2",
+      user_id: "e359157c-697a-4a34-8c1f-97c3732865a2",
       first_name: firstName,
       last_name: lastName,
       phone: phone,
@@ -65,7 +69,10 @@ export default function ProfileSetup() {
   // --- Continue Handler
   const onContinue = async () => {
     if (!canContinue) {
-      Alert.alert("Incomplete", "Please fill all required fields before continuing.");
+      Alert.alert(
+        "Incomplete",
+        "Please fill all required fields before continuing."
+      );
       return;
     }
 
@@ -73,25 +80,26 @@ export default function ProfileSetup() {
     setLoading(true);
 
     try {
-      // Save onboarding completion flags
-      const SecureStore =
-        (require("expo-secure-store") as any).default ||
-        require("expo-secure-store");
-
-      await SecureStore.setItemAsync?.("onboarding_completed", "true");
-
-      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-      if (fullName) {
-        await SecureStore.setItemAsync?.("customer_name", fullName);
-      }
+      // Getting UserId
+      const userid = await getFromSecureStore("user_id");
+      console.log(userid);
 
       // Call API
       await profileSetup();
 
+      // Save onboarding completion flags
+
+      saveToSecureStore({ onboarding_completed: "true" });
+
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      if (fullName) {
+        saveToSecureStore({ customer_name: fullName });
+      }
+
       // Navigate to home
       router.replace("/(home)" as Href);
     } catch (err) {
-      const message = handleError(err)
+      const message = handleError(err);
       console.error("message:", err);
       Alert.alert("Error", "Something went wrong while saving your profile.");
     } finally {
@@ -119,7 +127,10 @@ export default function ProfileSetup() {
               >
                 {/* header: back + progress */}
                 <View style={styles.headerRow}>
-                  <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                  <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.backBtn}
+                  >
                     <FontAwesome name="angle-left" size={18} color="#374151" />
                     <Text style={styles.backText}>Back</Text>
                   </TouchableOpacity>
@@ -127,7 +138,9 @@ export default function ProfileSetup() {
                   <View style={styles.progressWrap}>
                     <Text style={styles.stepText}>Step 3 of 5</Text>
                     <View style={styles.progressBarTrack}>
-                      <View style={[styles.progressBarFill, { width: "60%" }]} />
+                      <View
+                        style={[styles.progressBarFill, { width: "60%" }]}
+                      />
                     </View>
                   </View>
                 </View>
@@ -147,7 +160,10 @@ export default function ProfileSetup() {
                         accessibilityLabel="Upload avatar"
                       >
                         {avatarUri ? (
-                          <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+                          <Image
+                            source={{ uri: avatarUri }}
+                            style={styles.avatarImage}
+                          />
                         ) : (
                           <FontAwesome name="user" size={28} color="#A8B3C2" />
                         )}
@@ -158,7 +174,9 @@ export default function ProfileSetup() {
                     </View>
 
                     <Text style={styles.heading}>Complete Your Profile</Text>
-                    <Text style={styles.subheading}>Tell us about yourself</Text>
+                    <Text style={styles.subheading}>
+                      Tell us about yourself
+                    </Text>
                   </View>
 
                   {/* form */}
@@ -248,7 +266,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#EAF6FB" },
   wrapper: { flex: 1 },
   centerColumn: { flex: 1, alignItems: "center", justifyContent: "center" },
-  outerScrollContent: { alignItems: "center", justifyContent: "center", paddingVertical: 28 },
+  outerScrollContent: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 28,
+  },
 
   card: {
     backgroundColor: "#fff",

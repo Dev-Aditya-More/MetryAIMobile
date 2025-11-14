@@ -3,7 +3,6 @@ import { handleError } from "@/utils/handleError";
 import { saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -55,8 +54,6 @@ export default function LoginScreen() {
   };
 
   const signupPressed = async () => {
-    const token = await SecureStore.getItemAsync("access_token");
-    console.log("Retrieved token:", token);
     router.push("/(onboarding)/signup-pass");
   };
 
@@ -78,7 +75,10 @@ export default function LoginScreen() {
       Keyboard.dismiss();
 
       if (data?.session.access_token) {
-        saveToSecureStore("access_token", data.session.access_token);
+        saveToSecureStore({
+          access_token: data.session.access_token,
+          user_id: data.user.id,
+        });
       }
 
       console.log("✅ Signup successful:", data);
