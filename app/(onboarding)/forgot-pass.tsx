@@ -24,28 +24,34 @@ export default function ForgotPass() {
   const [loading, setLoading] = useState(false);
 
   const handleReset = async () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
-      Alert.alert("Invalid Email", "Please enter a valid email address.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
+    Alert.alert("Invalid Email", "Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    Keyboard.dismiss();
+
+    const { data, error } = await AuthService.resetPassword(input.email);
+
+    if (error) {
+      Alert.alert("Error", error.message || "Unable to send reset email.");
       return;
     }
 
-    try {
-      setLoading(true);
-      Keyboard.dismiss();
+    Alert.alert(
+      "Reset Link Sent",
+      `A password reset link has been sent to ${input.email}`
+    );
 
-      // 🔹 TODO: replace with actual API call
-      AuthService.resetPassword(input.email)
-      Alert.alert(
-        "Reset Link Sent",
-        `A password reset link has been sent to ${input.email}`
-      );
+  } catch (err) {
+    Alert.alert("Error", "Something went wrong, please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    } catch (err) {
-      Alert.alert("Error", "Something went wrong, please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.screen}>
