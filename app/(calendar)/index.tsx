@@ -1,9 +1,11 @@
 import BottomNav from "@/components/BottomNav";
 import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
+  LayoutChangeEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,93 +17,135 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../constants/api";
 import { getFromSecureStore } from "../../utils/secureStorage";
 
+dayjs.extend(customParseFormat);
+
+type ApiAppointment = {
+  id: string;
+  created_at: string;
+  date: string; // "2025-01-20"
+  slot: string; // "7:30 PM - 8.00 PM" or "10:30 AM"
+  status: string;
+  customer?: {
+    id: string;
+    full_name: string;
+  };
+  staff?: {
+    id: string;
+    user?: {
+      full_name: string;
+    };
+  };
+  service?: {
+    id: string;
+    name: string;
+    room: string | null;
+    price: number;
+    duration_minutes?: number;
+  };
+  business?: {
+    id: string;
+    name: string;
+    rooms: any;
+    chairs: any;
+  };
+};
+
+type CalendarAppointment = {
+  id: string;
+  title: string;
+  staff: string;
+  start: number;
+  end: number;
+  date: string;
+  color: string;
+};
+
+type LaidOutEvent = CalendarAppointment & {
+  column: number;
+  columnsCount: number;
+};
+
 export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [currentWeekStart, setCurrentWeekStart] = useState(
     dayjs().startOf("week")
   );
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState("All Staff");
 
-  const staffList = ["All Staff", "David", "Sarah Johnson", "Lily", "Anna"];
+  const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
+  const [staffList, setStaffList] = useState<string[]>(["All Staff"]);
+
+  const [eventAreaWidth, setEventAreaWidth] = useState(0); // 👈 width of area right of time labels
 
   const days = Array.from({ length: 7 }, (_, i) =>
     currentWeekStart.add(i, "day")
   );
-
-  // Appointments
-  const appointments = [
-    {
-      id: "1",
-      title: "Milbon 4-Step",
-      staff: "David",
-      start: 1,
-      end: 3,
-      date: dayjs().startOf("week").format("YYYY-MM-DD"),
-      color: "#FFF3D4",
-    },
-    {
-      id: "3",
-      title: "Hair Styling",
-      staff: "David",
-      start: 4,
-      end: 5,
-      date: dayjs().startOf("week").format("YYYY-MM-DD"),
-      color: "#E5E7FF",
-    },
-    {
-      id: "2",
-      title: "Hair Styling",
-      staff: "Sarah Johnson",
-      start: 8,
-      end: 10,
-      date: dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD"),
-      color: "#E5E7FF",
-    },
-    {
-      id: "3",
-      title: "Hair Cut",
-      staff: "Lily",
-      start: 10,
-      end: 13,
-      date: dayjs().startOf("week").add(1, "day").format("YYYY-MM-DD"),
-      color: "#F2F4F6",
-    },
-    {
-      id: "4",
-      title: "Balayage",
-      staff: "Anna",
-      start: 10.5,
-      end: 14,
-      date: dayjs().startOf("week").add(3, "day").format("YYYY-MM-DD"),
-      color: "#FFD5E5",
-    },
-  ];
-
-  // Sort appointments automatically and filter based on selection
-  const filteredAppointments = appointments
-    .filter(
-      (a) =>
-        a.date === selectedDate.format("YYYY-MM-DD") &&
-        (selectedStaff === "All Staff" || a.staff === selectedStaff)
-    )
-    .sort((a, b) => a.start - b.start);
-
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Move to previous week
-  const goToPreviousWeek = () => {
-    const newWeek = currentWeekStart.subtract(1, "week");
-    setCurrentWeekStart(newWeek);
-    setSelectedDate(newWeek); // reset to first day of new week
+  // --- Time parsing helpers ---
+
+  const parseTimeToDecimal = (
+    timeStr: string,
+    dateStr: string
+  ): number | null => {
+    if (!timeStr) return null;
+
+    const raw = timeStr.trim();
+    const normalized = raw.replace(".", ":"); // "8.00 PM" → "8:00 PM"
+
+    const dateTimeStr = `${dateStr} ${normalized}`;
+    const formats = ["YYYY-MM-DD h:mm A", "YYYY-MM-DD h A"];
+
+    let m: dayjs.Dayjs | null = null;
+
+    for (const fmt of formats) {
+      const candidate = dayjs(dateTimeStr, fmt, true);
+      if (candidate.isValid()) {
+        m = candidate;
+        break;
+      }
+    }
+
+    if (!m) {
+      console.warn("Could not parse time:", timeStr, "for date:", dateStr);
+      return null;
+    }
+
+    return m.hour() + m.minute() / 60;
   };
 
-  // Move to next week
-  const goToNextWeek = () => {
-    const newWeek = currentWeekStart.add(1, "week");
-    setCurrentWeekStart(newWeek);
-    setSelectedDate(newWeek);
+  const parseSlotToStartEnd = (
+    slot: string,
+    dateStr: string,
+    durationMinutes: number = 30
+  ): { start: number; end: number } | null => {
+    if (!slot) return null;
+
+    const parts = slot.split("-").map((p) => p.trim());
+
+    if (parts.length === 1) {
+      const start = parseTimeToDecimal(parts[0], dateStr);
+      if (start == null) return null;
+      const end = start + durationMinutes / 60;
+      return { start, end };
+    }
+
+    const start = parseTimeToDecimal(parts[0], dateStr);
+    const endRaw = parseTimeToDecimal(parts[1], dateStr);
+
+    if (start == null || endRaw == null) return null;
+
+    let end = endRaw;
+    if (end <= start) {
+      end = start + durationMinutes / 60;
+    }
+
+    return { start, end };
   };
+
+  // --- API ---
 
   const getAppointments = async () => {
     try {
@@ -135,26 +179,144 @@ export default function CalendarScreen() {
     }
   };
 
-  // Keep selected date within new week’s range
+  const goToPreviousWeek = () => {
+    const newWeek = currentWeekStart.subtract(1, "week");
+    setCurrentWeekStart(newWeek);
+    setSelectedDate(newWeek);
+  };
+
+  const goToNextWeek = () => {
+    const newWeek = currentWeekStart.add(1, "week");
+    setCurrentWeekStart(newWeek);
+    setSelectedDate(newWeek);
+  };
+
+  // --- Fetch data ---
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getAppointments();
-        console.log("Appointments response:", JSON.stringify(res, null, 2));
+        console.log("Appointments raw response:", JSON.stringify(res, null, 2));
+
+        if (!Array.isArray(res)) {
+          console.warn("Unexpected appointments response shape");
+          return;
+        }
+
+        const mapped: CalendarAppointment[] = res
+          .map((item: ApiAppointment) => {
+            const dateStr = item.date;
+            const duration =
+              item.service?.duration_minutes !== undefined
+                ? item.service.duration_minutes
+                : 30;
+
+            const slotParsed = parseSlotToStartEnd(
+              item.slot,
+              dateStr,
+              duration
+            );
+
+            if (!slotParsed) return null;
+
+            const staffName =
+              item.staff?.user?.full_name || item.staff?.id || "Unknown Staff";
+
+            const title = item.service?.name || "Service";
+
+            return {
+              id: item.id,
+              title,
+              staff: staffName,
+              start: slotParsed.start,
+              end: slotParsed.end,
+              date: dateStr,
+              color: "#E3E3FF", // soft lilac
+            };
+          })
+          .filter(Boolean) as CalendarAppointment[];
+
+        setAppointments(mapped);
+
+        const staffNames = Array.from(
+          new Set(mapped.map((a) => a.staff).filter(Boolean))
+        );
+        setStaffList(["All Staff", ...staffNames]);
       } catch (error) {
-        console.error("Error in useEffect:", error);
+        console.error("Error in useEffect fetchData:", error);
       }
     };
 
     fetchData();
+  }, []);
 
+  // keep selected date within current week
+  useEffect(() => {
     if (
       selectedDate.isBefore(currentWeekStart) ||
       selectedDate.isAfter(currentWeekStart.add(6, "day"))
     ) {
       setSelectedDate(currentWeekStart);
     }
-  }, [currentWeekStart]);
+  }, [currentWeekStart, selectedDate]);
+
+  // Filter for selected day + staff
+  const filteredAppointments = useMemo(
+    () =>
+      appointments
+        .filter(
+          (a) =>
+            a.date === selectedDate.format("YYYY-MM-DD") &&
+            (selectedStaff === "All Staff" || a.staff === selectedStaff)
+        )
+        .sort((a, b) => a.start - b.start || a.end - b.end),
+    [appointments, selectedDate, selectedStaff]
+  );
+
+  // --- Overlap layout (side-by-side columns) ---
+
+  const laidOutEvents: LaidOutEvent[] = useMemo(() => {
+    if (filteredAppointments.length === 0) return [];
+
+    // Greedy column assignment
+    const result: LaidOutEvent[] = [];
+    let active: LaidOutEvent[] = [];
+
+    for (const ev of filteredAppointments) {
+      // remove finished events
+      active = active.filter((a) => a.end > ev.start);
+
+      const usedColumns = active.map((a) => a.column);
+      let col = 0;
+      while (usedColumns.includes(col)) col++;
+
+      const laid: LaidOutEvent = { ...ev, column: col, columnsCount: 1 };
+      active.push(laid);
+      result.push(laid);
+    }
+
+    // compute max columns overlapping each event
+    for (const ev of result) {
+      let maxCol = ev.column;
+      for (const other of result) {
+        if (other === ev) continue;
+        const overlap = other.start < ev.end && other.end > ev.start;
+        if (overlap && other.column > maxCol) {
+          maxCol = other.column;
+        }
+      }
+      ev.columnsCount = maxCol + 1;
+    }
+
+    return result;
+  }, [filteredAppointments]);
+
+  const handleEventAreaLayout = (e: LayoutChangeEvent) => {
+    if (eventAreaWidth === 0) {
+      setEventAreaWidth(e.nativeEvent.layout.width);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -197,7 +359,7 @@ export default function CalendarScreen() {
               style={[
                 styles.dayItem,
                 isSelected && styles.daySelected,
-                styles.shadowEffect, // 🔥 Added shadow
+                styles.shadowEffect,
               ]}
               onPress={() => setSelectedDate(day)}
             >
@@ -219,7 +381,7 @@ export default function CalendarScreen() {
         })}
       </View>
 
-      {/* Dropdown */}
+      {/* Staff Dropdown */}
       <TouchableOpacity
         style={styles.dropdown}
         onPress={() => setShowDropdown((prev) => !prev)}
@@ -258,29 +420,50 @@ export default function CalendarScreen() {
       )}
 
       {/* Schedule */}
-      {/* Schedule (scrollable area only) */}
       <ScrollView
         style={{ marginTop: 10, marginBottom: 70 }}
         showsVerticalScrollIndicator={false}
       >
-        {filteredAppointments.length === 0 ? (
+        {laidOutEvents.length === 0 ? (
           <Text style={styles.noEvents}>No appointments for this day</Text>
         ) : (
           <View style={{ height: 24 * 80 }}>
-            {/* 80px per hour (adjust for your design) */}
-            {hours.map((hour) => (
+            {hours.map((hour, index) => (
               <View key={hour} style={styles.timeRow}>
                 <Text style={styles.timeLabel}>
-                  {dayjs().hour(hour).format("h A")}
+                  {dayjs().hour(hour).minute(0).format("h A")}
                 </Text>
-                <View style={styles.eventColumn} />
+                <View
+                  style={styles.eventColumn}
+                  // measure width once (on first row)
+                  onLayout={index === 0 ? handleEventAreaLayout : undefined}
+                />
               </View>
             ))}
 
-            {/* Absolute-positioned events covering start → end time */}
-            {filteredAppointments.map((event) => {
-              const top = event.start * 80; // 80 = height per hour
+            {laidOutEvents.map((event) => {
+              const top = event.start * 80;
               const height = (event.end - event.start) * 80;
+
+              let width = eventAreaWidth - 8; // default full width minus padding
+              let left = 60; // time label (50) + marginRight (10)
+
+              if (eventAreaWidth > 0 && event.columnsCount > 0) {
+                const colWidth = eventAreaWidth / event.columnsCount;
+                width = colWidth - 8; // small gap between columns
+                left = 60 + colWidth * event.column + 4; // 4px padding
+              }
+
+              const startLabel = dayjs(selectedDate)
+                .hour(Math.floor(event.start))
+                .minute((event.start % 1) * 60)
+                .format("h:mm A");
+
+              const endLabel = dayjs(selectedDate)
+                .hour(Math.floor(event.end))
+                .minute((event.end % 1) * 60)
+                .format("h:mm A");
+
               return (
                 <View
                   key={event.id}
@@ -288,26 +471,26 @@ export default function CalendarScreen() {
                     styles.eventCard,
                     {
                       position: "absolute",
-                      left: 60, // keep room for time labels
-                      right: 10,
                       top,
                       height,
+                      left,
+                      width,
                       backgroundColor: event.color,
                     },
                   ]}
                 >
-                  <View style={styles.eventCardHeader}>
+                  <View style={styles.eventAccent} />
+                  <View style={styles.eventContent}>
                     <Text style={styles.eventTitle}>{event.title}</Text>
-                    <MaterialIcons name="more-vert" size={18} color="#555" />
+                    <View style={styles.eventFooterRow}>
+                      <Text style={styles.eventStaff}>{event.staff}</Text>
+                      <View style={styles.dot} />
+                      <Text style={styles.eventTime}>
+                        {startLabel} - {endLabel}
+                      </Text>
+                    </View>
                   </View>
-
-                  <View style={styles.eventFooterRow}>
-                    <Text style={styles.eventStaff}>{event.staff}</Text>
-                    <View style={styles.dot} />
-                    <Text style={styles.eventTime}>
-                      {`${event.start}:00 - ${event.end}:00`}
-                    </Text>
-                  </View>
+                  <MaterialIcons name="more-vert" size={18} color="#666" />
                 </View>
               );
             })}
@@ -315,7 +498,7 @@ export default function CalendarScreen() {
         )}
       </ScrollView>
 
-      {/* ✅ Fixed Bottom Navigation */}
+      {/* Bottom Nav */}
       <View style={styles.bottomNavContainer}>
         <BottomNav />
       </View>
@@ -354,7 +537,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: "#fff",
   },
   daySelected: { backgroundColor: "#C2B19C" },
@@ -373,7 +556,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     borderColor: "#E0E0E0",
-    borderRadius: 10,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     flexDirection: "row",
@@ -387,7 +570,7 @@ const styles = StyleSheet.create({
   dropdownList: {
     borderWidth: 1,
     borderColor: "#E0E0E0",
-    borderRadius: 10,
+    borderRadius: 12,
     marginTop: 6,
     backgroundColor: "#fff",
   },
@@ -399,37 +582,66 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: { fontSize: 15, color: "#333" },
 
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F2",
+    height: 80,
+  },
+  timeLabel: {
+    width: 50,
+    color: "#999",
+    fontSize: 12,
+    textAlign: "right",
+    marginRight: 10,
+  },
+  eventColumn: {
+    flex: 1,
+  },
+
   eventCard: {
-    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
   },
-  eventCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  eventAccent: {
+    width: 4,
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: "#8D7BFF",
+    marginRight: 8,
   },
-  eventTitle: { fontSize: 15, fontWeight: "700", color: "#333", flexShrink: 1 },
+  eventContent: {
+    flex: 1,
+  },
+  eventTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#222",
+    marginBottom: 4,
+  },
   eventFooterRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
   },
-  eventStaff: { fontSize: 13, color: "#555", fontWeight: "500" },
+  eventStaff: { fontSize: 12, color: "#555", fontWeight: "500" },
   dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: "#555",
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#777",
     marginHorizontal: 6,
     opacity: 0.6,
   },
-  eventTime: { fontSize: 13, color: "#555" },
+  eventTime: { fontSize: 12, color: "#555" },
 
   noEvents: {
     textAlign: "center",
@@ -450,22 +662,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 10,
-  },
-  timeRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
-    height: 80, // height per hour
-  },
-  timeLabel: {
-    width: 50,
-    color: "#999",
-    fontSize: 12,
-    textAlign: "right",
-    marginRight: 10,
-  },
-  eventColumn: {
-    flex: 1,
   },
 });
