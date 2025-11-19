@@ -12,6 +12,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import api from "../../constants/api";
+import { getFromSecureStore } from "../../utils/secureStorage";
 
 export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -101,8 +103,51 @@ export default function CalendarScreen() {
     setSelectedDate(newWeek);
   };
 
+  const getAppointments = async () => {
+    try {
+      const token = await getFromSecureStore("access_token");
+
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const response = await api.get("/calendar/appointments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data.data;
+    } catch (error: any) {
+      console.error(
+        "Error fetching appointments:",
+        error?.response?.data || error?.message || error
+      );
+
+      return {
+        success: false,
+        message:
+          error?.response?.data?.error ||
+          error?.message ||
+          "Something went wrong",
+        status: error?.response?.status || 500,
+      };
+    }
+  };
+
   // Keep selected date within new week’s range
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getAppointments();
+        console.log("Appointments response:", JSON.stringify(res, null, 2));
+      } catch (error) {
+        console.error("Error in useEffect:", error);
+      }
+    };
+
+    fetchData();
+
     if (
       selectedDate.isBefore(currentWeekStart) ||
       selectedDate.isAfter(currentWeekStart.add(6, "day"))
