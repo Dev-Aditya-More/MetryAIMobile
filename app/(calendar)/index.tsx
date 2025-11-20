@@ -19,6 +19,7 @@ import { getFromSecureStore } from "../../utils/secureStorage";
 
 dayjs.extend(customParseFormat);
 
+// the API appointment type definition
 type ApiAppointment = {
   id: string;
   created_at: string;
