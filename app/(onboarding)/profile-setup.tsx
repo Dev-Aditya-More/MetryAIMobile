@@ -81,7 +81,7 @@ export default function ProfileSetup() {
 
     try {
       // Getting UserId
-      const userid = await getFromSecureStore("user_id");
+      const userid = await getFromSecureStore("id");
       console.log(userid);
 
       // Call API
