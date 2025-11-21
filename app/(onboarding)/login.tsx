@@ -18,7 +18,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import api from "../../constants/api";
+import { AuthService } from "../../api/auth";
 
 const { width } = Dimensions.get("window");
 
@@ -40,18 +40,6 @@ export default function LoginScreen() {
     };
   }, []);
 
-  const login = async () => {
-    try {
-      const response = await api.post("/auth/login", {
-        email: input.email,
-        password: input.password,
-        redirect_to: "auth",
-      });
-      return response.data;
-    } catch (err) {
-      throw err;
-    }
-  };
 
   const signupPressed = async () => {
     router.push("/(onboarding)/signup-pass");
@@ -70,7 +58,7 @@ export default function LoginScreen() {
     try {
       setError("");
 
-      let data = await login();
+      let data = await AuthService.login(input.email, input.password);
 
       Keyboard.dismiss();
 

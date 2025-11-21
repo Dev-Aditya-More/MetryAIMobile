@@ -1,5 +1,6 @@
 // this is screen the signup methode for taking email and password
 
+import { AuthService } from "@/api/auth";
 import { handleError } from "@/utils/handleError";
 import { saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -19,7 +20,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import api from "../../constants/api";
 
 const { width } = Dimensions.get("window");
 
@@ -46,21 +46,7 @@ export default function SignupScreen() {
     router.push("/(onboarding)/login");
   };
 
-  const signup = async () => {
-    try {
-      const response = await api.post("/auth/signup", {
-        email: input.email,
-        password: input.password,
-        user_type: userType,
-        redirect_to: "auth",
-      });
-      return response.data;
-    } catch (err) {
-      console.log("🔥 Signup API Error (Raw):", err);
-      throw err;
-    }
-  };
-
+ 
   const handleContinue = async () => {
     // ✅ Basic input validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
@@ -75,7 +61,7 @@ export default function SignupScreen() {
     try {
       setError("");
 
-      const data = await signup();
+      const data = await AuthService.signup(input.email, input.password, userType);
 
       console.log("✅ Signup successful:", data);
 

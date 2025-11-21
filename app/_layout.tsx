@@ -1,5 +1,4 @@
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { useResetPasswordDeepLink } from "@/utils/deepLinkHeandler";
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,6 +7,7 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { useResetPasswordDeepLink } from "../api/deepLinkHeandler";
 
 export const unstable_settings = {
   anchor: "(tabs)",

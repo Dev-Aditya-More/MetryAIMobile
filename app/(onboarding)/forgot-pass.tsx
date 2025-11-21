@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AuthService } from "../../utils/auth";
+import { AuthService } from "../../api/auth";
 
 
 export default function ForgotPass() {
