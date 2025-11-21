@@ -1,3 +1,4 @@
+import { saveToSecureStore } from "@/utils/secureStorage";
 import * as Linking from "expo-linking";
 import api from "../constants/api";
 import { supabase } from "../utils/supabaseClient";
@@ -14,6 +15,12 @@ export const AuthService = {
         password: password,
         redirect_to: "auth",
       });
+      if (response.data?.session.access_token) {
+        saveToSecureStore({
+          access_token: response.data.session.access_token,
+          user_id: response.data.user.id,
+        });
+      }
       return response.data;
     } catch (err) {
       throw err;
@@ -29,6 +36,12 @@ export const AuthService = {
         user_type: userType,
         redirect_to: "auth",
       });
+      if (response.data?.session.access_token) {
+        saveToSecureStore({
+          access_token: response.data.session.access_token,
+          user_id: response.data.user.id,
+        });
+      }
       return response.data;
     } catch (err) {
       console.log("🔥 Signup API Error (Raw):", err);

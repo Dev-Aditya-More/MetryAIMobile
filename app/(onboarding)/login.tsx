@@ -1,6 +1,5 @@
 // this is the login screen
 import { handleError } from "@/utils/handleError";
-import { saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -62,14 +61,7 @@ export default function LoginScreen() {
 
       Keyboard.dismiss();
 
-      if (data?.session.access_token) {
-        saveToSecureStore({
-          access_token: data.session.access_token,
-          user_id: data.user.id,
-        });
-      }
-
-      console.log("✅ Signup successful:", data);
+      console.log("✅ login successful:", data);
 
       router.push({
         pathname: "/(home)",

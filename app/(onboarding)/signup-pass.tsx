@@ -2,7 +2,6 @@
 
 import { AuthService } from "@/api/auth";
 import { handleError } from "@/utils/handleError";
-import { saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -66,13 +65,6 @@ export default function SignupScreen() {
       console.log("✅ Signup successful:", data);
 
       Keyboard.dismiss();
-
-      if (data?.session.access_token) {
-        saveToSecureStore({
-          access_token: data.session.access_token,
-          user_id: data.user.id,
-        });
-      }
 
       router.push({
         pathname: "/(onboarding)/profile-setup",
