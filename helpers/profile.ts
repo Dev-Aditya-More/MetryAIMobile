@@ -1,19 +1,30 @@
-import { supabase } from "@/utils/supabaseClient";
-import { Database } from "@/types/database";
+import api from "@/constants/api";
+import { getFromSecureStore } from "@/utils/secureStorage";
 
 export async function getProfile() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const access_token = await getFromSecureStore("access_token");
+  const user_id = await getFromSecureStore("user_id");
 
-  if (!user) return null;
+  if (!access_token || !user_id) {
+    console.log("No access token or user ID found");
+    return null;
+  }
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Database["public"]["Tables"]["profiles"]["Row"]>();
+  try {
+    const res = await api.get(`/profile/me`, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
 
-  if (error) throw error;
-  return data;
+    if (res.data?.error) {
+      console.log("Profile API error:", res.data.error);
+      return null;
+    }
+
+    return res.data.data; // actual profile from API
+  } catch (err) {
+    console.log("Profile fetch failed:", err);
+    return null;
+  }
 }

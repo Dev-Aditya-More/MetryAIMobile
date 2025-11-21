@@ -110,6 +110,8 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
       // 1) Profile (backend)
+      console.log("DEBUG PROFILE RAW:", await getProfile());
+
       const profile = await getProfile();
       if (!profile) throw new Error("Profile not found");
 
