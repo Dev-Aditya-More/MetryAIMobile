@@ -1,4 +1,4 @@
-import { axiosClient } from "./axiosClient";
+import api from "@/constants/api";
 
 export type StaffResponse = {
   id: string;
@@ -10,6 +10,6 @@ export type StaffResponse = {
 };
 
 export async function getStaff(businessId: string): Promise<StaffResponse[]> {
-  const res = await axiosClient.get(`/businessUsers/businesses/${businessId}/staff`);
+  const res = await api.get(`/businessUsers/businesses/${businessId}/staff`);
   return res.data;
 }
