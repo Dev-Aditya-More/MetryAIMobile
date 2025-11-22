@@ -1,7 +1,7 @@
 import api from "@/constants/api";
 import { getFromSecureStore } from "@/utils/secureStorage";
 
-export async function getProfile() {
+export async function getProfile(id) {
   const access_token = await getFromSecureStore("access_token");
   const user_id = await getFromSecureStore("user_id");
 
@@ -11,7 +11,7 @@ export async function getProfile() {
   }
 
   try {
-    const res = await api.get(`/profile/me`, {
+    const res = await api.get(`/profiles/${id}`, {
       headers: {
         Authorization: `Bearer ${access_token}`,
       },

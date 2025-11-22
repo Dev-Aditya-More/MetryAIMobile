@@ -12,6 +12,7 @@ import { getProfile } from "@/helpers/profile";
 import { getStaff } from "@/helpers/staff";
 import { getCustomers } from "@/helpers/customers";
 import { getAppointments as fetchAppointments } from "@/helpers/appointments";
+import {getFromSecureStore} from "@/utils/secureStorage";
 
 /* ---------------- Types ---------------- */
 
@@ -109,10 +110,14 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
   async function loadAll() {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
+      
+      const user_id = await getFromSecureStore("user_id");
+      
+      console.log("User ID in HomeContext:", user_id);
       // 1) Profile (backend)
-      console.log("DEBUG PROFILE RAW:", await getProfile());
 
-      const profile = await getProfile();
+      const profile = await getProfile(user_id);
+
       if (!profile) throw new Error("Profile not found");
 
       // build welcome name from possible shapes
