@@ -16,7 +16,7 @@ export default function BottomNav() {
     ? "calendar"
     : has("(contact)")
     ? "contact"
-    : has("(sales)")
+    : has("(products)")
     ? "sales"
     : has("(settings)")
     ? "settings"

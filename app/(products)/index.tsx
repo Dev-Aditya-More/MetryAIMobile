@@ -1,11 +1,12 @@
 /* ------------------------------ IMPORTS ------------------------------ */
+import { ProductService } from "@/api/products";
 import facialImg from "@/assets/images/facial.jpg";
 import haircutImg from "@/assets/images/haircut.jpg";
 import manicureImg from "@/assets/images/manicure.jpg";
 import massageImg from "@/assets/images/massage.jpg";
 import BottomNav from "@/components/BottomNav";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     FlatList,
     Image,
@@ -168,6 +169,19 @@ export default function ProductsScreen() {
     ),
     []
   );
+
+
+// Render Data
+
+useEffect(() => {
+    const loadProducts = async () => {
+        const res = await ProductService.fetchProducts();
+        console.log("Appointments raw response:", JSON.stringify(res, null, 2));
+    }
+    loadProducts();
+  },);
+
+  
 
   return (
     <SafeAreaView style={styles.container}>
