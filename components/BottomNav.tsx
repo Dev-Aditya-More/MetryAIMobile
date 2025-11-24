@@ -26,7 +26,7 @@ export default function BottomNav() {
     if (key === "home") router.replace("/(home)" as Href);
     if (key === "calendar") router.replace("/(calendar)" as Href);
     if (key === "contact") router.replace("/(contact)" as Href);
-    if (key === "sales") router.replace("/(sales)" as Href);
+    if (key === "sales") router.replace("/(products)" as Href);
     if (key === "settings") router.replace("/(settings)" as Href);
   };
 
