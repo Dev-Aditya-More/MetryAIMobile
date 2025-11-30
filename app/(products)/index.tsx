@@ -6,6 +6,7 @@ import manicureImg from "@/assets/images/manicure.jpg";
 import massageImg from "@/assets/images/massage.jpg";
 import BottomNav from "@/components/BottomNav";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
@@ -121,6 +122,7 @@ const PRODUCTS: Product[] = [
 export default function ProductsScreen() {
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const router = useRouter();
 
   const filteredProducts = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -138,14 +140,23 @@ export default function ProductsScreen() {
     });
   }, [searchText, selectedCategory]);
 
+  const handlePressProduct = useCallback(
+    (item: Product) => {
+      // 👉 Navigate to service-edit and pass the product id
+      router.push({
+        pathname: "(products)/service-edit",
+        params: { productId: item.id },
+      });
+    },
+    [router]
+  );
+
   const renderProduct = useCallback(
     ({ item }: { item: Product }) => (
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.8}
-        onPress={() => {
-          console.log("Pressed product:", item.title);
-        }}
+        onPress={() => handlePressProduct(item)}
       >
         <Image source={item.image} style={styles.cardImage} />
         <View style={styles.cardBody}>
@@ -167,21 +178,17 @@ export default function ProductsScreen() {
         </View>
       </TouchableOpacity>
     ),
-    []
+    [handlePressProduct]
   );
 
-
-// Render Data
-
-useEffect(() => {
+  // Example: calling your API (only once)
+  useEffect(() => {
     const loadProducts = async () => {
-        const res = await ProductService.fetchProducts();
-        console.log("Appointments raw response:", JSON.stringify(res, null, 2));
-    }
+      const res = await ProductService.fetchProducts();
+      console.log("Appointments raw response:", JSON.stringify(res, null, 2));
+    };
     loadProducts();
-  },);
-
-  
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -239,7 +246,7 @@ useEffect(() => {
         style={styles.fab}
         activeOpacity={0.9}
         onPress={() => {
-          console.log("FAB pressed – add new product");
+          router.push("/(products)/service-add");
         }}
       >
         <Ionicons name="add" size={26} color="#FFFFFF" />
@@ -291,7 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#F3F4F6",
     marginRight: 8,
-    alignSelf: "center", // 👈 prevents stretching vertically
+    alignSelf: "center",
   },
   activeCategory: {
     backgroundColor: "#4F46E5",
@@ -308,7 +315,7 @@ const styles = StyleSheet.create({
 
   /* Product list */
   listContent: {
-    paddingBottom: 100, // space for BottomNav + FAB
+    paddingBottom: 100,
   },
   columnWrapper: {
     justifyContent: "space-between",
@@ -370,7 +377,7 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     right: 20,
-    bottom: 80, // a bit above BottomNav
+    bottom: 80,
     width: 52,
     height: 52,
     borderRadius: 26,

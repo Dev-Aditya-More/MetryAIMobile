@@ -10,6 +10,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="settings-security" options={{ headerShown: false }} />
       <Stack.Screen name="settings-staffmanagement" options={{ headerShown: false }} />
       <Stack.Screen name="settings-staffedit" options={{ headerShown: false }} />
+      <Stack.Screen name="settings-staff-add" options={{ headerShown: false }} />
     </Stack>
   );
 }

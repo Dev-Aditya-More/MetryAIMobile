@@ -11,24 +11,33 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function SettingsSecurity() {
+const PRIMARY = "#6366F1";
+
+export default function SettingsStaffAdd() {
   const router = useRouter();
 
-  const [currentPassword, setCurrentPassword] = useState("************");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
-  const updatePass = () => {
-    // TODO: update password logic
-    
-    // after successful update:
-    router.replace("/(onboarding)/login")
-  }
-  
+  const savePressed = () => {
+    // collect everything here and send to your API
+
+    // after successful save:
+    router.push("/(settings)/settings-staffmanagement");
+  };
+
+  const cancelPressed = () => {
+    router.push("/(settings)/settings-staffmanagement");
+  };
+
   const renderField = (
     label: string,
     value: string,
-    onChange: (text: string) => void
+    onChange: (text: string) => void,
+    options?: { keyboardType?: "default" | "email-address" | "phone-pad" }
   ) => (
     <View style={styles.fieldBlock}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -36,11 +45,13 @@ export default function SettingsSecurity() {
         value={value}
         onChangeText={onChange}
         style={styles.input}
-        secureTextEntry
+        keyboardType={options?.keyboardType ?? "default"}
         placeholderTextColor="#9CA3AF"
       />
     </View>
   );
+
+  const initials = "EW"; // later you can compute from name
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,7 +60,7 @@ export default function SettingsSecurity() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Security</Text>
+        <Text style={styles.headerTitle}>Staff Management</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -58,36 +69,53 @@ export default function SettingsSecurity() {
         contentContainerStyle={styles.contentInner}
         showsVerticalScrollIndicator={false}
       >
-        {renderField("Current Password", currentPassword, setCurrentPassword)}
-        {renderField("New Password", newPassword, setNewPassword)}
-        {renderField("Confirm New Password", confirmPassword, setConfirmPassword)}
+        {/* Avatar */}
+        <View style={styles.avatarWrapper}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+        </View>
+
+        {renderField("Full Name", fullName, setFullName)}
+        {renderField("Nickname", nickname, setNickname)}
+        {renderField("Job Title", jobTitle, setJobTitle)}
+        {renderField("Phone Number", phone, setPhone, {
+          keyboardType: "phone-pad",
+        })}
+        {renderField("Email", email, setEmail, {
+          keyboardType: "email-address",
+        })}
 
         <TouchableOpacity
-          style={styles.updateButton}
-          activeOpacity={0.8}
-          onPress={() => {
-            // TODO: update password logic
-            console.log("Update password");
-          }}
+          style={styles.saveButton}
+          activeOpacity={0.85}
+          onPress={savePressed}
         >
-          <Text style={styles.updateButtonText} onPress={updatePass}>Update Password</Text>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.saveButton}
+          activeOpacity={0.85}
+          onPress={savePressed}
+        >
+          <Text style={styles.saveButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const PRIMARY = "#6366F1";
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F4F6" },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
   },
@@ -98,11 +126,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
   },
+
   content: { flex: 1 },
   contentInner: {
     paddingHorizontal: 16,
     paddingVertical: 16,
+    paddingBottom: 32,
   },
+
+  avatarWrapper: {
+    alignItems: "center",
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  avatarCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: PRIMARY,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 18,
+  },
+
   fieldBlock: {
     marginBottom: 14,
   },
@@ -121,7 +171,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#111827",
   },
-  updateButton: {
+
+  saveButton: {
     marginTop: 32,
     borderRadius: 6,
     paddingVertical: 13,
@@ -129,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: PRIMARY,
   },
-  updateButtonText: {
+  saveButtonText: {
     color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 15,

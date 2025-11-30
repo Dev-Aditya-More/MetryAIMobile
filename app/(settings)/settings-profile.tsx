@@ -2,23 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsProfile() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("Yauhen Rymaszewski");
-  const [nickname, setNickname] = useState("Yauhen Rymaszewski");
-  const [jobTitle, setJobTitle] = useState("Product designer");
-  const [phone, setPhone] = useState("( 555 ) 123-4567");
-  const [email, setEmail] = useState("yauhen1312@gmail.com");
+  const [fullName, setFullName] = useState("Viraj Shah");
+  const [nickname, setNickname] = useState("");
+  const [jobTitle, setJobTitle] = useState("Owner");
+  const [phone, setPhone] = useState("+91932329872");
+  const [email, setEmail] = useState("shahviaj040@gmail.com");
 
   const renderField = (
     label: string,

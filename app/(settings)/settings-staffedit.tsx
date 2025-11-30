@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,11 +16,18 @@ const PRIMARY = "#6366F1";
 export default function SettingsStaffEdit() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("Yauhen Rymaszewski");
-  const [nickname, setNickname] = useState("Yauhen Rymaszewski");
-  const [jobTitle, setJobTitle] = useState("Product designer");
-  const [phone, setPhone] = useState("( 555 ) 123-4567");
-  const [email, setEmail] = useState("yauhen1312@gmail.com");
+  const [fullName, setFullName] = useState("Emma Wilson");
+  const [nickname, setNickname] = useState("");
+  const [jobTitle, setJobTitle] = useState("senior Stylist");
+  const [phone, setPhone] = useState("( 555 ) 111-2222");
+  const [email, setEmail] = useState("emma@salon.com");
+
+  const savePressed = () => {
+    // collect everything here and send to your API
+    
+    // after successful save:
+    router.push("/(settings)/settings-staffmanagement");
+  }
 
   const renderField = (
     label: string,
@@ -78,10 +85,7 @@ export default function SettingsStaffEdit() {
         <TouchableOpacity
           style={styles.saveButton}
           activeOpacity={0.85}
-          onPress={() => {
-            // TODO: save staff member
-            console.log("Save staff");
-          }}
+          onPress={savePressed}
         >
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>

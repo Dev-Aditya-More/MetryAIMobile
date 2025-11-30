@@ -75,6 +75,7 @@ export default function SettingsStaffmanagement() {
 
   const handleAddStaff = () => {
     // later: navigate to add-staff form
+    router.push("/(settings)/settings-staff-add");
     console.log("Add Staff Member");
   };
 
