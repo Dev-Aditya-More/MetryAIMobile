@@ -1,3 +1,4 @@
+import { AuthService } from "@/api/auth";
 import { handleError } from "@/utils/handleError";
 import { getFromSecureStore, saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -19,7 +20,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import api from "../../constants/api";
 
 const { width, height } = Dimensions.get("window");
 const CARD_WIDTH = Math.min(
@@ -47,17 +47,6 @@ export default function ProfileSetup() {
     [firstName, lastName, countryCode, phone]
   );
 
-  // --- Profile API Call
-  const profileSetup = async () => {
-    return api.post("/auth/complete-profile", {
-      user_id: "e359157c-697a-4a34-8c1f-97c3732865a2",
-      first_name: firstName,
-      last_name: lastName,
-      phone: phone,
-      // avatar_url can be included here later if you upload it to Supabase storage
-    });
-  };
-
   // --- Upload Button
   const onUploadPress = () => {
     Alert.alert(
@@ -84,8 +73,17 @@ export default function ProfileSetup() {
       const userid = await getFromSecureStore("id");
       console.log(userid);
 
+      let fullname = `${firstName.trim()} ${lastName.trim()}`.trim();
+      let phoneCode = countryCode.trim();
+      let phoneNumber = phone.trim();
+      let avatarUrl = "avatar";
       // Call API
-      await profileSetup();
+      await AuthService.setupProfile(
+        fullname,
+        avatarUrl,
+        phoneCode,
+        phoneNumber
+      );
 
       // Save onboarding completion flags
 
@@ -95,7 +93,6 @@ export default function ProfileSetup() {
       if (fullName) {
         saveToSecureStore({ customer_name: fullName });
       }
-
       // Navigate to home
       router.replace("/(home)" as Href);
     } catch (err) {

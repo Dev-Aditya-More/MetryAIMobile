@@ -75,19 +75,19 @@ export default function SettingsScreen() {
             {renderRow(
               "Profile",
               "person-outline",
-              "/(settings)/settings-profile" as Href,
+              "/(settings)/profile" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "General",
               "settings-outline",
-              "/(settings)/settings-general" as Href,
+              "/(settings)/general" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "Security",
               "lock-closed-outline",
-              "/(settings)/settings-security" as Href,
+              "/(settings)/security" as Href,
               { showBorder: false }
             )}
           </View>

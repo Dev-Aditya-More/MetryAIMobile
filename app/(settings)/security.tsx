@@ -1,7 +1,9 @@
+import { AuthService } from "@/api/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,19 +13,43 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const PRIMARY = "#6366F1";
+const PRIMARY_DISABLED = "#A5B4FC";
+
 export default function Security() {
   const router = useRouter();
 
-  const [currentPassword, setCurrentPassword] = useState("************");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const updatePass = () => {
-    // TODO: update password logic
+  const passwordsMatch = useMemo(
+    () =>
+      newPassword.length > 0 &&
+      confirmPassword.length > 0 &&
+      newPassword === confirmPassword,
+    [newPassword, confirmPassword]
+  );
 
+  const canSubmit =
+    currentPassword.length > 0 &&
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    passwordsMatch;
+
+  const updatePass = async () => {
+    if (!canSubmit) return;
+
+    // TODO: call API to update password here
+    try{
+      await AuthService.updatePassword(currentPassword, newPassword);
+    }
+    catch(err){
+      Alert.alert("Error", "Failed to update password. Please try again.");
+    }
     // after successful update:
-    router.replace("/(onboarding)/login")
-  }
+    router.replace("/(onboarding)/login");
+  };
 
   const renderField = (
     label: string,
@@ -60,24 +86,34 @@ export default function Security() {
       >
         {renderField("Current Password", currentPassword, setCurrentPassword)}
         {renderField("New Password", newPassword, setNewPassword)}
-        {renderField("Confirm New Password", confirmPassword, setConfirmPassword)}
+        {renderField(
+          "Confirm New Password",
+          confirmPassword,
+          setConfirmPassword
+        )}
+
+        {/* Error message when passwords don't match */}
+        {newPassword.length > 0 &&
+          confirmPassword.length > 0 &&
+          !passwordsMatch && (
+            <Text style={styles.errorText}>Passwords do not match</Text>
+          )}
 
         <TouchableOpacity
-          style={styles.updateButton}
-          activeOpacity={0.8}
-          onPress={() => {
-            // TODO: update password logic
-            console.log("Update password");
-          }}
+          style={[
+            styles.updateButton,
+            { backgroundColor: canSubmit ? PRIMARY : PRIMARY_DISABLED },
+          ]}
+          activeOpacity={canSubmit ? 0.8 : 1}
+          onPress={updatePass}
+          disabled={!canSubmit}
         >
-          <Text style={styles.updateButtonText} onPress={updatePass}>Update Password</Text>
+          <Text style={styles.updateButtonText}>Update Password</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const PRIMARY = "#6366F1";
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F4F6" },
@@ -121,13 +157,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#111827",
   },
+  errorText: {
+    marginTop: 2,
+    marginBottom: 8,
+    fontSize: 12,
+    color: "#DC2626",
+  },
   updateButton: {
     marginTop: 32,
     borderRadius: 6,
     paddingVertical: 13,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: PRIMARY,
   },
   updateButtonText: {
     color: "#FFFFFF",
