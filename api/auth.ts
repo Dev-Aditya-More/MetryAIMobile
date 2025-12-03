@@ -12,7 +12,7 @@ export const AuthService = {
   // login user
   async login(email: string, password: string) {
     try {
-      const response = await api.post("/api/auth/customer/login", {
+      const response = await api.post("/api/auth/merchant/login", {
         email: email,
         password: password,
       });
@@ -31,7 +31,7 @@ export const AuthService = {
   // signup user
   async signup(fullname: string, email: string, password: string) {
     try {
-      const response = await api.post("/api/auth/customer/register", {
+      const response = await api.post("/api/auth/merchant/register", {
         fullName: fullname,
         email: email,
         password: password,
@@ -69,7 +69,7 @@ export const AuthService = {
       }
 
       const response = await api.put(
-        "/api/auth/customer/user",
+        "/api/auth/merchant/user",
         {
           avatarUrl: avatarUrl,
           fullName: fullname,
@@ -105,7 +105,7 @@ export const AuthService = {
       }
 
       const response = await api.post(
-        "/api/auth/customer/user/update-pwd",
+        "/api/auth/merchant/user/update-pwd",
         {
           oldPassword: oldPassword,
           newPassword: newPassword,
