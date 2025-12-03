@@ -171,7 +171,7 @@ export default function ConfirmBooking() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.toastTitle}>Reservation confirmed!</Text>
                   <Text style={styles.toastMessage}>
-                    {bookingDetails.customerName}'s appointment has been booked
+                    {bookingDetails.customerName}&apos;s appointment has been booked
                     successfully.
                   </Text>
                 </View>

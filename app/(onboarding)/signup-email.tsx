@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function SignupEmail() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Sojo!</Text>
       <Text style={styles.body}>
-        We're excited to have you join us. Please sign up with your email to get started.
+        We&apos;re excited to have you join us. Please sign up with your email to get started.
       </Text>
     </View>
   );

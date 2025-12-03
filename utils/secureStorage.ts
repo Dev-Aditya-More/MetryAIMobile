@@ -1,11 +1,11 @@
 import * as SecureStore from "expo-secure-store";
- 
- export const saveToSecureStore = async (items = {}) => {
+
+export const saveToSecureStore = async (items = {}) => {
   try {
     const entries = Object.entries(items);
 
     for (const [key, value] of entries) {
-      await SecureStore.setItemAsync(key, value);
+      await SecureStore.setItemAsync(key, String(value));
       console.log(`🔐 Saved ${key} successfully`);
     }
   } catch (error) {
@@ -14,7 +14,7 @@ import * as SecureStore from "expo-secure-store";
 };
 
 
-export const getFromSecureStore = async (key, defaultValue = null) => {
+export const getFromSecureStore = async (key: string, defaultValue = null) => {
   try {
     const value = await SecureStore.getItemAsync(key);
     return value ?? defaultValue;

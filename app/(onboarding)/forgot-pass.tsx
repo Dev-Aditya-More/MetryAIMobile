@@ -24,33 +24,33 @@ export default function ForgotPass() {
   const [loading, setLoading] = useState(false);
 
   const handleReset = async () => {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
-    Alert.alert("Invalid Email", "Please enter a valid email address.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    Keyboard.dismiss();
-
-    const { data, error } = await AuthService.resetPassword(input.email);
-
-    if (error) {
-      Alert.alert("Error", error.message || "Unable to send reset email.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
       return;
     }
 
-    Alert.alert(
-      "Reset Link Sent",
-      `A password reset link has been sent to ${input.email}`
-    );
+    try {
+      setLoading(true);
+      Keyboard.dismiss();
 
-  } catch (err) {
-    Alert.alert("Error", "Something went wrong, please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+      const { data, error } = await AuthService.resetPassword(input.email);
+
+      if (error) {
+        Alert.alert("Error", error.message || "Unable to send reset email.");
+        return;
+      }
+
+      Alert.alert(
+        "Reset Link Sent",
+        `A password reset link has been sent to ${input.email}`
+      );
+
+    } catch (err) {
+      Alert.alert("Error", "Something went wrong, please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
@@ -63,7 +63,7 @@ export default function ForgotPass() {
           <View style={styles.card}>
             <Text style={styles.title}>Forgot Password?</Text>
             <Text style={styles.subtitle}>
-              Enter your registered email below and we'll send you a password
+              Enter your registered email below and we&apos;ll send you a password
               reset link.
             </Text>
 

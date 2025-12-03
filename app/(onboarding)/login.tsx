@@ -74,7 +74,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSocialPress = (platform) => {
+  const handleSocialPress = (platform: string) => {
     Alert.alert(
       `${platform} pressed`,
       "You can integrate actual SDK here later!"
@@ -179,7 +179,7 @@ export default function LoginScreen() {
 
               <TouchableOpacity onPress={signupPressed}>
                 <Text style={styles.footer}>
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <Text style={styles.linkText}>SignUp</Text>
                 </Text>
               </TouchableOpacity>

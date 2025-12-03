@@ -8,11 +8,11 @@ import React, {
 } from "react";
 
 import api from "@/constants/api";
+import { getAppointments as fetchAppointments } from "@/helpers/appointments";
+import { getCustomers } from "@/helpers/customers";
 import { getProfile } from "@/helpers/profile";
 import { getStaff } from "@/helpers/staff";
-import { getCustomers } from "@/helpers/customers";
-import { getAppointments as fetchAppointments } from "@/helpers/appointments";
-import {getFromSecureStore} from "@/utils/secureStorage";
+import { getFromSecureStore } from "@/utils/secureStorage";
 
 /* ---------------- Types ---------------- */
 
@@ -110,12 +110,13 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
   async function loadAll() {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      
+
       const user_id = await getFromSecureStore("user_id");
-      
+
       console.log("User ID in HomeContext:", user_id);
       // 1) Profile (backend)
 
+      if (!user_id) throw new Error("User ID not found");
       const profile = await getProfile(user_id);
 
       if (!profile) throw new Error("Profile not found");
@@ -156,23 +157,23 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
       const staffList: StaffItem[] = [
         ...(Array.isArray(staffResp)
           ? staffResp.map((s: any) => ({
-              id: s.id,
-              name: s.name ?? s.full_name ?? s.user_name ?? "",
-              role: s.role ?? s.title ?? s.designation ?? "",
-              online: (String(s.status ?? "").toLowerCase() === "online"),
-              avatar: s.avatarUrl ?? s.avatar_url ?? null,
-              badges: s.skills ?? s.badges ?? [],
-              isClient: false,
-            }))
+            id: s.id,
+            name: s.name ?? s.full_name ?? s.user_name ?? "",
+            role: s.role ?? s.title ?? s.designation ?? "",
+            online: (String(s.status ?? "").toLowerCase() === "online"),
+            avatar: s.avatarUrl ?? s.avatar_url ?? null,
+            badges: s.skills ?? s.badges ?? [],
+            isClient: false,
+          }))
           : []),
         ...(Array.isArray(customersResp)
           ? customersResp.map((c: any) => ({
-              id: c.id,
-              name: c.name ?? c.full_name ?? "",
-              role: "Client",
-              online: String(c.status ?? "").toLowerCase() === "online",
-              isClient: true,
-            }))
+            id: c.id,
+            name: c.name ?? c.full_name ?? "",
+            role: "Client",
+            online: String(c.status ?? "").toLowerCase() === "online",
+            isClient: true,
+          }))
           : []),
       ];
 

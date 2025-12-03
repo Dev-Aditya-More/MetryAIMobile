@@ -1,18 +1,18 @@
 // app/(home)/index.tsx
+import BottomNav from "@/components/BottomNav";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  ScrollView,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
   ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { HomeProvider, useHome } from "./_context/HomeContext";
-import BottomNav from "@/components/BottomNav";
 
 function MetricCard({ title, value, delta }: { title: string; value: string; delta?: number }) {
   const isPositive = (delta ?? 0) >= 0;
@@ -44,7 +44,7 @@ function HomeContent() {
 
   // metrics fallback (kept until backend analytics exist)
   const metrics = state.metrics.length > 0 ? state.metrics : [
-    { title: "Today's Revenue", value: "$1,214", deltaPct: -36 },
+    { title: "Today&apos;s Revenue", value: "$1,214", deltaPct: -36 },
     { title: "Appointments", value: "0", deltaPct: 0 },
     { title: "Clients", value: "0", deltaPct: 0 },
   ];
@@ -72,7 +72,7 @@ function HomeContent() {
 
         <View style={styles.card}>
           <View style={styles.rowBetween}>
-            <Text style={styles.sectionTitle}>Today's Attendance</Text>
+            <Text style={styles.sectionTitle}>Today&apos;s Attendance</Text>
             <TouchableOpacity onPress={() => { /* future: navigate to attendance page */ }}>
               <Text style={styles.link}>View All</Text>
             </TouchableOpacity>
@@ -91,7 +91,7 @@ function HomeContent() {
 
         <View style={styles.card}>
           <View style={styles.rowBetween}>
-            <Text style={styles.sectionTitle}>Today's Appointments</Text>
+            <Text style={styles.sectionTitle}>Today&apos;s Appointments</Text>
             <TouchableOpacity onPress={() => { /* future: navigate to appointments list */ }}>
               <Text style={styles.link}>See All</Text>
             </TouchableOpacity>

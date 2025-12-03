@@ -26,7 +26,7 @@ export default function OtpEmail() {
   const email = (params?.email as string) ?? "sumit12@email.com";
 
   const [digits, setDigits] = useState<string[]>(Array(DIGITS).fill(""));
-  const inputsRef = useRef<Array<TextInput | null>>([]);
+  const inputsRef = useRef<(TextInput | null)[]>([]);
   const [secondsLeft, setSecondsLeft] = useState<number>(START_SECONDS);
   const [sending, setSending] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -91,7 +91,7 @@ export default function OtpEmail() {
     if (code.length !== DIGITS) {
       return Alert.alert("Invalid code", "Please enter the complete OTP.");
     }
-    
+
     setSending(true);
     setTimeout(() => {
       setSending(false);
@@ -116,7 +116,7 @@ export default function OtpEmail() {
             <View style={styles.logoWrap}>
               <View style={styles.logoCircle} />
               <Text style={styles.title}>Check Your Email</Text>
-              <Text style={styles.subtitle}>We've sent a verification code to</Text>
+              <Text style={styles.subtitle}>We&apos;ve sent a verification code to</Text>
               <Text style={styles.emailText}>{email}</Text>
             </View>
 
@@ -171,7 +171,7 @@ export default function OtpEmail() {
             </TouchableOpacity>
 
             <Text style={styles.bottomText}>
-              Didn't receive the code? <Text style={styles.hint}>
+              Didn&apos;t receive the code? <Text style={styles.hint}>
                 Check your spam folder</Text>
             </Text>
           </View>

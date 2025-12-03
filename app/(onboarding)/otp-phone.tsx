@@ -27,7 +27,7 @@ export default function OtpPhone() {
   const rawPhone = (params?.phone as string) ?? "+81 xxxxxx2341";
 
   const [digits, setDigits] = useState(Array(DIGITS).fill(""));
-  const inputsRef = useRef<Array<TextInput | null>>([]);
+  const inputsRef = useRef<(TextInput | null)[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(START_SECONDS);
   const [sending, setSending] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -144,7 +144,7 @@ export default function OtpPhone() {
             <View style={styles.logoWrap}>
               <View style={styles.logoCircle} />
               <Text style={styles.title}>Check Your Phone</Text>
-              <Text style={styles.subtitle}>We've sent a verification code to</Text>
+              <Text style={styles.subtitle}>We&apos;ve sent a verification code to</Text>
               <Text style={styles.phoneText}>{maskPhone(rawPhone)}</Text>
             </View>
 
@@ -219,7 +219,7 @@ export default function OtpPhone() {
               <Text style={styles.verifyText}>Verify & Continue</Text>
             </TouchableOpacity>
 
-            <Text style={styles.bottomText}>Didn't receive the code?</Text>
+            <Text style={styles.bottomText}>Didn&apos;t receive the code?</Text>
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>

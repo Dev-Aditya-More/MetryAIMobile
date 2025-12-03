@@ -144,7 +144,7 @@ export default function ProductsScreen() {
     (item: Product) => {
       // 👉 Navigate to service-edit and pass the product id
       router.push({
-        pathname: "(products)/service-edit",
+        pathname: "/(products)/service-edit",
         params: { productId: item.id },
       });
     },
