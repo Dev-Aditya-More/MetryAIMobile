@@ -10,14 +10,13 @@ export const AuthService = {
   // login user
   async login(email: string, password: string) {
     try {
-      const response = await api.post("/auth/login", {
+      const response = await api.post("/api/auth/customer/login", {
         email: email,
-        password: password,
-        redirect_to: "auth",
+        password: password
       });
-      if (response.data?.session.access_token) {
+      if (response.data?.session.token) {
         saveToSecureStore({
-          access_token: response.data.session.access_token,
+          access_token: response.data.session.token,
           user_id: response.data.user.id,
         });
       }

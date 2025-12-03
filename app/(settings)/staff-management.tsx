@@ -49,7 +49,7 @@ const INITIAL_STAFF: Staff[] = [
 
 const PRIMARY = "#6366F1";
 
-export default function SettingsStaffmanagement() {
+export default function StaffManagement() {
   const router = useRouter();
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
 
@@ -70,12 +70,12 @@ export default function SettingsStaffmanagement() {
 
   const handleEdit = (id: string) => {
     // later: navigate to edit screen
-    router.push("/(settings)/settings-staffedit");
+    router.push("/(settings)/staff-edit");
   };
 
   const handleAddStaff = () => {
     // later: navigate to add-staff form
-    router.push("/(settings)/settings-staff-add");
+    router.push("/(settings)/staff-add");
     console.log("Add Staff Member");
   };
 

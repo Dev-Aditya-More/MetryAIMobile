@@ -2,29 +2,33 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function SettingsGeneral() {
+export default function Security() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("Yauhen Rymaszewski");
-  const [nickname, setNickname] = useState("Yauhen Rymaszewski");
-  const [jobTitle, setJobTitle] = useState("Product designer");
-  const [phone, setPhone] = useState("( 555 ) 123-4567");
-  const [email, setEmail] = useState("yauhen1312@gmail.com");
+  const [currentPassword, setCurrentPassword] = useState("************");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const updatePass = () => {
+    // TODO: update password logic
+
+    // after successful update:
+    router.replace("/(onboarding)/login")
+  }
 
   const renderField = (
     label: string,
     value: string,
-    onChange: (text: string) => void,
-    options?: { keyboardType?: "default" | "email-address" | "phone-pad" }
+    onChange: (text: string) => void
   ) => (
     <View style={styles.fieldBlock}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -32,7 +36,7 @@ export default function SettingsGeneral() {
         value={value}
         onChangeText={onChange}
         style={styles.input}
-        keyboardType={options?.keyboardType ?? "default"}
+        secureTextEntry
         placeholderTextColor="#9CA3AF"
       />
     </View>
@@ -45,8 +49,8 @@ export default function SettingsGeneral() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <View style={{ width: 22 }} />{/* spacer for centering */}
+        <Text style={styles.headerTitle}>Security</Text>
+        <View style={{ width: 22 }} />
       </View>
 
       <ScrollView
@@ -54,25 +58,19 @@ export default function SettingsGeneral() {
         contentContainerStyle={styles.contentInner}
         showsVerticalScrollIndicator={false}
       >
-        {renderField("Full Name", fullName, setFullName)}
-        {renderField("Nickname", nickname, setNickname)}
-        {renderField("Job Title", jobTitle, setJobTitle)}
-        {renderField("Phone Number", phone, setPhone, {
-          keyboardType: "phone-pad",
-        })}
-        {renderField("Email", email, setEmail, {
-          keyboardType: "email-address",
-        })}
+        {renderField("Current Password", currentPassword, setCurrentPassword)}
+        {renderField("New Password", newPassword, setNewPassword)}
+        {renderField("Confirm New Password", confirmPassword, setConfirmPassword)}
 
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={styles.updateButton}
           activeOpacity={0.8}
           onPress={() => {
-            // TODO: delete account logic
-            console.log("Delete account");
+            // TODO: update password logic
+            console.log("Update password");
           }}
         >
-          <Text style={styles.deleteButtonText}>Delete Account</Text>
+          <Text style={styles.updateButtonText} onPress={updatePass}>Update Password</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -123,17 +121,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#111827",
   },
-  deleteButton: {
+  updateButton: {
     marginTop: 32,
-    borderWidth: 1,
-    borderColor: "#EF4444",
     borderRadius: 6,
-    paddingVertical: 12,
+    paddingVertical: 13,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: PRIMARY,
   },
-  deleteButtonText: {
-    color: "#EF4444",
+  updateButtonText: {
+    color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 15,
   },

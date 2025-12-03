@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function SettingsProfile() {
+export default function Profile() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState("Viraj Shah");

@@ -13,21 +13,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const PRIMARY = "#6366F1";
 
-export default function SettingsStaffEdit() {
+export default function StaffAdd() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("Emma Wilson");
+  const [fullName, setFullName] = useState("");
   const [nickname, setNickname] = useState("");
-  const [jobTitle, setJobTitle] = useState("senior Stylist");
-  const [phone, setPhone] = useState("( 555 ) 111-2222");
-  const [email, setEmail] = useState("emma@salon.com");
+  const [jobTitle, setJobTitle] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
   const savePressed = () => {
     // collect everything here and send to your API
-    
+
     // after successful save:
-    router.push("/(settings)/settings-staffmanagement");
-  }
+    router.push("/(settings)/staff-management");
+  };
+
+  const cancelPressed = () => {
+    router.push("/(settings)/staff-management");
+  };
 
   const renderField = (
     label: string,
@@ -88,6 +92,14 @@ export default function SettingsStaffEdit() {
           onPress={savePressed}
         >
           <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.saveButton}
+          activeOpacity={0.85}
+          onPress={savePressed}
+        >
+          <Text style={styles.saveButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

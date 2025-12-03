@@ -11,24 +11,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function SettingsSecurity() {
+export default function General() {
   const router = useRouter();
 
-  const [currentPassword, setCurrentPassword] = useState("************");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("Yauhen Rymaszewski");
+  const [nickname, setNickname] = useState("Yauhen Rymaszewski");
+  const [jobTitle, setJobTitle] = useState("Product designer");
+  const [phone, setPhone] = useState("( 555 ) 123-4567");
+  const [email, setEmail] = useState("yauhen1312@gmail.com");
 
-  const updatePass = () => {
-    // TODO: update password logic
-    
-    // after successful update:
-    router.replace("/(onboarding)/login")
-  }
-  
   const renderField = (
     label: string,
     value: string,
-    onChange: (text: string) => void
+    onChange: (text: string) => void,
+    options?: { keyboardType?: "default" | "email-address" | "phone-pad" }
   ) => (
     <View style={styles.fieldBlock}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -36,7 +32,7 @@ export default function SettingsSecurity() {
         value={value}
         onChangeText={onChange}
         style={styles.input}
-        secureTextEntry
+        keyboardType={options?.keyboardType ?? "default"}
         placeholderTextColor="#9CA3AF"
       />
     </View>
@@ -49,8 +45,8 @@ export default function SettingsSecurity() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Security</Text>
-        <View style={{ width: 22 }} />
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={{ width: 22 }} />{/* spacer for centering */}
       </View>
 
       <ScrollView
@@ -58,19 +54,25 @@ export default function SettingsSecurity() {
         contentContainerStyle={styles.contentInner}
         showsVerticalScrollIndicator={false}
       >
-        {renderField("Current Password", currentPassword, setCurrentPassword)}
-        {renderField("New Password", newPassword, setNewPassword)}
-        {renderField("Confirm New Password", confirmPassword, setConfirmPassword)}
+        {renderField("Full Name", fullName, setFullName)}
+        {renderField("Nickname", nickname, setNickname)}
+        {renderField("Job Title", jobTitle, setJobTitle)}
+        {renderField("Phone Number", phone, setPhone, {
+          keyboardType: "phone-pad",
+        })}
+        {renderField("Email", email, setEmail, {
+          keyboardType: "email-address",
+        })}
 
         <TouchableOpacity
-          style={styles.updateButton}
+          style={styles.deleteButton}
           activeOpacity={0.8}
           onPress={() => {
-            // TODO: update password logic
-            console.log("Update password");
+            // TODO: delete account logic
+            console.log("Delete account");
           }}
         >
-          <Text style={styles.updateButtonText} onPress={updatePass}>Update Password</Text>
+          <Text style={styles.deleteButtonText}>Delete Account</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -121,16 +123,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#111827",
   },
-  updateButton: {
+  deleteButton: {
     marginTop: 32,
+    borderWidth: 1,
+    borderColor: "#EF4444",
     borderRadius: 6,
-    paddingVertical: 13,
+    paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: PRIMARY,
   },
-  updateButtonText: {
-    color: "#FFFFFF",
+  deleteButtonText: {
+    color: "#EF4444",
     fontWeight: "600",
     fontSize: 15,
   },
