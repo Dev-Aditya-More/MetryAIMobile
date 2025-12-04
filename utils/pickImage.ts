@@ -1,8 +1,8 @@
 // utils/imageHelper.ts
 
-import { UploadService } from "@/api/upload";
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
+import { getFromSecureStore } from "./secureStorage";
 
 export interface PickedImage {
   uri: string;
@@ -53,29 +53,88 @@ export const pickImage = async (): Promise<PickedImage | null> => {
 // -------------------------------------------
 // 2) UPLOAD IMAGE
 // -------------------------------------------
-export const uploadImage = async (
-  image: PickedImage | null
-): Promise<any | null> => {
+
+// export const uploadImage = async (
+//   image: PickedImage | null
+// ): Promise<any | null> => {
+//   if (!image) {
+//     Alert.alert("No image selected", "Please select an image first.");
+//     return null;
+//   }
+
+//   try {
+//     const formData = new FormData();
+
+//     formData.append("file", {
+//       uri: image.uri,
+//       name: image.fileName || "photo.jpg",
+//       type: image.type || "image/jpeg",
+//     } as any);
+
+//     const response = await UploadService.uploadImage(formData);
+//     console.log("Upload response:", response);
+//     return null;
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     Alert.alert("Error", "Failed to upload image.");
+//     return null;
+//   }
+// };
+
+export const uploadImage = async (image: PickedImage | null) => {
   if (!image) {
     Alert.alert("No image selected", "Please select an image first.");
     return null;
   }
 
   try {
+    const token = await getFromSecureStore("access_token");
+    if (!token) {
+      Alert.alert("Auth error", "Authentication token not found");
+      return null;
+    }
+
     const formData = new FormData();
 
+    // FIELD NAME MUST BE "file" (your backend)
     formData.append("file", {
       uri: image.uri,
       name: image.fileName || "photo.jpg",
-      type: image.type || "image/jpeg",
+      type: "image/jpeg", // Do NOT use image.type ("image")
     } as any);
 
-    const response = await UploadService.uploadImage(formData);
-    console.log("Upload response:", response);
-    return null;
-  } catch (err) {
-    console.error("Upload error:", err);
-    Alert.alert("Error", "Failed to upload image.");
-    return null;
+    console.log("Uploading file:", {
+      uri: image.uri,
+      name: image.fileName,
+      type: "image/jpeg",
+    });
+
+    const response = await fetch(
+      "https://express-micro-gateway.vercel.app/api/biz/upload",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // ❌ DO NOT SET "Content-Type"
+          // fetch will automatically add correct boundary
+        },
+        body: formData,
+      }
+    );
+
+    const text = await response.text();
+    console.log("RAW RESPONSE:", text);
+
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      json = { raw: text };
+    }
+
+    return json;
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error);
+    throw error;
   }
 };

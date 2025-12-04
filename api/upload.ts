@@ -13,7 +13,6 @@ export const UploadService = {
       const response = await api.post("/api/biz/upload", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
