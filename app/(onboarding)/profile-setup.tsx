@@ -1,5 +1,6 @@
 import { AuthService } from "@/api/auth";
 import { handleError } from "@/utils/handleError";
+import { PickedImage, pickImage, uploadImage } from "@/utils/pickImage";
 import { getFromSecureStore, saveToSecureStore } from "@/utils/secureStorage";
 import { FontAwesome } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
@@ -36,6 +37,7 @@ export default function ProfileSetup() {
   const [phone, setPhone] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+   const [image, setImage] = useState<PickedImage | null>(null);
 
   // --- Validation Logic
   const canContinue = useMemo(
@@ -48,11 +50,12 @@ export default function ProfileSetup() {
   );
 
   // --- Upload Button
-  const onUploadPress = () => {
-    Alert.alert(
-      "Upload",
-      "Image upload not implemented in this mock.\nYou can integrate ImagePicker later."
-    );
+  const onUploadPress = async () => {
+
+     const img = await pickImage();
+     if (img) setImage(img);
+
+      const uploadedData = await uploadImage(img);
   };
 
   // --- Continue Handler

@@ -100,13 +100,13 @@ export default function SettingsScreen() {
             {renderRow(
               "Staff Management",
               "people-outline",
-              "/(settings)/settings-staffmanagement" as Href,
+              "/(settings)/staff-management" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "Notifications",
               "notifications-outline",
-              "/(settings)/settings-notifications" as Href,
+              "/(settings)/notifications" as Href,
               { showBorder: false }
             )}
           </View>
