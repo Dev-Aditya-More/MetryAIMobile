@@ -54,6 +54,7 @@ export const pickImage = async (): Promise<PickedImage | null> => {
 // 2) UPLOAD IMAGE
 // -------------------------------------------
 
+// this version uses UploadService is not working give [Error: system exception]
 // export const uploadImage = async (
 //   image: PickedImage | null
 // ): Promise<any | null> => {

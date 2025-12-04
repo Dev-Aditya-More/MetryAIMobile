@@ -1,3 +1,6 @@
+import { BusinessService } from "@/api/business";
+import { ProductService } from "@/api/products";
+import { pickImage, uploadImage } from "@/utils/pickImage";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -24,11 +27,32 @@ export default function ServiceEditScreen() {
   const [trackQuantity, setTrackQuantity] = useState(false);
   const [publish, setPublish] = useState(false);
 
-  const handleEditSave = () => {
-    // collect everything here and send to your API
+  const handleAdd = async () => {
+    const businessesRes = await BusinessService.getBusinesses();
+    console.log("Businesses fetched:", businessesRes);
+
+    const businesses = businessesRes ?? [];
+    if (!Array.isArray(businesses) || businesses.length === 0) {
+      throw new Error("No business found for current user");
+    }
+    // pick the first business (the owner likely has 1)
+    const business = businesses[0];
+    const businessId = business.id;
+
+    const res = await ProductService.addProducts(businessId, serviceName);
 
     // after successful save:
     router.push("/(products)");
+  };
+
+  const handleCancel = () => {
+    router.push("/(products)");
+  };
+
+  const handleUpload = async () => {
+    const image = await pickImage();
+    const uploadedData = uploadImage(image);
+    console.log(uploadedData);
   };
 
   return (
@@ -124,7 +148,10 @@ export default function ServiceEditScreen() {
               <Text style={styles.uploadIconText}>📷</Text>
             </View>
             <Text style={styles.uploadText}>Browse or drag image</Text>
-            <TouchableOpacity style={styles.uploadButton}>
+            <TouchableOpacity
+              style={styles.uploadButton}
+              onPress={handleUpload}
+            >
               <Text style={styles.uploadButtonText}>Upload</Text>
             </TouchableOpacity>
           </View>
@@ -168,12 +195,12 @@ export default function ServiceEditScreen() {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleEditSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleAdd}>
           <Text style={styles.saveButtonText}>Add Service</Text>
         </TouchableOpacity>
 
         {/* Cancel Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleEditSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleCancel}>
           <Text style={styles.saveButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -1,10 +1,19 @@
 import api from "@/constants/api";
+import { handleApiResponse } from "@/utils/apiResponse";
 import { getFromSecureStore } from "../utils/secureStorage";
 
 export const ProductService = {
-  // assuming that we have Owner can have one business only
-  async fetchProducts(
-    businessId: string = "10f5b737-06ad-4afa-a68a-3cd08ec9e33d"
+  // 1 add products
+  async addProducts(
+    businessId: string,
+    name: string,
+    serviceTypeId: string,
+    duration: number,
+    price: number,
+    currency: string,
+    chairs: number,
+    rooms: number,
+    description: string
   ) {
     try {
       const token = await getFromSecureStore("access_token");
@@ -13,27 +22,122 @@ export const ProductService = {
         throw new Error("Authentication token not found");
       }
 
-      const response = await api.get(`/services/business/${businessId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await api.post(
+        "/api/biz/service/add",
+        {
+          businessId: businessId,
+          name: name,
+          serviceTypeId: serviceTypeId,
+          duration: duration,
+          price: price,
+          currency: currency,
+          chairs: chairs,
+          rooms: rooms,
+          description: description,
         },
-      });
-
-      return response.data.data;
-    } catch (error: any) {
-      console.error(
-        "Error fetching appointments:",
-        error?.response?.data || error?.message || error
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      return {
-        success: false,
-        message:
-          error?.response?.data?.error ||
-          error?.message ||
-          "Something went wrong",
-        status: error?.response?.status || 500,
-      };
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 2 update products
+  async updateProducts(
+    serviceId: string,
+    businessId: string,
+    name: string,
+    serviceTypeId: string,
+    duration: number,
+    price: number,
+    currency: string,
+    chairs: number,
+    rooms: number,
+    description: string
+  ) {
+    try {
+      const token = await getFromSecureStore("access_token");
+
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.post(
+        "/api/biz/service/update",
+        {
+          id: serviceId,
+          businessId: businessId,
+          name: name,
+          serviceTypeId: serviceTypeId,
+          duration: duration,
+          price: price,
+          currency: currency,
+          chairs: chairs,
+          rooms: rooms,
+          description: description,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 3 search products
+  async searchProduct(name: string, pageNo: string, pageSize: string) {
+    try {
+      const token = await getFromSecureStore("access_token");
+
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const response = await api.post(
+        "/api/biz/service/search",
+        {
+          name: name ?? "",
+          pageNo: pageNo,
+          pageSize: pageSize,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 4 delete products
+  async delteProduct(serviceId: string) {
+    try {
+      const token = await getFromSecureStore("access_token");
+
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const response = await api.post(
+        "/api/biz/service/delete",
+        {
+          id: serviceId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
     }
   },
 };

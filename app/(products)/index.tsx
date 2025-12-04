@@ -29,12 +29,13 @@ type Product = {
   price: number;
   image: any;
   category: string;
-  rating: number;
-  reviews: number;
-  sold: number;
+  rating?: number;
+  reviews?: number;
+  sold?: number;
 };
 
-const PRODUCTS: Product[] = [
+// Optional: fallback static data if API fails
+const FALLBACK_PRODUCTS: Product[] = [
   {
     id: "1",
     title: "Nail Art",
@@ -117,17 +118,87 @@ const PRODUCTS: Product[] = [
   },
 ];
 
+/* Helper: map backend service → category + image */
+const mapServiceToCategoryAndImage = (serviceTypeId: string, name: string) => {
+  const lower = (serviceTypeId || name || "").toLowerCase();
+
+  if (lower.includes("hair")) {
+    return { category: "Hair", image: haircutImg };
+  }
+  if (lower.includes("nail")) {
+    return { category: "Nails", image: manicureImg };
+  }
+  if (lower.includes("skin") || lower.includes("facial")) {
+    return { category: "Skin", image: facialImg };
+  }
+  if (lower.includes("massage")) {
+    return { category: "Skin", image: massageImg };
+  }
+
+  // default
+  return { category: "All", image: manicureImg };
+};
+
 /* ------------------------------ SCREEN ------------------------------ */
 
 export default function ProductsScreen() {
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const router = useRouter();
+
+  // Load products from backend once
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await ProductService.searchProduct("", "1", "10");
+        console.log("Products raw response:", res);
+
+        const apiList = (res as any)?.list ?? [];
+
+        const mapped: Product[] = apiList.map((item: any) => {
+          const { category, image } = mapServiceToCategoryAndImage(
+            item.serviceTypeId,
+            item.name
+          );
+
+          return {
+            id: item.id,
+            title: item.name,
+            price: item.price,
+            image,
+            category,
+            // Dummy values until backend provides these
+            rating: 4.8,
+            reviews: 100,
+            sold: 200,
+          };
+        });
+
+        setProducts(mapped);
+      } catch (e: any) {
+        console.error("Failed to load products", e);
+        setError("Failed to load products");
+        // fallback to static data so UI still shows something
+        setProducts(FALLBACK_PRODUCTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     const q = searchText.trim().toLowerCase();
 
-    return PRODUCTS.filter((p) => {
+    return products.filter((p) => {
       const matchesCategory =
         selectedCategory === "All" || p.category === selectedCategory;
 
@@ -138,11 +209,11 @@ export default function ProductsScreen() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [searchText, selectedCategory]);
+  }, [searchText, selectedCategory, products]);
 
   const handlePressProduct = useCallback(
     (item: Product) => {
-      // 👉 Navigate to service-edit and pass the product id
+      // Navigate to service-edit and pass the product id
       router.push({
         pathname: "/(products)/service-edit",
         params: { productId: item.id },
@@ -152,43 +223,40 @@ export default function ProductsScreen() {
   );
 
   const renderProduct = useCallback(
-    ({ item }: { item: Product }) => (
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.8}
-        onPress={() => handlePressProduct(item)}
-      >
-        <Image source={item.image} style={styles.cardImage} />
-        <View style={styles.cardBody}>
-          <Text style={styles.cardTitle} numberOfLines={2}>
-            {item.title}
-          </Text>
+    ({ item }: { item: Product }) => {
+      const rating = item.rating ?? 0;
+      const reviews = item.reviews ?? 0;
+      const sold = item.sold ?? 0;
 
-          <View style={styles.cardRatingRow}>
-            <MaterialIcons name="star" size={14} color="#F59E0B" />
-            <Text style={styles.cardRatingText}>
-              {item.rating.toFixed(1)} ({item.reviews})
+      return (
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.8}
+          onPress={() => handlePressProduct(item)}
+        >
+          <Image source={item.image} style={styles.cardImage} />
+          <View style={styles.cardBody}>
+            <Text style={styles.cardTitle} numberOfLines={2}>
+              {item.title}
             </Text>
-          </View>
 
-          <View style={styles.cardFooterRow}>
-            <Text style={styles.cardPrice}>${item.price}</Text>
-            <Text style={styles.cardSold}>{item.sold} sold</Text>
+            <View style={styles.cardRatingRow}>
+              <MaterialIcons name="star" size={14} color="#F59E0B" />
+              <Text style={styles.cardRatingText}>
+                {rating.toFixed(1)} ({reviews})
+              </Text>
+            </View>
+
+            <View style={styles.cardFooterRow}>
+              <Text style={styles.cardPrice}>${item.price}</Text>
+              <Text style={styles.cardSold}>{sold} sold</Text>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
-    ),
+        </TouchableOpacity>
+      );
+    },
     [handlePressProduct]
   );
-
-  // Example: calling your API (only once)
-  useEffect(() => {
-    const loadProducts = async () => {
-      const res = await ProductService.fetchProducts();
-      console.log("Appointments raw response:", JSON.stringify(res, null, 2));
-    };
-    loadProducts();
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -230,6 +298,17 @@ export default function ProductsScreen() {
         })}
       </View>
 
+      {/* Loading & error */}
+      {loading && (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>Loading...</Text>
+      )}
+
+      {!loading && error && (
+        <Text style={{ textAlign: "center", marginTop: 20, color: "red" }}>
+          {error}
+        </Text>
+      )}
+
       {/* Product Grid */}
       <FlatList
         data={filteredProducts}
@@ -239,6 +318,13 @@ export default function ProductsScreen() {
         columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !loading ? (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              No products found.
+            </Text>
+          ) : null
+        }
       />
 
       {/* FAB */}

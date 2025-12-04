@@ -56,6 +56,7 @@ export default function ProfileSetup() {
      if (img) setImage(img);
 
       const uploadedData = await uploadImage(img);
+      setAvatarUri(uploadedData.data.url);
   };
 
   // --- Continue Handler
@@ -83,7 +84,7 @@ export default function ProfileSetup() {
       // Call API
       await AuthService.setupProfile(
         fullname,
-        avatarUrl,
+        avatarUri ?? avatarUrl,
         phoneCode,
         phoneNumber
       );
