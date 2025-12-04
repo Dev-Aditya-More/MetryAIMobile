@@ -45,6 +45,7 @@ export const AuthService = {
         });
       }
 
+      console.log(response.data);
       return handleApiResponse(response.data);
     } catch (err) {
       console.log("🔥 Signup API Error (Raw):", err);
@@ -119,4 +120,21 @@ export const AuthService = {
       throw err;
     }
   },
+
+  async getProfile(){
+    try{
+      const token = await getFromSecureStore("access_token");
+      
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.get("/api/auth/merchant/user",{
+        headers:{Authorization: `Bearer ${token}`}
+      });
+
+      return handleApiResponse(response.data);
+    }catch(err){
+      throw err
+    }
+  }
 };

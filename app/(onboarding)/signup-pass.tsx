@@ -60,7 +60,7 @@ export default function SignupScreen() {
     try {
       setError("");
 
-      const data = await AuthService.signup(input.email, input.password, userType);
+      const data = await AuthService.signup("user",input.email, input.password);
 
       console.log("✅ Signup successful:", data);
 
