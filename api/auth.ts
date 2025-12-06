@@ -9,7 +9,7 @@ import { supabase } from "../utils/supabaseClient";
 // redirectTo: 'MetryMobile://reset-password' when your app is standalone
 
 export const AuthService = {
-  // login user
+  //1 login user
   async login(email: string, password: string) {
     try {
       const response = await api.post("/api/auth/merchant/login", {
@@ -28,7 +28,7 @@ export const AuthService = {
     }
   },
 
-  // signup user
+  //2 signup user
   async signup(fullname: string, email: string, password: string) {
     try {
       const response = await api.post("/api/auth/merchant/register", {
@@ -53,41 +53,38 @@ export const AuthService = {
     }
   },
 
-  // setup profile
-  async setupProfile(
-    fullname: string,
-    avatarUrl: string,
-    phoneCode: string,
-    phone: string
-  ) {
-    try {
-      const token = await getFromSecureStore("access_token");
+  // 3 setup profile
+  async setupProfile(payload: {
+  fullName: string;
+  avatarUrl: string;
+  phoneCode: string;
+  phone: string;
+  email: string;
+}) {
+  try {
+    const token = await getFromSecureStore("access_token");
 
-      console.log("access token:", token);
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.put(
-        "/api/auth/merchant/user",
-        {
-          avatarUrl: avatarUrl,
-          fullName: fullname,
-          phoneCode: phoneCode,
-          phone: phone,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
+    if (!token) {
+      throw new Error("Authentication token not found");
     }
-  },
 
-  // reset password email supabase
+    console.log("Profile update payload:", payload);
+
+    const response = await api.put(
+      "/api/auth/merchant/user",
+      payload,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return handleApiResponse(response.data);
+  } catch (err) {
+    throw err;
+  }
+},
+
+  //4 reset password email supabase
   async resetPassword(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: Linking.createURL("reset-password"), // your frontend redirect
@@ -96,7 +93,7 @@ export const AuthService = {
     return { data, error };
   },
 
-  //   Update password
+  //5 Update password
   async updatePassword(oldPassword: string, newPassword: string) {
     try {
       const token = await getFromSecureStore("access_token");
@@ -121,6 +118,7 @@ export const AuthService = {
     }
   },
 
+  // 6 get the profile
   async getProfile(){
     try{
       const token = await getFromSecureStore("access_token");

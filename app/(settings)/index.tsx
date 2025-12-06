@@ -1,8 +1,8 @@
-import profieImg from "@/assets/images/profile.jpg";
+import { AuthService } from "@/api/auth";
 import BottomNav from "@/components/BottomNav";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -16,6 +16,31 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function SettingsScreen() {
   const router = useRouter();
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
+  const [fullName, setFullName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await AuthService.getProfile();
+        console.log("Profile response:", res);
+
+        if (!res) return;
+
+        const loadedFullName = res.fullName ?? "";
+        const loadedAvatarUrl = res.avatarUrl || null;
+
+        setFullName(loadedFullName);
+        setAvatarUrl(loadedAvatarUrl);
+        setAvatarError(false);
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const renderRow = (
     label: string,
@@ -34,7 +59,7 @@ export default function SettingsScreen() {
         style={({ pressed }) => [
           styles.row,
           !showBorder && styles.rowNoBorder,
-          (pressed || activeLabel === label) && styles.rowPressed, // 👈 stronger feedback
+          (pressed || activeLabel === label) && styles.rowPressed,
         ]}
       >
         <View style={styles.rowLeft}>
@@ -60,12 +85,23 @@ export default function SettingsScreen() {
         {/* Top profile area */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarWrapper}>
-            <Image source={profieImg} style={styles.profileImage} />
+            {avatarUrl && !avatarError ? (
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.profileImage}
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={40} color="#9CA3AF" />
+              </View>
+            )}
+
             <View style={styles.cameraBadge}>
               <Ionicons name="camera-outline" size={16} color="#FFFFFF" />
             </View>
           </View>
-          <Text style={styles.profileName}>Viraj Shah</Text>
+          <Text style={styles.profileName}>{fullName}</Text>
         </View>
 
         {/* PERSONAL */}
@@ -143,11 +179,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
   },
   profileImage: {
     width: "100%",
     height: "100%",
     borderRadius: 48,
+  },
+  avatarPlaceholder: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 48,
+    backgroundColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
   },
   cameraBadge: {
     position: "absolute",
@@ -200,7 +245,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   rowPressed: {
-    backgroundColor: "#E5E7EB", // grey feedback when pressed
+    backgroundColor: "#E5E7EB",
   },
   rowNoBorder: {
     borderBottomWidth: 0,
