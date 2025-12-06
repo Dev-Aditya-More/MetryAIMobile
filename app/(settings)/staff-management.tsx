@@ -80,6 +80,7 @@ export default function StaffManagement() {
         }));
 
         setStaff(mappedStaff);
+        console.log(mappedStaff);
       } catch (error) {
         console.error("Failed to load staff:", error);
       }
