@@ -1,7 +1,10 @@
+import { BusinessService } from "@/api/business";
+import { StaffService } from "@/api/staff";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,20 +20,46 @@ export default function StaffAdd() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState("");
-  const [nickname, setNickname] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneCode, setPhoneCode] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const savePressed = () => {
-    // collect everything here and send to your API
+  const savePressed = async () => {
+    try {
+      const businessId = await BusinessService.getBusinessesId();
 
-    // after successful save:
-    router.push("/(settings)/staff-management");
+      if (!fullName || !email || !phoneCode || !phone) {
+        Alert.alert("All fields are required");
+        return;
+      }
+
+      const payload = {
+        businessId,
+        name: fullName,
+        email,
+        phoneCode,
+        phone,
+      };
+
+      console.log("Payload for add staff:", payload);
+
+      const res = await StaffService.addStaff(payload);
+
+      if (res) {
+        Alert.alert("Added Successfully");
+      } else {
+        Alert.alert("Something went wrong");
+      }
+
+      router.replace("/(settings)/staff-management");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error while adding staff");
+    }
   };
 
   const cancelPressed = () => {
-    router.push("/(settings)/staff-management");
+    router.replace("/(settings)/staff-management");
   };
 
   const renderField = (
@@ -51,7 +80,7 @@ export default function StaffAdd() {
     </View>
   );
 
-  const initials = "EW"; // later you can compute from name
+  const initials = fullName ? fullName[0].toUpperCase() : "S";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,7 +89,7 @@ export default function StaffAdd() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Staff Management</Text>
+        <Text style={styles.headerTitle}>Add Staff</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -76,16 +105,19 @@ export default function StaffAdd() {
           </View>
         </View>
 
+        {/* FIELDS */}
         {renderField("Full Name", fullName, setFullName)}
-        {renderField("Nickname", nickname, setNickname)}
-        {renderField("Job Title", jobTitle, setJobTitle)}
-        {renderField("Phone Number", phone, setPhone, {
-          keyboardType: "phone-pad",
-        })}
         {renderField("Email", email, setEmail, {
           keyboardType: "email-address",
         })}
+        {renderField("Phone Code", phoneCode, setPhoneCode, {
+          keyboardType: "phone-pad",
+        })}
+        {renderField("Phone Number", phone, setPhone, {
+          keyboardType: "phone-pad",
+        })}
 
+        {/* SAVE BUTTON */}
         <TouchableOpacity
           style={styles.saveButton}
           activeOpacity={0.85}
@@ -94,10 +126,14 @@ export default function StaffAdd() {
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
+        {/* CANCEL BUTTON */}
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[
+            styles.saveButton,
+            { backgroundColor: "#9CA3AF", marginTop: 12 },
+          ]}
           activeOpacity={0.85}
-          onPress={savePressed}
+          onPress={cancelPressed}
         >
           <Text style={styles.saveButtonText}>Cancel</Text>
         </TouchableOpacity>

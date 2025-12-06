@@ -1,7 +1,10 @@
+import { BusinessService } from "@/api/business";
+import { StaffService } from "@/api/staff";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -18,6 +21,7 @@ type Staff = {
   email: string;
   phone: string;
   active: boolean;
+  raw?: any; // keep full API object if needed
 };
 
 const INITIAL_STAFF: Staff[] = [
@@ -52,11 +56,37 @@ const PRIMARY = "#6366F1";
 export default function StaffManagement() {
   const router = useRouter();
   const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const activeCount = useMemo(
     () => staff.filter((s) => s.active).length,
     [staff]
   );
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const businessId = await BusinessService.getBusinessesId();
+        const apiStaff = await StaffService.getStaff(businessId);
+
+        const mappedStaff: Staff[] = apiStaff.map((s: any) => ({
+          id: String(s.id),
+          name: s.name ?? "Unnamed",
+          role: "Staff",
+          email: s.email ?? "",
+          phone: s.fullPhone ?? "",
+          active: true,
+          raw: s,
+        }));
+
+        setStaff(mappedStaff);
+      } catch (error) {
+        console.error("Failed to load staff:", error);
+      }
+    };
+
+    loadData();
+  }, []); // 👈 empty deps: only once
 
   const toggleActive = (id: string) => {
     setStaff((prev) =>
@@ -65,17 +95,54 @@ export default function StaffManagement() {
   };
 
   const handleDelete = (id: string) => {
-    setStaff((prev) => prev.filter((s) => s.id !== id));
+    setDeleteId(id);
+    console.log(id);
+    Alert.alert("Delete Staff ", "Are you sure you want to delete?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => confirmDelete(),
+      },
+    ]);
   };
 
-  const handleEdit = (id: string) => {
-    // later: navigate to edit screen
-    router.push("/(settings)/staff-edit");
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      const res = await StaffService.deleteStaff(deleteId);
+
+      if (res) {
+        // remove from UI immediately
+        setStaff((prev) => prev.filter((s) => s.id !== deleteId));
+        setDeleteId(null);
+        Alert.alert("Staff Deleted Successfully");
+      } else {
+        Alert.alert("Something went wrong , Not able to delete");
+      }
+    } catch (err) {
+      console.log("Delete Staff Error:", err);
+      Alert.alert("Something went wrong , Not able to delete");
+    }
+  };
+
+  const handleEdit = (member: Staff) => {
+    // push full staff object (prefer raw API object if present)
+    router.replace({
+      pathname: "/(settings)/staff-edit",
+      params: {
+        staffId: member.id,
+        staff: member.raw ? JSON.stringify(member.raw) : JSON.stringify(member),
+      },
+    });
   };
 
   const handleAddStaff = () => {
-    // later: navigate to add-staff form
-    router.push("/(settings)/staff-add");
+    router.replace("/(settings)/staff-add");
     console.log("Add Staff Member");
   };
 
@@ -87,7 +154,7 @@ export default function StaffManagement() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header (same grey as background to remove strip) */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
@@ -101,7 +168,7 @@ export default function StaffManagement() {
         contentContainerStyle={styles.contentInner}
         showsVerticalScrollIndicator={false}
       >
-        {/* Team Members text + add link (on next line & centered) */}
+        {/* Team header */}
         <View style={styles.teamHeader}>
           <Text style={styles.teamTitle}>Team Members</Text>
           <Text style={styles.teamSubtitle}>
@@ -132,7 +199,9 @@ export default function StaffManagement() {
                 <View style={styles.nameBadgeRow}>
                   <Text style={styles.staffName}>{member.name}</Text>
                   <View style={styles.statusBadge}>
-                    <Text style={styles.statusBadgeText}>Active</Text>
+                    <Text style={styles.statusBadgeText}>
+                      {member.active ? "Active" : "Inactive"}
+                    </Text>
                   </View>
                 </View>
 
@@ -171,7 +240,7 @@ export default function StaffManagement() {
               <TouchableOpacity
                 activeOpacity={0.7}
                 style={styles.footerButton}
-                onPress={() => handleEdit(member.id)}
+                onPress={() => handleEdit(member)}
               >
                 <Ionicons name="pencil-outline" size={18} color="#6B7280" />
               </TouchableOpacity>
@@ -197,7 +266,7 @@ const styles = StyleSheet.create({
 
   addButtonWrapper: {
     flexDirection: "row",
-    justifyContent: "center", // center horizontally
+    justifyContent: "center",
     alignItems: "center",
     paddingVertical: 10,
     backgroundColor: "#F5F5F5",
@@ -219,7 +288,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
-    backgroundColor: "#F3F4F6", // 👈 same as container (no white strip)
+    backgroundColor: "#F3F4F6",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
   },
@@ -238,7 +307,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
 
-  /* Team header (no box) */
   teamHeader: {
     marginBottom: 12,
   },
@@ -253,10 +321,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#6B7280",
     marginTop: 2,
-    marginBottom: 8, // add spacing before button
+    marginBottom: 8,
   },
 
-  /* Staff card */
   staffCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 8,

@@ -1,7 +1,9 @@
+import { StaffService } from "@/api/staff";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,20 +16,83 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const PRIMARY = "#6366F1";
 
 export default function StaffEdit() {
+  const { staff } = useLocalSearchParams();
   const router = useRouter();
 
-  const [fullName, setFullName] = useState("Emma Wilson");
-  const [nickname, setNickname] = useState("");
-  const [jobTitle, setJobTitle] = useState("senior Stylist");
-  const [phone, setPhone] = useState("( 555 ) 111-2222");
-  const [email, setEmail] = useState("emma@salon.com");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [businessID, setBusinessId] = useState("");
+  const [staffId, setStaffId] = useState("");
+  // store initial values for DIRTY CHECK
+  const [initialValues, setInitialValues] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+  });
 
-  const savePressed = () => {
+  // parse staff from params and pre-fill fields
+  useEffect(() => {
+    try {
+      if (staff) {
+        const parsed = JSON.parse(staff as string);
+
+        const nameFromApi = parsed.name ?? parsed.fullName ?? "";
+        const phoneFromApi = parsed.fullPhone ?? parsed.phone ?? "";
+        const emailFromApi = parsed.email ?? "";
+        const businessidApi = parsed.businessId ?? "";
+        const staffidApi = parsed.id ?? "";
+
+        setFullName(nameFromApi);
+        setPhone(phoneFromApi);
+        setEmail(emailFromApi);
+        setBusinessId(businessidApi);
+        setStaffId(staffidApi);
+
+        setInitialValues({
+          fullName: nameFromApi,
+          phone: phoneFromApi,
+          email: emailFromApi,
+        });
+      }
+    } catch (e) {
+      console.log("Failed to parse staff param", e);
+    }
+  }, [staff]);
+
+  // DIRTY CHECK: enable Save only if something changed
+  const isDirty = useMemo(() => {
+    return (
+      fullName !== initialValues.fullName ||
+      phone !== initialValues.phone ||
+      email !== initialValues.email
+    );
+  }, [fullName, phone, email, initialValues]);
+
+  const savePressed = async () => {
+    if (!isDirty) return;
+
     // collect everything here and send to your API
+    const payload = {
+      id: staffId,
+      businessId: businessID,
+      name: fullName,
+      email,
+      fullPhone: phone,
+    };
+
+    console.log("Payload", payload);
+    const res = await StaffService.updateStaff(payload);
+
+    if (res) {
+      Alert.alert("Updated Successfully");
+    } else {
+      Alert.alert("Not able Update");
+    }
 
     // after successful save:
-    router.push("/(settings)/staff-management");
-  }
+    router.replace("/(settings)/staff-management");
+  };
 
   const renderField = (
     label: string,
@@ -47,7 +112,15 @@ export default function StaffEdit() {
     </View>
   );
 
-  const initials = "EW"; // later you can compute from name
+  const getInitials = (name: string) => {
+    const cleaned = name.trim();
+    if (!cleaned) return "";
+    const parts = cleaned.split(" ");
+    if (parts.length === 1) return (parts[0][0] || "").toUpperCase();
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  };
+
+  const initials = getInitials(fullName || "Staff");
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,8 +146,6 @@ export default function StaffEdit() {
         </View>
 
         {renderField("Full Name", fullName, setFullName)}
-        {renderField("Nickname", nickname, setNickname)}
-        {renderField("Job Title", jobTitle, setJobTitle)}
         {renderField("Phone Number", phone, setPhone, {
           keyboardType: "phone-pad",
         })}
@@ -83,9 +154,13 @@ export default function StaffEdit() {
         })}
 
         <TouchableOpacity
-          style={styles.saveButton}
-          activeOpacity={0.85}
+          style={[
+            styles.saveButton,
+            !isDirty && styles.saveButtonDisabled, // greyed out when not dirty
+          ]}
+          activeOpacity={isDirty ? 0.85 : 1}
           onPress={savePressed}
+          disabled={!isDirty}
         >
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
@@ -167,6 +242,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: PRIMARY,
+  },
+  saveButtonDisabled: {
+    backgroundColor: "#9CA3AF",
   },
   saveButtonText: {
     color: "#FFFFFF",
