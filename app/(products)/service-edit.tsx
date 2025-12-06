@@ -1,7 +1,9 @@
+import { ProductService } from "@/api/products";
+import { pickImage, uploadImage } from "@/utils/pickImage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Image,
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -13,48 +15,140 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ServiceEditScreen() {
-  const router = useRouter();
-  const { productId } = useLocalSearchParams<{ productId?: string }>();
+  const { productId, service } = useLocalSearchParams<{
+    productId?: string;
+    service?: string; // 👈 add this
+  }>();
 
-  // ---------- FORM STATE ----------
-  const [serviceName, setServiceName] = useState("Nail Art");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("35");
-  const [compareAtPrice, setCompareAtPrice] = useState("35");
-  const [costPerItem, setCostPerItem] = useState("35");
-  const [category, setCategory] = useState("");
-  const [trackQuantity, setTrackQuantity] = useState(false);
-  const [publish, setPublish] = useState(true);
+  // console.log("productID:", productId);
+  // console.log("service:", service);
+
+  const parsedService = React.useMemo(() => {
+    if (!service) return null;
+
+    try {
+      return JSON.parse(service as string);
+    } catch (e) {
+      console.warn("Failed to parse service param", e);
+      return null;
+    }
+  }, [service]);
 
   useEffect(() => {
-    if (!productId) {
-      console.warn("No productId provided for editing.");
-      return;
-    }
+    if (!parsedService) return;
 
-    // fetch initial data for this product and fill the form
+    setServiceName(parsedService.name ?? "");
+    setDescription(parsedService.description ?? "");
+    setCurrency(parsedService.currency ?? "");
+    setPrice(
+      parsedService.price !== undefined && parsedService.price !== null
+        ? String(parsedService.price)
+        : ""
+    );
+    setDuration(
+      parsedService.duration !== undefined && parsedService.duration !== null
+        ? String(parsedService.duration)
+        : ""
+    );
+    setChairs(
+      parsedService.chairs !== undefined && parsedService.chairs !== null
+        ? String(parsedService.chairs)
+        : ""
+    );
+    setRooms(
+      parsedService.rooms !== undefined && parsedService.rooms !== null
+        ? String(parsedService.rooms)
+        : ""
+    );
+    setPublish(parsedService.isActive);
+  }, [parsedService]);
 
-    console.log("Editing product with id:", productId);
-  }, [productId]);
+  const router = useRouter();
 
-  const handleEditSave = () => {
-    // You can collect everything here and send to your API
+  // ---------- FORM STATE ----------
+  // name, description, price, duration, chairs, rooms, currency
+  const [serviceName, setServiceName] = useState(""); // name
+  const [description, setDescription] = useState(""); // description
+  const [price, setPrice] = useState(""); // price (string -> number later)
+  const [duration, setDuration] = useState(""); // duration (minutes)
+  const [chairs, setChairs] = useState(""); // chairs
+  const [rooms, setRooms] = useState(""); // rooms
+  const [currency, setCurrency] = useState(""); // fixed currency for now
+
+  // keep existing switches (design unchanged)
+  const [trackQuantity, setTrackQuantity] = useState(false);
+  const [publish, setPublish] = useState(false);
+
+  const handleEdit = async () => {
+    //
+    // convert numeric fields
+    const priceNumber = Number(price) || 0;
+    const durationNumber = Number(duration) || 0;
+    const chairsNumber = Number(chairs) || 0;
+    const roomsNumber = Number(rooms) || 0;
+    const serviceTypeId = `${serviceName}001`;
+
+    // send full payload (adjust to your API signature if needed)
     const payload = {
-      id: productId,
-      serviceName,
+      id: parsedService.id,
+      businessId: parsedService.businessId,
+      name: serviceName,
+      serviceTypeId,
       description,
-      price: Number(price),
-      compareAtPrice: Number(compareAtPrice),
-      costPerItem: Number(costPerItem),
-      category,
-      trackQuantity,
-      publish,
+      price: priceNumber,
+      duration: durationNumber,
+      currency,
+      chairs: chairsNumber,
+      rooms: roomsNumber,
     };
 
-    console.log("Saving payload:", payload);
+    try {
+      const res = await ProductService.updateProducts(payload);
+      Alert.alert("Service Updated Successfully!");
+      router.push("/(products)");
+    } catch (err) {
+      console.log("Update Occur While Updating Service:", err);
+      Alert.alert("Something wrong happens not able to update!");
+    }
+  };
 
-    // after successful save:
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Service",
+      "Are you sure you want to delete this service?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => confirmDelete(),
+        },
+      ]
+    );
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const res = await ProductService.delteProduct(productId ?? "");
+      Alert.alert("Service Deleted Successfully");
+    } catch (err) {
+      console.log("Delete Service Error:", err);
+      Alert.alert("Something went wrong , Not able to delete");
+    }
     router.push("/(products)");
+  };
+
+  const handleCancel = () => {
+    router.push("/(products)");
+  };
+
+  const handleUpload = async () => {
+    const image = await pickImage();
+    const uploadedData = uploadImage(image);
+    console.log(uploadedData);
   };
 
   return (
@@ -89,7 +183,16 @@ export default function ServiceEditScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Price ($)</Text>
+            <Text style={styles.label}>Currency</Text>
+            <TextInput
+              style={styles.input}
+              value={currency}
+              onChangeText={setCurrency}
+            />
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Price</Text>
             <TextInput
               style={styles.input}
               value={price}
@@ -98,33 +201,37 @@ export default function ServiceEditScreen() {
             />
           </View>
 
+          {/* Reused for duration */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Compare at Price ($)</Text>
+            <Text style={styles.label}>Duration (minutes)</Text>
             <TextInput
               style={styles.input}
-              value={compareAtPrice}
-              onChangeText={setCompareAtPrice}
+              value={duration}
+              onChangeText={setDuration}
               keyboardType="numeric"
             />
           </View>
 
+          {/* Reused for chairs */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Cost per Item ($)</Text>
+            <Text style={styles.label}>Chairs</Text>
             <TextInput
               style={styles.input}
-              value={costPerItem}
-              onChangeText={setCostPerItem}
+              value={chairs}
+              onChangeText={setChairs}
               keyboardType="numeric"
             />
           </View>
 
+          {/* Reused for rooms */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Category</Text>
+            <Text style={styles.label}>Rooms</Text>
             <TextInput
               style={styles.input}
-              placeholder="Select category"
-              value={category}
-              onChangeText={setCategory}
+              placeholder="Enter number of rooms"
+              value={rooms}
+              onChangeText={setRooms}
+              keyboardType="numeric"
             />
           </View>
 
@@ -150,7 +257,10 @@ export default function ServiceEditScreen() {
               <Text style={styles.uploadIconText}>📷</Text>
             </View>
             <Text style={styles.uploadText}>Browse or drag image</Text>
-            <TouchableOpacity style={styles.uploadButton}>
+            <TouchableOpacity
+              style={styles.uploadButton}
+              onPress={handleUpload}
+            >
               <Text style={styles.uploadButtonText}>Upload</Text>
             </TouchableOpacity>
           </View>
@@ -158,31 +268,9 @@ export default function ServiceEditScreen() {
           {/* Thumbnails */}
           <View style={styles.thumbnailRow}>
             <View style={styles.thumbnailWrapper}>
-              <Image
-                source={{
-                  uri: "https://images.pexels.com/photos/3993442/pexels-photo-3993442.jpeg",
-                }}
-                style={styles.thumbnail}
-              />
-              <TouchableOpacity style={styles.thumbClose}>
-                <Text style={styles.thumbCloseText}>×</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.thumbnailWrapper}>
-              <Image
-                source={{
-                  uri: "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
-                }}
-                style={styles.thumbnail}
-              />
-              <TouchableOpacity style={styles.thumbClose}>
-                <Text style={styles.thumbCloseText}>×</Text>
-              </TouchableOpacity>
+              {/* implement logic after upload a image preview is here */}
             </View>
           </View>
-
-          <Text style={styles.helperText}>The first page is main page</Text>
         </View>
 
         {/* Service Summary */}
@@ -199,29 +287,45 @@ export default function ServiceEditScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Price</Text>
-            <Text style={styles.summaryValue}>${price}</Text>
+            <Text style={styles.summaryValue}>{price ? `$${price}` : "-"}</Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Stock</Text>
+            <Text style={styles.summaryLabel}>Duration</Text>
             <Text style={styles.summaryValue}>
-              {trackQuantity ? "50" : "-"}
+              {duration ? `${duration} min` : "-"}
             </Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Images</Text>
-            <Text style={styles.summaryValue}>1</Text>
+            <Text style={styles.summaryLabel}>Chairs</Text>
+            <Text style={styles.summaryValue}>{chairs ? chairs : "-"}</Text>
+          </View>
+
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Rooms</Text>
+            <Text style={styles.summaryValue}>{rooms ? rooms : "-"}</Text>
           </View>
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleEditSave}>
-          <Text style={styles.saveButtonText}>Save Edit</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleEdit}>
+          <Text style={styles.saveButtonText}>Update Service</Text>
         </TouchableOpacity>
+
         {/* Cancel Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleEditSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleCancel}>
           <Text style={styles.saveButtonText}>Cancel</Text>
+        </TouchableOpacity>
+
+        {/* Delete Button */}
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          activeOpacity={0.8}
+          onPress={handleDelete}
+        >
+          <Text style={styles.deleteButtonText}>Delete Service</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -404,5 +508,19 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
+  },
+  deleteButton: {
+    marginTop: 32,
+    borderWidth: 1,
+    borderColor: "#EF4444",
+    borderRadius: 999,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteButtonText: {
+    color: "#EF4444",
+    fontWeight: "600",
+    fontSize: 15,
   },
 });

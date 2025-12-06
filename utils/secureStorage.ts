@@ -6,10 +6,10 @@ export const saveToSecureStore = async (items = {}) => {
 
     for (const [key, value] of entries) {
       await SecureStore.setItemAsync(key, String(value));
-      console.log(`🔐 Saved ${key} successfully`);
+      // console.log(`🔐 Saved ${key} successfully`);
     }
   } catch (error) {
-    console.log("❌ SecureStore save error:", error);
+    // console.log("❌ SecureStore save error:", error);
   }
 };
 

@@ -14,16 +14,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function ServiceEditScreen() {
+export default function ServiceAddScreen() {
   const router = useRouter();
 
   // ---------- FORM STATE ----------
-  const [serviceName, setServiceName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [compareAtPrice, setCompareAtPrice] = useState("");
-  const [costPerItem, setCostPerItem] = useState("");
-  const [category, setCategory] = useState("");
+  // name, description, price, duration, chairs, rooms, currency
+  const [serviceName, setServiceName] = useState(""); // name
+  const [description, setDescription] = useState(""); // description
+  const [price, setPrice] = useState(""); // price (string -> number later)
+  const [duration, setDuration] = useState(""); // duration (minutes)
+  const [chairs, setChairs] = useState(""); // chairs
+  const [rooms, setRooms] = useState(""); // rooms
+  const [currency, setCurrency] = useState(""); // fixed currency for now
+
+  // keep existing switches (design unchanged)
   const [trackQuantity, setTrackQuantity] = useState(false);
   const [publish, setPublish] = useState(false);
 
@@ -39,7 +43,30 @@ export default function ServiceEditScreen() {
     const business = businesses[0];
     const businessId = business.id;
 
-    const res = await ProductService.addProducts(businessId, serviceName);
+    // convert numeric fields
+    const priceNumber = Number(price) || 0;
+    const durationNumber = Number(duration) || 0;
+    const chairsNumber = Number(chairs) || 0;
+    const roomsNumber = Number(rooms) || 0;
+    const serviceTypeId = `${serviceName}001`;
+
+    // send full payload (adjust to your API signature if needed)
+    const payload = {
+      businessId,
+      name: serviceName,
+      serviceTypeId,
+      description,
+      price: priceNumber,
+      duration: durationNumber,
+      currency,
+      chairs: chairsNumber,
+      rooms: roomsNumber,
+    };
+
+    // console.log("Add service payload:", payload);
+
+    const res = await ProductService.addProducts(payload);
+    // console.log("Add service response:", res);
 
     // after successful save:
     router.push("/(products)");
@@ -87,7 +114,16 @@ export default function ServiceEditScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Price ($)</Text>
+            <Text style={styles.label}>Currency</Text>
+            <TextInput
+              style={styles.input}
+              value={currency}
+              onChangeText={setCurrency}
+            />
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Price</Text>
             <TextInput
               style={styles.input}
               value={price}
@@ -96,33 +132,37 @@ export default function ServiceEditScreen() {
             />
           </View>
 
+          {/* Reused for duration */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Compare at Price ($)</Text>
+            <Text style={styles.label}>Duration (minutes)</Text>
             <TextInput
               style={styles.input}
-              value={compareAtPrice}
-              onChangeText={setCompareAtPrice}
+              value={duration}
+              onChangeText={setDuration}
               keyboardType="numeric"
             />
           </View>
 
+          {/* Reused for chairs */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Cost per Item ($)</Text>
+            <Text style={styles.label}>Chairs</Text>
             <TextInput
               style={styles.input}
-              value={costPerItem}
-              onChangeText={setCostPerItem}
+              value={chairs}
+              onChangeText={setChairs}
               keyboardType="numeric"
             />
           </View>
 
+          {/* Reused for rooms */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Category</Text>
+            <Text style={styles.label}>Rooms</Text>
             <TextInput
               style={styles.input}
-              placeholder="Select category"
-              value={category}
-              onChangeText={setCategory}
+              placeholder="Enter number of rooms"
+              value={rooms}
+              onChangeText={setRooms}
+              keyboardType="numeric"
             />
           </View>
 
@@ -178,19 +218,24 @@ export default function ServiceEditScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Price</Text>
-            <Text style={styles.summaryValue}>${price}</Text>
+            <Text style={styles.summaryValue}>{price ? `$${price}` : "-"}</Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Stock</Text>
+            <Text style={styles.summaryLabel}>Duration</Text>
             <Text style={styles.summaryValue}>
-              {trackQuantity ? "50" : "-"}
+              {duration ? `${duration} min` : "-"}
             </Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Images</Text>
-            <Text style={styles.summaryValue}>1</Text>
+            <Text style={styles.summaryLabel}>Chairs</Text>
+            <Text style={styles.summaryValue}>{chairs ? chairs : "-"}</Text>
+          </View>
+
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Rooms</Text>
+            <Text style={styles.summaryValue}>{rooms ? rooms : "-"}</Text>
           </View>
         </View>
 

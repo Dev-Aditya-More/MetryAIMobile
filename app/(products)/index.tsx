@@ -32,6 +32,8 @@ type Product = {
   rating?: number;
   reviews?: number;
   sold?: number;
+  // 👇 keep the original backend object here
+  raw: any;
 };
 
 // Optional: fallback static data if API fails
@@ -45,6 +47,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.7,
     reviews: 180,
     sold: 300,
+    raw: null,
   },
   {
     id: "2",
@@ -55,6 +58,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.8,
     reviews: 220,
     sold: 400,
+    raw: null,
   },
   {
     id: "3",
@@ -65,6 +69,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.6,
     reviews: 150,
     sold: 250,
+    raw: null,
   },
   {
     id: "4",
@@ -75,6 +80,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.9,
     reviews: 210,
     sold: 500,
+    raw: null,
   },
   {
     id: "5",
@@ -85,6 +91,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.5,
     reviews: 90,
     sold: 150,
+    raw: null,
   },
   {
     id: "6",
@@ -95,6 +102,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.8,
     reviews: 130,
     sold: 200,
+    raw: null,
   },
   {
     id: "7",
@@ -105,6 +113,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.7,
     reviews: 175,
     sold: 320,
+    raw: null,
   },
   {
     id: "8",
@@ -115,6 +124,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     rating: 4.3,
     reviews: 60,
     sold: 80,
+    raw: null,
   },
 ];
 
@@ -178,6 +188,8 @@ export default function ProductsScreen() {
             rating: 4.8,
             reviews: 100,
             sold: 200,
+            // 👇 store the original backend object
+            raw: item,
           };
         });
 
@@ -213,10 +225,13 @@ export default function ProductsScreen() {
 
   const handlePressProduct = useCallback(
     (item: Product) => {
-      // Navigate to service-edit and pass the product id
+      // 👉 Send the original backend row (item.raw), not the mapped Product
       router.push({
         pathname: "/(products)/service-edit",
-        params: { productId: item.id },
+        params: {
+          productId: item.id,
+          service: item.raw ? JSON.stringify(item.raw) : "",
+        },
       });
     },
     [router]
