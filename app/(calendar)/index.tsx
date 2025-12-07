@@ -77,6 +77,8 @@ export default function CalendarScreen() {
 
   const [eventAreaWidth, setEventAreaWidth] = useState(0);
 
+  const [loading, setLoading] = useState(true); // 🆕 loading state
+
   const days = Array.from({ length: 7 }, (_, i) =>
     currentWeekStart.add(i, "day")
   );
@@ -126,6 +128,8 @@ export default function CalendarScreen() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true); // 🆕 start loading
+
         const businessId = await BusinessService.getBusinessesId();
 
         const [staffRes, apptRes] = await Promise.all([
@@ -175,14 +179,15 @@ export default function CalendarScreen() {
 
         setAppointments(mapped);
 
-        // Staff list for dropdown
+        // Staff list for dropdown – all staff, not just who has appointments
         const staffNames = Array.from(
           new Set(staffArray.map((s) => s.name || "Unnamed Staff"))
         );
         setStaffList(["All Staff", ...staffNames]);
-        setStaffList(["All Staff", ...staffNames]);
       } catch (error) {
         console.error("Error loading calendar data:", error);
+      } finally {
+        setLoading(false); // 🆕 done loading
       }
     };
 
@@ -365,7 +370,10 @@ export default function CalendarScreen() {
         style={{ marginTop: 10, marginBottom: 70 }}
         showsVerticalScrollIndicator={false}
       >
-        {laidOutEvents.length === 0 ? (
+        {loading ? (
+          // 🆕 show loading text while fetching
+          <Text style={styles.noEvents}>Loading appointments...</Text>
+        ) : laidOutEvents.length === 0 ? (
           <Text style={styles.noEvents}>No appointments for this day</Text>
         ) : (
           <View style={{ height: 24 * 80 }}>
