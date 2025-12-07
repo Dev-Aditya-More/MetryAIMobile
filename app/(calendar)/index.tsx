@@ -1,7 +1,9 @@
+import { AppointmentService } from "@/api/appointment";
+import { BusinessService } from "@/api/business";
+import { StaffService } from "@/api/staff";
 import BottomNav from "@/components/BottomNav";
 import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
@@ -14,49 +16,45 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CalendarService } from "../../api/calendar";
 
-dayjs.extend(customParseFormat);
+/* ---------- Raw API type ---------- */
 
-// the API appointment type definition
-type ApiAppointment = {
+type StaffApi = {
   id: string;
-  created_at: string;
-  date: string; // "2025-01-20"
-  slot: string; // "7:30 PM - 8.00 PM" or "10:30 AM"
-  status: string;
-  customer?: {
-    id: string;
-    full_name: string;
-  };
-  staff?: {
-    id: string;
-    user?: {
-      full_name: string;
-    };
-  };
-  service?: {
-    id: string;
-    name: string;
-    room: string | null;
-    price: number;
-    duration_minutes?: number;
-  };
-  business?: {
-    id: string;
-    name: string;
-    rooms: any;
-    chairs: any;
-  };
+  businessId: string;
+  businessName: string;
+  name: string;
+  email: string;
+  fullPhone: string;
+  merchantId: string;
 };
+
+type AppointmentApi = {
+  id: string;
+  staffId: string;
+  serviceId: string;
+  customerName: string;
+  timeSlot: string; // "14:00-15:00"
+  businessId: string;
+  merchantId: string;
+  appointmentTime: number; // epoch ms
+  updateTime: number;
+  createTime: number;
+  email: string | null;
+  phone: string | null;
+  orderItemId: string | null;
+  customerUserId: string | null;
+};
+
+/* ---------- Internal calendar types ---------- */
 
 type CalendarAppointment = {
   id: string;
-  title: string;
-  staff: string;
-  start: number;
-  end: number;
-  date: string;
+  title: string; // we’ll use customerName for now
+  staff: string; // staff display name
+  start: number; // decimal hour
+  end: number; // decimal hour
+  date: string; // "YYYY-MM-DD"
   color: string;
 };
 
@@ -77,74 +75,39 @@ export default function CalendarScreen() {
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
   const [staffList, setStaffList] = useState<string[]>(["All Staff"]);
 
-  const [eventAreaWidth, setEventAreaWidth] = useState(0); // 👈 width of area right of time labels
+  const [eventAreaWidth, setEventAreaWidth] = useState(0);
 
   const days = Array.from({ length: 7 }, (_, i) =>
     currentWeekStart.add(i, "day")
   );
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // --- Time parsing helpers ---
+  /* ---------- Helpers to parse new timeSlot format ---------- */
 
-  const parseTimeToDecimal = (
-    timeStr: string,
-    dateStr: string
-  ): number | null => {
-    if (!timeStr) return null;
-
-    const raw = timeStr.trim();
-    const normalized = raw.replace(".", ":"); // "8.00 PM" → "8:00 PM"
-
-    const dateTimeStr = `${dateStr} ${normalized}`;
-    const formats = ["YYYY-MM-DD h:mm A", "YYYY-MM-DD h A"];
-
-    let m: dayjs.Dayjs | null = null;
-
-    for (const fmt of formats) {
-      const candidate = dayjs(dateTimeStr, fmt, true);
-      if (candidate.isValid()) {
-        m = candidate;
-        break;
-      }
-    }
-
-    if (!m) {
-      console.warn("Could not parse time:", timeStr, "for date:", dateStr);
-      return null;
-    }
-
-    return m.hour() + m.minute() / 60;
-  };
-
-  const parseSlotToStartEnd = (
-    slot: string,
-    dateStr: string,
-    durationMinutes: number = 30
+  // timeSlot: "14:00-15:00"
+  const parseSlot24ToStartEnd = (
+    slot: string
   ): { start: number; end: number } | null => {
     if (!slot) return null;
+    const parts = slot.split("-");
+    if (parts.length !== 2) return null;
 
-    const parts = slot.split("-").map((p) => p.trim());
+    const parse = (t: string): number | null => {
+      const [hStr, mStr] = t.split(":");
+      const h = Number(hStr);
+      const m = Number(mStr);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return h + m / 60;
+    };
 
-    if (parts.length === 1) {
-      const start = parseTimeToDecimal(parts[0], dateStr);
-      if (start == null) return null;
-      const end = start + durationMinutes / 60;
-      return { start, end };
-    }
+    const start = parse(parts[0]);
+    const end = parse(parts[1]);
 
-    const start = parseTimeToDecimal(parts[0], dateStr);
-    const endRaw = parseTimeToDecimal(parts[1], dateStr);
-
-    if (start == null || endRaw == null) return null;
-
-    let end = endRaw;
-    if (end <= start) {
-      end = start + durationMinutes / 60;
-    }
-
+    if (start == null || end == null) return null;
     return { start, end };
   };
 
+  /* ---------- Navigation between weeks ---------- */
 
   const goToPreviousWeek = () => {
     const newWeek = currentWeekStart.subtract(1, "week");
@@ -158,39 +121,45 @@ export default function CalendarScreen() {
     setSelectedDate(newWeek);
   };
 
-  // --- Fetch data ---
+  /* ---------- Fetch staff + appointments using new APIs ---------- */
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const res = await CalendarService.getAppointments();
-        console.log("Appointments raw response:", JSON.stringify(res, null, 2));
+        const businessId = await BusinessService.getBusinessesId();
 
-        if (!Array.isArray(res)) {
-          console.warn("Unexpected appointments response shape");
-          return;
+        const [staffRes, apptRes] = await Promise.all([
+          StaffService.getStaff(businessId),
+          AppointmentService.getAppoints(businessId),
+        ]);
+
+        console.log("Staff response:", JSON.stringify(staffRes, null, 2));
+        console.log("Appointments response:", JSON.stringify(apptRes, null, 2));
+
+        // Assume both APIs return plain arrays like your samples
+        const staffArray: StaffApi[] = Array.isArray(staffRes) ? staffRes : [];
+        const apptArray: AppointmentApi[] = Array.isArray(apptRes)
+          ? apptRes
+          : [];
+
+        // Map staffId → staff name
+        const staffIdToName: Record<string, string> = {};
+        for (const s of staffArray) {
+          staffIdToName[s.id] = s.name || "Unnamed Staff";
         }
 
-        const mapped: CalendarAppointment[] = res
-          .map((item: ApiAppointment) => {
-            const dateStr = item.date;
-            const duration =
-              item.service?.duration_minutes !== undefined
-                ? item.service.duration_minutes
-                : 30;
-
-            const slotParsed = parseSlotToStartEnd(
-              item.slot,
-              dateStr,
-              duration
-            );
-
+        // Convert raw appointments into CalendarAppointment objects
+        const mapped: CalendarAppointment[] = apptArray
+          .map((item) => {
+            const slotParsed = parseSlot24ToStartEnd(item.timeSlot);
             if (!slotParsed) return null;
 
-            const staffName =
-              item.staff?.user?.full_name || item.staff?.id || "Unknown Staff";
+            const dateStr = dayjs(item.appointmentTime).format("YYYY-MM-DD");
 
-            const title = item.service?.name || "Service";
+            const staffName =
+              staffIdToName[item.staffId] || item.staffId || "Unknown Staff";
+
+            const title = item.customerName || "Appointment";
 
             return {
               id: item.id,
@@ -206,19 +175,22 @@ export default function CalendarScreen() {
 
         setAppointments(mapped);
 
+        // Staff list for dropdown
         const staffNames = Array.from(
-          new Set(mapped.map((a) => a.staff).filter(Boolean))
+          new Set(staffArray.map((s) => s.name || "Unnamed Staff"))
         );
         setStaffList(["All Staff", ...staffNames]);
+        setStaffList(["All Staff", ...staffNames]);
       } catch (error) {
-        console.error("Error in useEffect fetchData:", error);
+        console.error("Error loading calendar data:", error);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
-  // keep selected date within current week
+  /* ---------- Keep selected date inside current week ---------- */
+
   useEffect(() => {
     if (
       selectedDate.isBefore(currentWeekStart) ||
@@ -228,7 +200,8 @@ export default function CalendarScreen() {
     }
   }, [currentWeekStart, selectedDate]);
 
-  // Filter for selected day + staff
+  /* ---------- Filter appointments for selected day + staff ---------- */
+
   const filteredAppointments = useMemo(
     () =>
       appointments
@@ -241,12 +214,11 @@ export default function CalendarScreen() {
     [appointments, selectedDate, selectedStaff]
   );
 
-  // --- Overlap layout (side-by-side columns) ---
+  /* ---------- Overlap layout (columns) ---------- */
 
   const laidOutEvents: LaidOutEvent[] = useMemo(() => {
     if (filteredAppointments.length === 0) return [];
 
-    // Greedy column assignment
     const result: LaidOutEvent[] = [];
     let active: LaidOutEvent[] = [];
 
@@ -263,7 +235,7 @@ export default function CalendarScreen() {
       result.push(laid);
     }
 
-    // compute max columns overlapping each event
+    // compute max overlapping columns for each event
     for (const ev of result) {
       let maxCol = ev.column;
       for (const other of result) {
@@ -285,6 +257,8 @@ export default function CalendarScreen() {
     }
   };
 
+  /* ---------- UI ---------- */
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Search */}
@@ -297,7 +271,7 @@ export default function CalendarScreen() {
         />
       </View>
 
-      {/* Header */}
+      {/* Header with date + arrows */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={goToPreviousWeek}>
           <MaterialIcons name="chevron-left" size={26} color="#333" />
@@ -315,7 +289,7 @@ export default function CalendarScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Week Days */}
+      {/* Week days */}
       <View style={styles.weekRow}>
         {days.map((day, index) => {
           const isSelected =
@@ -348,7 +322,7 @@ export default function CalendarScreen() {
         })}
       </View>
 
-      {/* Staff Dropdown */}
+      {/* Staff dropdown */}
       <TouchableOpacity
         style={styles.dropdown}
         onPress={() => setShowDropdown((prev) => !prev)}
@@ -386,7 +360,7 @@ export default function CalendarScreen() {
         </View>
       )}
 
-      {/* Schedule */}
+      {/* Schedule area */}
       <ScrollView
         style={{ marginTop: 10, marginBottom: 70 }}
         showsVerticalScrollIndicator={false}
@@ -402,7 +376,6 @@ export default function CalendarScreen() {
                 </Text>
                 <View
                   style={styles.eventColumn}
-                  // measure width once (on first row)
                   onLayout={index === 0 ? handleEventAreaLayout : undefined}
                 />
               </View>
@@ -412,13 +385,13 @@ export default function CalendarScreen() {
               const top = event.start * 80;
               const height = (event.end - event.start) * 80;
 
-              let width = eventAreaWidth - 8; // default full width minus padding
-              let left = 60; // time label (50) + marginRight (10)
+              let width = eventAreaWidth - 8;
+              let left = 60;
 
               if (eventAreaWidth > 0 && event.columnsCount > 0) {
                 const colWidth = eventAreaWidth / event.columnsCount;
-                width = colWidth - 8; // small gap between columns
-                left = 60 + colWidth * event.column + 4; // 4px padding
+                width = colWidth - 8;
+                left = 60 + colWidth * event.column + 4;
               }
 
               const startLabel = dayjs(selectedDate)
@@ -465,7 +438,7 @@ export default function CalendarScreen() {
         )}
       </ScrollView>
 
-      {/* Bottom Nav */}
+      {/* Bottom nav */}
       <View style={styles.bottomNavContainer}>
         <BottomNav />
       </View>
@@ -473,9 +446,11 @@ export default function CalendarScreen() {
   );
 }
 
-// 🧱 Styles
+/* ---------- Styles ---------- */
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 16 },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
