@@ -7,11 +7,11 @@ import React, {
   useState,
 } from "react";
 
+import { AppointmentService } from "@/api/appointment";
 import { AuthService } from "@/api/auth";
 import { BusinessService } from "@/api/business";
 import { StaffService } from "@/api/staff";
-import { getAppointments as fetchAppointments } from "@/helpers/appointments";
-import { getCustomers } from "@/helpers/customers";
+
 /* ---------------- Types ---------------- */
 
 export type StaffItem = {
@@ -32,11 +32,11 @@ export type CustomerItem = {
 
 export type AppointmentItem = {
   id: string;
-  service_name?: string;
+  service_name?: string;   // we’ll show customerName here in Home cards
   staff_name?: string;
   customer_name?: string;
-  start_time?: string;
-  end_time?: string;
+  start_time?: string;     // ISO string
+  end_time?: string;       // ISO string
   status?: string;
 };
 
@@ -54,6 +54,44 @@ export type HomeState = {
   staffList: StaffItem[];
   customers: CustomerItem[];
   appointments: AppointmentItem[];
+};
+
+/* ---------------- Raw API types (new backend) ---------------- */
+
+type ProfileApi = {
+  avatarUrl?: string;
+  fullName?: string;
+  phoneCode?: string;
+  phone?: string;
+  fullPhone?: string;
+  email?: string;
+};
+
+type StaffApi = {
+  id: string;
+  businessId: string;
+  businessName: string;
+  name: string;
+  email: string;
+  fullPhone: string;
+  merchantId: string;
+};
+
+type AppointmentApi = {
+  id: string;
+  staffId: string;
+  serviceId: string;
+  customerName: string;
+  timeSlot: string;       // "14:00-15:00"
+  businessId: string;
+  merchantId: string;
+  appointmentTime: number; // epoch ms (date)
+  updateTime: number;
+  createTime: number;
+  email: string | null;
+  phone: string | null;
+  orderItemId: string | null;
+  customerUserId: string | null;
 };
 
 /* ---------------- Context ---------------- */
@@ -80,48 +118,49 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     appointments: [],
   });
 
-  // normalize appointment payloads returned by backend
-  function normalizeAppointments(raw: any[]): AppointmentItem[] {
-    if (!Array.isArray(raw)) return [];
-    return raw.map((r) => {
-      const service = r.service_id ?? r.service ?? null;
-      const staffUser = r.staff_user_id?.user_id ?? r.staff_user ?? null;
-      const user = r.user_id ?? null;
-      return {
-        id: r.id,
-        service_name: service?.name ?? service?.service_name ?? "",
-        staff_name:
-          staffUser?.full_name ??
-          staffUser?.name ??
-          r.staff_name ??
-          r.staff_user_name ??
-          "",
-        customer_name:
-          user?.full_name ??
-          user?.name ??
-          r.customer_name ??
-          r.business_customer_name ??
-          "",
-        start_time: r.start_time,
-        end_time: r.end_time,
-        status: r.status,
-      } as AppointmentItem;
-    });
+  // helper: build ISO start/end time from appointmentTime + timeSlot "HH:mm-HH:mm"
+  function buildStartEndIso(a: AppointmentApi): { start: string; end: string } | null {
+    if (!a.timeSlot || !a.appointmentTime) return null;
+
+    const parts = a.timeSlot.split("-");
+    if (parts.length !== 2) return null;
+
+    const parseTime = (t: string): { h: number; m: number } | null => {
+      const [hh, mm] = t.split(":");
+      const h = Number(hh);
+      const m = Number(mm);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return { h, m };
+    };
+
+    const startParts = parseTime(parts[0]);
+    const endParts = parseTime(parts[1]);
+    if (!startParts || !endParts) return null;
+
+    const base = new Date(a.appointmentTime);
+
+    const start = new Date(base);
+    start.setHours(startParts.h, startParts.m, 0, 0);
+
+    const end = new Date(base);
+    end.setHours(endParts.h, endParts.m, 0, 0);
+
+    return {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    };
   }
 
   async function loadAll() {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      // 1) Profile (backend)
+      /* 1) Profile */
+      const profileRaw = (await AuthService.getProfile()) as ProfileApi | null;
+      if (!profileRaw) throw new Error("Profile not found");
 
-      const profile = await AuthService.getProfile();
+      const welcomeName = profileRaw.fullName || "";
 
-      if (!profile) throw new Error("Profile not found");
-
-      const welcomeName = profile.fullName || "";
-
-      // 2) Businesses
-      //    route: GET /api/businesses  (protected, returns user's businesses)
+      /* 2) Businesses */
       const businessesRes = await BusinessService.getBusinesses();
       console.log("Businesses fetched:", businessesRes);
 
@@ -129,21 +168,46 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
       if (!Array.isArray(businesses) || businesses.length === 0) {
         throw new Error("No business found for current user");
       }
-      // pick the first business (the owner likely has 1)
       const business = businesses[0];
       const businessId = business.id;
 
-      // 3) Staff & customers
-      const staffResp = await StaffService.getStaff(businessId);
-      //why ?
-      const customersResp = await getCustomers(businessId);
+      /* 3) Staff */
+      const staffResp = (await StaffService.getStaff(businessId)) as StaffApi[] | null;
+      const staffArray: StaffApi[] = Array.isArray(staffResp) ? staffResp : [];
 
-      // 4) Appointments
-      const apptResp = await fetchAppointments(businessId);
-      const rawAppointments = apptResp?.data ?? apptResp ?? [];
-      const appointments = normalizeAppointments(rawAppointments);
+      /* 4) Appointments (new API) */
+      const apptResp = (await AppointmentService.getAppoints(
+        businessId
+      )) as AppointmentApi[] | null;
+      const apptArray: AppointmentApi[] = Array.isArray(apptResp) ? apptResp : [];
 
-      // 5) Build metrics (placeholder until analytics endpoint exists)
+      // map staffId -> name
+      const staffMap: Record<string, StaffApi> = {};
+      for (const s of staffArray) {
+        staffMap[s.id] = s;
+      }
+
+      // normalize new appointment shape to AppointmentItem used by home UI
+      const appointments: AppointmentItem[] = apptArray.map((a) => {
+        const staff = staffMap[a.staffId];
+        const times = buildStartEndIso(a);
+
+        return {
+          id: a.id,
+          // show customerName as the main title in "Today's Appointments" card
+          service_name: a.customerName || "Appointment",
+          staff_name: staff?.name ?? "",
+          customer_name: a.customerName,
+          start_time: times?.start,
+          end_time: times?.end,
+          status: undefined, // backend currently has no status field here
+        };
+      });
+
+      /* 5) Customers – none yet, keep as empty list */
+      const customersResp: any[] = []; // placeholder until you wire customers API
+
+      /* 6) Metrics (simple derived numbers) */
       const metrics: Metric[] = [
         { title: "Today's Revenue", value: "$1,214", deltaPct: -36 },
         {
@@ -153,34 +217,23 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
         },
         {
           title: "Clients",
-          value: String(customersResp?.length || 0),
+          value: String(customersResp.length || 0),
           deltaPct: 0,
         },
       ];
 
-      // 6) Map staff -> local shape and append customers as clients
-      const staffList: StaffItem[] = [
-        ...(Array.isArray(staffResp)
-          ? staffResp.map((s: any) => ({
-              id: s.id,
-              name: s.name ?? s.full_name ?? s.user_name ?? "",
-              role: s.role ?? s.title ?? s.designation ?? "",
-              online: String(s.status ?? "").toLowerCase() === "online",
-              avatar: s.avatarUrl ?? s.avatar_url ?? null,
-              badges: s.skills ?? s.badges ?? [],
-              isClient: false,
-            }))
-          : []),
-        ...(Array.isArray(customersResp)
-          ? customersResp.map((c: any) => ({
-              id: c.id,
-              name: c.name ?? c.full_name ?? "",
-              role: "Client",
-              online: String(c.status ?? "").toLowerCase() === "online",
-              isClient: true,
-            }))
-          : []),
-      ];
+      /* 7) Map staff -> StaffItem */
+      const staffList: StaffItem[] = Array.isArray(staffArray)
+        ? staffArray.map((s) => ({
+            id: s.id,
+            name: s.name ?? "",
+            role: "",             // no role data in new API
+            online: false,        // no status in new API (can wire later)
+            avatar: null,
+            badges: [],
+            isClient: false,
+          }))
+        : [];
 
       setState({
         loading: false,
@@ -188,12 +241,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
         welcomeName,
         metrics,
         staffList,
-        customers: Array.isArray(customersResp)
-          ? customersResp.map((c: any) => ({
-              id: c.id,
-              name: c.name ?? c.full_name ?? "",
-            }))
-          : [],
+        customers: [],
         appointments,
       });
     } catch (err: any) {
