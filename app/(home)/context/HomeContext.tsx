@@ -1,4 +1,5 @@
 // app/_context/HomeContext.tsx
+
 import React, {
   createContext,
   useContext,
@@ -11,8 +12,17 @@ import { AppointmentService } from "@/api/appointment";
 import { AuthService } from "@/api/auth";
 import { BusinessService } from "@/api/business";
 import { StaffService } from "@/api/staff";
+import {
+  getFromSecureStore,
+  saveToSecureStore,
+} from "@/utils/secureStorage";
 
 /* ---------------- Types ---------------- */
+
+export type BusinessItem = {
+  id: string;
+  name: string;
+};
 
 export type StaffItem = {
   id: string;
@@ -24,19 +34,13 @@ export type StaffItem = {
   isClient?: boolean;
 };
 
-export type CustomerItem = {
-  id: string;
-  name: string;
-  status?: string;
-};
-
 export type AppointmentItem = {
   id: string;
-  service_name?: string;   // we’ll show customerName here in Home cards
+  service_name?: string;
   staff_name?: string;
   customer_name?: string;
-  start_time?: string;     // ISO string
-  end_time?: string;       // ISO string
+  start_time?: string;
+  end_time?: string;
   status?: string;
 };
 
@@ -52,46 +56,31 @@ export type HomeState = {
   welcomeName: string;
   metrics: Metric[];
   staffList: StaffItem[];
-  customers: CustomerItem[];
+  customers: any[];
   appointments: AppointmentItem[];
+
+  /* ---- business switcher ---- */
+  businesses: BusinessItem[];
+  selectedBusinessId?: string;
 };
 
-/* ---------------- Raw API types (new backend) ---------------- */
+/* ---------------- Raw API types ---------------- */
 
 type ProfileApi = {
-  avatarUrl?: string;
   fullName?: string;
-  phoneCode?: string;
-  phone?: string;
-  fullPhone?: string;
-  email?: string;
 };
 
 type StaffApi = {
   id: string;
-  businessId: string;
-  businessName: string;
   name: string;
-  email: string;
-  fullPhone: string;
-  merchantId: string;
 };
 
 type AppointmentApi = {
   id: string;
   staffId: string;
-  serviceId: string;
   customerName: string;
-  timeSlot: string;       // "14:00-15:00"
-  businessId: string;
-  merchantId: string;
-  appointmentTime: number; // epoch ms (date)
-  updateTime: number;
-  createTime: number;
-  email: string | null;
-  phone: string | null;
-  orderItemId: string | null;
-  customerUserId: string | null;
+  timeSlot: string; // "14:00-15:00"
+  appointmentTime: number;
 };
 
 /* ---------------- Context ---------------- */
@@ -99,8 +88,7 @@ type AppointmentApi = {
 type HomeContextType = {
   state: HomeState;
   reload: () => Promise<void>;
-  setWelcomeName: (name: string) => void;
-  toggleOnline: (id: string, online: boolean) => void;
+  setBusinessId: (id: string) => Promise<void>;
 };
 
 const HomeContext = createContext<HomeContextType | undefined>(undefined);
@@ -116,124 +104,109 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     staffList: [],
     customers: [],
     appointments: [],
+    businesses: [],
+    selectedBusinessId: undefined,
   });
 
-  // helper: build ISO start/end time from appointmentTime + timeSlot "HH:mm-HH:mm"
-  function buildStartEndIso(a: AppointmentApi): { start: string; end: string } | null {
-    if (!a.timeSlot || !a.appointmentTime) return null;
-
-    const parts = a.timeSlot.split("-");
-    if (parts.length !== 2) return null;
-
-    const parseTime = (t: string): { h: number; m: number } | null => {
-      const [hh, mm] = t.split(":");
-      const h = Number(hh);
-      const m = Number(mm);
-      if (Number.isNaN(h) || Number.isNaN(m)) return null;
-      return { h, m };
-    };
-
-    const startParts = parseTime(parts[0]);
-    const endParts = parseTime(parts[1]);
-    if (!startParts || !endParts) return null;
-
+  // helper: build ISO start/end time from appointmentTime + timeSlot
+  function buildStartEndIso(a: AppointmentApi) {
+    const [start, end] = a.timeSlot.split("-");
     const base = new Date(a.appointmentTime);
 
-    const start = new Date(base);
-    start.setHours(startParts.h, startParts.m, 0, 0);
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
 
-    const end = new Date(base);
-    end.setHours(endParts.h, endParts.m, 0, 0);
+    const s = new Date(base);
+    s.setHours(sh, sm, 0, 0);
+
+    const e = new Date(base);
+    e.setHours(eh, em, 0, 0);
 
     return {
-      start: start.toISOString(),
-      end: end.toISOString(),
+      start: s.toISOString(),
+      end: e.toISOString(),
     };
   }
 
-  async function loadAll() {
+  /* ---------------- MAIN LOADER ---------------- */
+  async function loadAll(businessOverride?: string) {
     setState((s) => ({ ...s, loading: true, error: null }));
+
     try {
       /* 1) Profile */
-      const profileRaw = (await AuthService.getProfile()) as ProfileApi | null;
-      if (!profileRaw) throw new Error("Profile not found");
+      const profile = (await AuthService.getProfile()) as ProfileApi;
+      const welcomeName = profile?.fullName || "";
 
-      const welcomeName = profileRaw.fullName || "";
+      /* 2) Businesses dropdown */
+      const businessDropDown =
+        (await BusinessService.getBusinessesDropDown()) || [];
 
-      /* 2) Businesses */
-      const businessesRes = await BusinessService.getBusinesses();
-      console.log("Businesses fetched:", businessesRes);
+      const businesses: BusinessItem[] = businessDropDown.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+      }));
 
-      const businesses = businessesRes ?? [];
-      if (!Array.isArray(businesses) || businesses.length === 0) {
-        throw new Error("No business found for current user");
+      /* 3) Resolve active businessId (IMPORTANT PART) */
+
+      // NEW: get saved businessId from secure storage
+      const storedBusinessId =
+        businessOverride || (await getFromSecureStore("businessId"));
+
+      const selectedBusinessId =
+        storedBusinessId ||
+        state.selectedBusinessId ||
+        businesses[0]?.id;
+
+      if (!selectedBusinessId) {
+        throw new Error("No business selected");
       }
-      const business = businesses[0];
-      const businessId = business.id;
 
-      /* 3) Staff */
-      const staffResp = (await StaffService.getStaff(businessId)) as StaffApi[] | null;
-      const staffArray: StaffApi[] = Array.isArray(staffResp) ? staffResp : [];
+      // NEW: persist resolved businessId
+      await saveToSecureStore({ businessId: selectedBusinessId });
 
-      /* 4) Appointments (new API) */
+      /* 4) Staff */
+      const staffResp = (await StaffService.getStaff(
+        selectedBusinessId
+      )) as StaffApi[];
+
+      /* 5) Appointments */
       const apptResp = (await AppointmentService.getAppoints(
-        businessId
-      )) as AppointmentApi[] | null;
-      const apptArray: AppointmentApi[] = Array.isArray(apptResp) ? apptResp : [];
+        selectedBusinessId
+      )) as AppointmentApi[];
 
-      // map staffId -> name
       const staffMap: Record<string, StaffApi> = {};
-      for (const s of staffArray) {
-        staffMap[s.id] = s;
-      }
+      staffResp.forEach((s) => (staffMap[s.id] = s));
 
-      // normalize new appointment shape to AppointmentItem used by home UI
-      const appointments: AppointmentItem[] = apptArray.map((a) => {
-        const staff = staffMap[a.staffId];
+      const appointments: AppointmentItem[] = apptResp.map((a) => {
         const times = buildStartEndIso(a);
-
         return {
           id: a.id,
-          // show customerName as the main title in "Today's Appointments" card
-          service_name: a.customerName || "Appointment",
-          staff_name: staff?.name ?? "",
+          service_name: a.customerName,
+          staff_name: staffMap[a.staffId]?.name,
           customer_name: a.customerName,
-          start_time: times?.start,
-          end_time: times?.end,
-          status: undefined, // backend currently has no status field here
+          start_time: times.start,
+          end_time: times.end,
         };
       });
 
-      /* 5) Customers – none yet, keep as empty list */
-      const customersResp: any[] = []; // placeholder until you wire customers API
-
-      /* 6) Metrics (simple derived numbers) */
+      /* 6) Metrics */
       const metrics: Metric[] = [
         { title: "Today's Revenue", value: "$1,214", deltaPct: -36 },
         {
           title: "Appointments",
-          value: String(appointments.length || 0),
+          value: String(appointments.length),
           deltaPct: 0,
         },
-        {
-          title: "Clients",
-          value: String(customersResp.length || 0),
-          deltaPct: 0,
-        },
+        { title: "Clients", value: "0", deltaPct: 0 },
       ];
 
-      /* 7) Map staff -> StaffItem */
-      const staffList: StaffItem[] = Array.isArray(staffArray)
-        ? staffArray.map((s) => ({
-            id: s.id,
-            name: s.name ?? "",
-            role: "",             // no role data in new API
-            online: false,        // no status in new API (can wire later)
-            avatar: null,
-            badges: [],
-            isClient: false,
-          }))
-        : [];
+      /* 7) Staff list */
+      const staffList: StaffItem[] = staffResp.map((s) => ({
+        id: s.id,
+        name: s.name,
+        online: false,
+        isClient: false,
+      }));
 
       setState({
         loading: false,
@@ -243,37 +216,43 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
         staffList,
         customers: [],
         appointments,
+        businesses,
+        selectedBusinessId,
       });
     } catch (err: any) {
       console.error("HomeContext load error:", err);
       setState((s) => ({
         ...s,
         loading: false,
-        error: String(err?.message ?? err),
+        error: err?.message ?? "Failed to load home data",
       }));
     }
   }
 
+  /* ---------------- Initial load ---------------- */
   useEffect(() => {
     loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ---------------- Actions ---------------- */
+
   const reload = async () => {
     await loadAll();
   };
 
-  const setWelcomeName = (name: string) =>
-    setState((s) => ({ ...s, welcomeName: name }));
-
-  const toggleOnline = (id: string, online: boolean) =>
-    setState((s) => ({
-      ...s,
-      staffList: s.staffList.map((m) => (m.id === id ? { ...m, online } : m)),
-    }));
+  /* ---- business switch (called from dropdown) ---- */
+  const setBusinessId = async (id: string) => {
+    await saveToSecureStore({ businessId: id });
+    await loadAll(id);
+  };
 
   const value = useMemo(
-    () => ({ state, reload, setWelcomeName, toggleOnline }),
+    () => ({
+      state,
+      reload,
+      setBusinessId,
+    }),
     [state]
   );
 

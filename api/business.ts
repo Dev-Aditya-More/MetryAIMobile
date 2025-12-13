@@ -37,4 +37,25 @@ export const BusinessService = {
       throw err;
     }
   },
+
+  //3 getting all the business dropdown list
+
+  async getBusinessesDropDown() {
+    try {
+      const token = await getFromSecureStore("access_token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.post(
+        "/api/biz/business/dropdown",
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
 };

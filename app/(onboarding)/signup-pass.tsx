@@ -26,7 +26,7 @@ export default function SignupScreen() {
   const [input, setInput] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [userType, setUserType] = useState<"regular" | "business">("business");
+  const [userType, setUserType] = useState<"customber" | "business">("business");
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () =>
@@ -58,6 +58,7 @@ export default function SignupScreen() {
     }
 
     try {
+      if (userType == "business"){
       setError("");
 
       const data = await AuthService.signup("user",input.email, input.password);
@@ -70,6 +71,9 @@ export default function SignupScreen() {
         pathname: "/(onboarding)/profile-setup",
         params: { email: input.email, type: userType },
       });
+    }else{
+      // implement the customber signup
+    }
     } catch (err) {
       let message = handleError(err);
       setError(message);
@@ -134,19 +138,19 @@ export default function SignupScreen() {
                 <TouchableOpacity
                   style={[
                     styles.toggleButton,
-                    userType === "regular"
+                    userType === "customber"
                       ? styles.toggleActive
                       : styles.toggleInactive,
                   ]}
-                  onPress={() => setUserType("regular")}
+                  onPress={() => setUserType("customber")}
                 >
                   <Text
                     style={[
                       styles.toggleText,
-                      userType === "regular" && styles.toggleTextActive,
+                      userType === "customber" && styles.toggleTextActive,
                     ]}
                   >
-                    Regular
+                    Customber
                   </Text>
                 </TouchableOpacity>
 

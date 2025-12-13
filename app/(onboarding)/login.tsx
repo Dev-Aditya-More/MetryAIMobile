@@ -25,6 +25,9 @@ export default function LoginScreen() {
   const [input, setInput] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [userType, setUserType] = useState<"customber" | "business">(
+    "business"
+  );
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () =>
@@ -38,7 +41,6 @@ export default function LoginScreen() {
       hideSub.remove();
     };
   }, []);
-
 
   const signupPressed = async () => {
     router.push("/(onboarding)/signup-pass");
@@ -55,18 +57,22 @@ export default function LoginScreen() {
     }
 
     try {
-      setError("");
+      if (userType == "business") {
+        setError("");
 
-      let data = await AuthService.login(input.email, input.password);
+        let data = await AuthService.login(input.email, input.password);
 
-      Keyboard.dismiss();
+        Keyboard.dismiss();
 
-      console.log("✅ login successful:", data);
+        console.log("✅ login successful:", data);
 
-      router.push({
-        pathname: "/(home)",
-        params: { email: input.email },
-      });
+        router.push({
+          pathname: "/(home)",
+          params: { email: input.email },
+        });
+      } else {
+        // Implement customber login
+      }
     } catch (err) {
       let message = handleError(err);
 
@@ -128,6 +134,47 @@ export default function LoginScreen() {
                   <Text style={styles.sepText}>Or sign in with email</Text>
                 </View>
                 <View style={styles.sepLine} />
+              </View>
+
+              {/* User Type Toggle */}
+              <View style={styles.toggleContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    userType === "customber"
+                      ? styles.toggleActive
+                      : styles.toggleInactive,
+                  ]}
+                  onPress={() => setUserType("customber")}
+                >
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      userType === "customber" && styles.toggleTextActive,
+                    ]}
+                  >
+                    Customber
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    userType === "business"
+                      ? styles.toggleActive
+                      : styles.toggleInactive,
+                  ]}
+                  onPress={() => setUserType("business")}
+                >
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      userType === "business" && styles.toggleTextActive,
+                    ]}
+                  >
+                    Business
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               {/* Email Field */}
