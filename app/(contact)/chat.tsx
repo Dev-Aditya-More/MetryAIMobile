@@ -1,93 +1,188 @@
-import React from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useMemo } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   Image,
+  Pressable,
   ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { ContactProvider, useContact } from "./_context/ContactContext";
 
-export default function ChatScreen() {
+/* ---------------- Badge ---------------- */
+function Badge({ label }: { label: string }) {
+  return (
+    <View style={styles.badge}>
+      <Text style={styles.badgeText}>{label}</Text>
+    </View>
+  );
+}
+
+/* ---------------- Person Row ---------------- */
+function PersonRow({
+  id,
+  name,
+  online,
+  tags,
+  avatar,
+  isClient,
+}: {
+  id: string;
+  name: string;
+  online: boolean;
+  tags?: string[];
+  avatar?: string;
+  isClient?: boolean;
+}) {
   const router = useRouter();
-  const { name, avatar } = useLocalSearchParams();
+
+  const openChat = () => {
+    router.push({
+      pathname: "./chat",
+      params: { userId: id, name, avatar },
+    });
+  };
+
+  return (
+    <Pressable onPress={openChat} style={styles.row}>
+      <Image
+        source={{
+          uri:
+            avatar ||
+            "https://i.pravatar.cc/150?img=" +
+              (parseInt(id.replace(/\D/g, "")) % 70),
+        }}
+        style={styles.avatar}
+      />
+
+      <View style={{ flex: 1 }}>
+        <Text style={styles.personName}>{name}</Text>
+        <Text
+          style={[
+            styles.personStatus,
+            { color: online ? "#10B981" : "#6B7280" },
+          ]}
+        >
+          {online ? "Online" : "Offline"}
+        </Text>
+      </View>
+
+      {!isClient && (
+        <View style={{ flexDirection: "row", gap: 6 }}>
+          {tags?.map((t, i) => (
+            <Badge key={i} label={t} />
+          ))}
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+/* ---------------- Main Content ---------------- */
+function ContactContent() {
+  const { state, setQuery } = useContact();
+  const router = useRouter();
+
+  const filtered = useMemo(
+    () =>
+      state.staff.filter((p) =>
+        p.name.toLowerCase().includes(state.query.toLowerCase())
+      ),
+    [state.staff, state.query]
+  );
+
+  const staff = filtered.filter((p) => !p.isClient);
+  const clients = filtered.filter((p) => p.isClient);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
+      {/* ---------- HEADER (Chat-style) ---------- */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={20}>
+        <TouchableOpacity
+          onPress={() => router.replace("/(home)")}
+          hitSlop={20}
+        >
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Image
-            source={{
-              uri: (avatar as string) || "https://via.placeholder.com/150",
-            }}
-            style={styles.avatar}
-          />
-          <View>
-            <Text style={styles.name}>{name}</Text>
-            <Text style={styles.online}>Online</Text>
-          </View>
+          <Text style={styles.headerTitle}>Contacts</Text>
         </View>
 
-        <View style={styles.headerActions}>
-          <Ionicons
-            name="call-outline"
-            size={22}
-            color="#111"
-            style={styles.icon}
-          />
-          <Ionicons
-            name="videocam-outline"
-            size={22}
-            color="#111"
-            style={styles.icon}
-          />
-          <Ionicons
-            name="ellipsis-vertical"
-            size={22}
-            color="#111"
-            style={styles.icon}
-          />
-        </View>
+        {/* Right spacer for symmetry */}
+        <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.messages}>
-        <View style={{ paddingTop: 20, alignItems: "center" }}>
-          <Text style={{ color: "#9CA3AF" }}>Start a conversation...</Text>
+      {/* ---------- Search Bar ---------- */}
+      <View style={styles.searchBox}>
+        <TextInput
+          placeholder="Search"
+          value={state.query}
+          onChangeText={setQuery}
+          style={styles.input}
+        />
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        {/* STAFF SECTION */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionLabel}>STAFF</Text>
+          <Text style={styles.sectionCount}>
+            {staff.length}/{state.staff.filter((p) => !p.isClient).length}
+          </Text>
         </View>
+
+        {staff.map((p) => (
+          <PersonRow
+            key={p.id}
+            id={p.id}
+            name={p.name}
+            online={p.online}
+            tags={p.tags}
+            avatar={p.avatar}
+            isClient={false}
+          />
+        ))}
+
+        {/* CLIENT SECTION */}
+        <View style={[styles.sectionHeader, { marginTop: 16 }]}>
+          <Text style={styles.sectionLabel}>CLIENT</Text>
+        </View>
+
+        {clients.map((p) => (
+          <PersonRow
+            key={p.id}
+            id={p.id}
+            name={p.name}
+            online={p.online}
+            avatar={p.avatar}
+            isClient={true}
+          />
+        ))}
       </ScrollView>
-
-      {/* INPUT BAR */}
-      <View style={styles.inputBar}>
-        <TouchableOpacity>
-          <Ionicons name="happy-outline" size={26} color="#6B7280" />
-        </TouchableOpacity>
-
-        <TextInput placeholder="Type a message..." style={styles.input} />
-
-        <TouchableOpacity>
-          <Ionicons name="camera-outline" size={26} color="#6B7280" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.sendButton}>
-          <Ionicons name="send" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
 
+/* ---------------- Screen Wrapper ---------------- */
+export default function ContactScreen() {
+  return (
+    <ContactProvider>
+      <ContactContent />
+    </ContactProvider>
+  );
+}
+
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
 
+  /* Header */
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -96,47 +191,66 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#F3F4F6",
   },
-
   headerCenter: {
-    flexDirection: "row",
-    alignItems: "center",
     flex: 1,
-    marginLeft: 16,
-  },
-
-  headerActions: { flexDirection: "row", alignItems: "center" },
-  icon: { marginHorizontal: 8 },
-
-  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
-  name: { fontSize: 16, fontWeight: "600", color: "#111" },
-  online: { fontSize: 12, color: "#10B981" },
-
-  messages: { flex: 1, paddingHorizontal: 16 },
-
-  inputBar: {
-    flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111",
   },
 
+  /* Search */
+  searchBox: {
+    margin: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+  },
   input: {
-    flex: 1,
-    marginHorizontal: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 20,
-    fontSize: 15,
   },
 
-  sendButton: {
-    backgroundColor: "#6366F1",
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  /* Sections */
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 6,
   },
+  sectionLabel: { color: "#9CA3AF", fontSize: 12, letterSpacing: 0.5 },
+  sectionCount: { color: "#9CA3AF", fontSize: 12 },
+
+  /* Rows */
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 12,
+  },
+
+  personName: { fontSize: 16, color: "#111827", fontWeight: "600" },
+  personStatus: { fontSize: 12, marginTop: 2 },
+
+  /* Badge */
+  badge: {
+    backgroundColor: "#FFE8CC",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: { color: "#FB923C", fontSize: 12, fontWeight: "600" },
 });

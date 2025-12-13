@@ -115,9 +115,9 @@ export default function SettingsScreen() {
               { showBorder: true }
             )}
             {renderRow(
-              "General",
-              "settings-outline",
-              "/(settings)/general" as Href,
+              "Chat",
+              "chatbubble-ellipses-outline",
+              "/(contact)/" as Href,
               { showBorder: true }
             )}
             {renderRow(

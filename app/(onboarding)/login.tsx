@@ -22,7 +22,7 @@ import { AuthService } from "../../api/auth";
 const { width } = Dimensions.get("window");
 
 export default function LoginScreen() {
-  const [input, setInput] = useState({ email: "", password: "" });
+  const [input, setInput] = useState({ email: "shahviraj030@gmail.com", password: "123456" });
   const [error, setError] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [userType, setUserType] = useState<"customber" | "business">(

@@ -1,17 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  ScrollView,
   Image,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ContactProvider, useContact } from "./_context/ContactContext";
-import BottomNav from "@/components/BottomNav";
-import { useRouter } from "expo-router";
 
 function Badge({ label }: { label: string }) {
   return (
@@ -92,11 +93,19 @@ function ContactContent() {
     [state.staff, state.query]
   );
 
+  function backButton() {
+    const router = useRouter();
+    router.back();
+  }
+
   const staff = filtered.filter((p) => !p.isClient);
   const clients = filtered.filter((p) => p.isClient);
 
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity onPress={() => backButton()} hitSlop={20}>
+        <Ionicons name="arrow-back" size={24} color="#111" />
+      </TouchableOpacity>
       {/* Search Bar */}
       <View style={styles.searchBox}>
         <TextInput
@@ -144,8 +153,6 @@ function ContactContent() {
           />
         ))}
       </ScrollView>
-
-      <BottomNav />
     </SafeAreaView>
   );
 }

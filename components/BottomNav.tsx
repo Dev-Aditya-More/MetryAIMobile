@@ -71,12 +71,9 @@ export default function BottomNav() {
   return (
     <View style={styles.root}>
       {item("home", "home-outline", "home", "Home")}
-      {item("contact", "chatbubble-ellipses-outline", "chatbubble", "Contacts")}
-
-      {/* NEW: Book (+) */}
-      {item("sales", "add-circle-outline", "add-circle", "Book")}
-
+      {/* {item("contact", "chatbubble-ellipses-outline", "chatbubble", "Contacts")} */}
       {item("calendar", "calendar-outline", "calendar", "Calendar")}
+      {item("sales", "add-circle-outline", "add-circle", "Book")}
       {item("services", "cash-outline", "cash", "Services")}
       {item("settings", "settings-outline", "settings", "Settings")}
     </View>
