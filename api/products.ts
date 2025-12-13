@@ -62,7 +62,7 @@ export const ProductService = {
   },
 
   // 3 search products
-  async searchProduct(name: string, pageNo: string, pageSize: string) {
+  async searchProduct(name: string,pageNo: string, pageSize: string) {
     try {
       const token = await getFromSecureStore("access_token");
 
@@ -70,10 +70,13 @@ export const ProductService = {
         throw new Error("Authentication token not found");
       }
 
+      const id = await getFromSecureStore("businessId")
+
       const response = await api.post(
         "/api/biz/service/search",
         {
           name: name ?? "",
+          id:id ?? "",
           pageNo: pageNo,
           pageSize: pageSize,
         },
