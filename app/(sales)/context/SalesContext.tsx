@@ -95,3 +95,4 @@ export const useBooking = (): BookingContextType => {
   }
   return context;
 };
+
