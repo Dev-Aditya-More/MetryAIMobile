@@ -1,3 +1,4 @@
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter, useSegments } from "expo-router";
 import React from "react";
@@ -9,7 +10,7 @@ type TabKey =
   | "contact"
   | "services"
   | "settings"
-  | "sales"; // NEW
+  | "sales";
 
 export default function BottomNav() {
   const segments = useSegments();
@@ -25,7 +26,7 @@ export default function BottomNav() {
     ? "contact"
     : has("(products)")
     ? "services"
-    : has("(sales)") // NEW
+    : has("(sales)")
     ? "sales"
     : has("(settings)")
     ? "settings"
@@ -36,7 +37,7 @@ export default function BottomNav() {
     if (key === "calendar") router.replace("/(calendar)" as Href);
     if (key === "contact") router.replace("/(contact)" as Href);
     if (key === "services") router.replace("/(products)" as Href);
-    if (key === "sales") router.replace("/(sales)" as Href); // NEW
+    if (key === "sales") router.replace("/(sales)" as Href);
     if (key === "settings") router.replace("/(settings)" as Href);
   };
 
@@ -45,33 +46,36 @@ export default function BottomNav() {
     iconInactive: keyof typeof Ionicons.glyphMap,
     iconActive: keyof typeof Ionicons.glyphMap,
     label: string
-  ) => (
-    <TouchableOpacity
-      key={key}
-      style={styles.tab}
-      activeOpacity={0.8}
-      onPress={() => go(key)}
-    >
-      <Ionicons
-        name={active === key ? iconActive : iconInactive}
-        size={22}
-        color={active === key ? "#BFA78A" : "#D1D5DB"}
-      />
-      <Text
-        style={[
-          styles.label,
-          { color: active === key ? "#6B7280" : "#D1D5DB" },
-        ]}
+  ) => {
+    const isActive = active === key;
+
+    return (
+      <TouchableOpacity
+        key={key}
+        style={styles.tab}
+        activeOpacity={0.8}
+        onPress={() => go(key)}
       >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+        <Ionicons
+          name={isActive ? iconActive : iconInactive}
+          size={22}
+          color={isActive ? colors.primary : colors.muted}
+        />
+        <Text
+          style={[
+            styles.label,
+            { color: isActive ? colors.primary : colors.muted },
+          ]}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.root}>
       {item("home", "home-outline", "home", "Home")}
-      {/* {item("contact", "chatbubble-ellipses-outline", "chatbubble", "Contacts")} */}
       {item("calendar", "calendar-outline", "calendar", "Calendar")}
       {item("sales", "add-circle-outline", "add-circle", "Book")}
       {item("services", "cash-outline", "cash", "Services")}
@@ -91,16 +95,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingTop: 10,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: colors.border,
   },
+
   tab: {
     alignItems: "center",
     justifyContent: "center",
   },
+
   label: {
     fontSize: 10,
     marginTop: 4,
+    fontWeight: "500",
   },
 });

@@ -1,5 +1,6 @@
 import { AuthService } from "@/api/auth";
-import { PickedImage, pickImage, uploadImage } from "@/utils/pickImage";
+import { colors } from "@/theme/colors";
+import { pickImage, uploadImage } from "@/utils/pickImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -18,16 +19,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Profile() {
   const router = useRouter();
 
-  // ---------- FORM STATE ----------
+  /* ---------------- STATE ---------------- */
+  const [loading, setLoading] = useState(true);
+
   const [fullName, setFullName] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
-  const [image, setImage] = useState<PickedImage | null>(null);
 
-  // Keep original profile to detect changes (for Update Profile button)
   const [initialProfile, setInitialProfile] = useState<{
     fullName: string;
     countryCode: string;
@@ -36,45 +37,43 @@ export default function Profile() {
     avatarUrl: string | null;
   } | null>(null);
 
-  // ---------- LOAD PROFILE FROM API ----------
+  /* ---------------- LOAD PROFILE ---------------- */
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await AuthService.getProfile();
-        console.log("Profile response:", res);
+        setLoading(true);
 
+        const res = await AuthService.getProfile();
         if (!res) return;
 
-        const loadedFullName = res.fullName ?? "";
-        const loadedEmail = res.email ?? "";
-        const loadedCountryCode = res.phoneCode ?? "+91";
-        const loadedPhone = res.phone ?? res.fullPhone ?? "";
+        const loadedProfile = {
+          fullName: res.fullName ?? "",
+          email: res.email ?? "",
+          countryCode: res.phoneCode ?? "+91",
+          phone: res.phone ?? res.fullPhone ?? "",
+          avatarUrl: res.avatarUrl ?? null,
+        };
 
-        const loadedAvatarUrl = res.avatarUrl || null;
-
-        setFullName(loadedFullName);
-        setEmail(loadedEmail);
-        setCountryCode(loadedCountryCode);
-        setPhone(loadedPhone);
-        setAvatarUrl(loadedAvatarUrl);
+        setFullName(loadedProfile.fullName);
+        setEmail(loadedProfile.email);
+        setCountryCode(loadedProfile.countryCode);
+        setPhone(loadedProfile.phone);
+        setAvatarUrl(loadedProfile.avatarUrl);
         setAvatarError(false);
 
-        setInitialProfile({
-          fullName: loadedFullName,
-          countryCode: loadedCountryCode,
-          phone: loadedPhone,
-          email: loadedEmail,
-          avatarUrl: loadedAvatarUrl,
-        });
+        setInitialProfile(loadedProfile);
       } catch (error) {
         console.error("Failed to load profile:", error);
+        Alert.alert("Error", "Unable to load profile");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadProfile();
   }, []);
 
-  // ---------- DIRTY CHECK (any change?) ----------
+  /* ---------------- DIRTY CHECK ---------------- */
   const isDirty = useMemo(() => {
     if (!initialProfile) return false;
     return (
@@ -86,9 +85,9 @@ export default function Profile() {
     );
   }, [initialProfile, fullName, countryCode, phone, email, avatarUrl]);
 
-  // ---------- HANDLERS ----------
+  /* ---------------- HANDLERS ---------------- */
   const handleUpdateProfile = async () => {
-    if (!isDirty) return; // prevent accidental call
+    if (!isDirty) return;
 
     try {
       const payload = {
@@ -99,13 +98,10 @@ export default function Profile() {
         email,
       };
 
-      console.log("Updating profile with payload:", payload);
-
-      const res = await AuthService.setupProfile(payload);
+      await AuthService.setupProfile(payload);
 
       Alert.alert("Success", "Profile updated successfully");
 
-      // Update baseline state so button disables
       setInitialProfile({
         fullName,
         countryCode,
@@ -114,35 +110,29 @@ export default function Profile() {
         avatarUrl,
       });
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      Alert.alert("Error", "Could not update profile. Try again.");
+      Alert.alert("Error", "Could not update profile");
     }
   };
 
   const handleChangeProfileImage = async () => {
     try {
       const img = await pickImage();
-      if (img) {
-        setImage(img);
-        const uploadedData = await uploadImage(img);
-        if (uploadedData) {
-          setAvatarUrl(uploadedData.data.url);
-        }
-      }
-    } catch (err) {
-      console.log("Upload Image Erro!,", err);
-      Alert.alert("Something went wrong,Not Able to Upload Image");
-    }
+      if (!img) return;
 
-    // TODO: integrate pickImage + uploadImage here
-    console.log("Change profile image pressed");
+      const uploaded = await uploadImage(img);
+      if (uploaded?.data?.url) {
+        setAvatarUrl(uploaded.data.url);
+      }
+    } catch {
+      Alert.alert("Error", "Unable to upload image");
+    }
   };
 
   const renderField = (
     label: string,
     value: string,
     onChange: (text: string) => void,
-    options?: { keyboardType?: "default" | "email-address" | "phone-pad" }
+    keyboardType?: "default" | "email-address" | "phone-pad"
   ) => (
     <View style={styles.fieldBlock}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -150,221 +140,189 @@ export default function Profile() {
         value={value}
         onChangeText={onChange}
         style={styles.input}
-        keyboardType={options?.keyboardType ?? "default"}
-        placeholderTextColor="#9CA3AF"
+        keyboardType={keyboardType ?? "default"}
+        editable={!loading}
+        placeholderTextColor={colors.muted}
       />
     </View>
   );
 
+  /* ---------------- UI ---------------- */
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={22} color="#111827" />
+          <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={{ width: 22 }} />
-        {/* spacer for centering */}
       </View>
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.contentInner}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Avatar Section */}
-        <View style={styles.avatarSection}>
-          {avatarUrl && !avatarError ? (
-            <Image
-              source={{ uri: avatarUrl }}
-              style={styles.avatar}
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={40} color="#9CA3AF" />
+      <ScrollView contentContainerStyle={styles.contentInner}>
+        {/* Loading */}
+        {loading && (
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        )}
+
+        {!loading && (
+          <>
+            {/* Avatar */}
+            <View style={styles.avatarSection}>
+              {avatarUrl && !avatarError ? (
+                <Image
+                  source={{ uri: avatarUrl }}
+                  style={styles.avatar}
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="person" size={40} color={colors.muted} />
+                </View>
+              )}
+
+              <TouchableOpacity onPress={handleChangeProfileImage}>
+                <Text style={styles.changeAvatarText}>
+                  Change profile image
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
 
-          <TouchableOpacity
-            onPress={handleChangeProfileImage}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.changeAvatarText}>Change profile image</Text>
-          </TouchableOpacity>
-        </View>
+            {renderField("Full Name", fullName, setFullName)}
 
-        {/* Full Name */}
-        {renderField("Full Name", fullName, setFullName)}
+            <View style={styles.fieldBlock}>
+              <Text style={styles.fieldLabel}>Phone Number</Text>
+              <View style={styles.phoneRow}>
+                <TextInput
+                  value={countryCode}
+                  onChangeText={setCountryCode}
+                  style={[styles.input, styles.countryCodeInput]}
+                  keyboardType="phone-pad"
+                  editable={!loading}
+                />
+                <TextInput
+                  value={phone}
+                  onChangeText={setPhone}
+                  style={[styles.input, styles.phoneInput]}
+                  keyboardType="phone-pad"
+                  editable={!loading}
+                />
+              </View>
+            </View>
 
-        {/* Phone: Country code + number */}
-        <View style={styles.fieldBlock}>
-          <Text style={styles.fieldLabel}>Phone Number</Text>
-          <View style={styles.phoneRow}>
-            <TextInput
-              value={countryCode}
-              onChangeText={setCountryCode}
-              style={[styles.input, styles.countryCodeInput]}
-              keyboardType="phone-pad"
-              placeholderTextColor="#9CA3AF"
-            />
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              style={[styles.input, styles.phoneInput]}
-              keyboardType="phone-pad"
-              placeholderTextColor="#9CA3AF"
-            />
-          </View>
-        </View>
+            {renderField("Email", email, setEmail, "email-address")}
 
-        {/* Email */}
-        {renderField("Email", email, setEmail, {
-          keyboardType: "email-address",
-        })}
+            {/* Update */}
+            <TouchableOpacity
+              style={[
+                styles.updateButton,
+                (!isDirty || loading) && styles.updateButtonDisabled,
+              ]}
+              disabled={!isDirty || loading}
+              onPress={handleUpdateProfile}
+            >
+              <Text
+                style={[
+                  styles.updateButtonText,
+                  (!isDirty || loading) && styles.updateButtonTextDisabled,
+                ]}
+              >
+                Update Profile
+              </Text>
+            </TouchableOpacity>
 
-        {/* Update Profile Button */}
-        <TouchableOpacity
-          style={[styles.updateButton, !isDirty && styles.updateButtonDisabled]}
-          activeOpacity={isDirty ? 0.8 : 1}
-          onPress={handleUpdateProfile}
-          disabled={!isDirty}
-        >
-          <Text
-            style={[
-              styles.updateButtonText,
-              !isDirty && styles.updateButtonTextDisabled,
-            ]}
-          >
-            Update Profile
-          </Text>
-        </TouchableOpacity>
-
-        {/* Delete account (unchanged) */}
-        <TouchableOpacity
-          style={styles.deleteButton}
-          activeOpacity={0.8}
-          onPress={() => {
-            console.log("Delete account");
-          }}
-        >
-          <Text style={styles.deleteButtonText}>Delete Account</Text>
-        </TouchableOpacity>
+            {/* Delete */}
+            <TouchableOpacity style={styles.deleteButton}>
+              <Text style={styles.deleteButtonText}>Delete Account</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const PRIMARY = "#6366F1";
+/* ---------------- STYLES ---------------- */
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
+  container: { flex: 1, backgroundColor: colors.surface },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    backgroundColor: "#F3F4F6",
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
-  },
-  content: { flex: 1 },
-  contentInner: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    color: colors.textPrimary,
   },
 
-  /* Avatar */
-  avatarSection: {
-    alignItems: "center",
-    marginBottom: 24,
+  contentInner: { padding: 16 },
+
+  loadingText: {
+    textAlign: "center",
+    marginTop: 40,
+    color: colors.textSecondary,
   },
+
+  avatarSection: { alignItems: "center", marginBottom: 24 },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#E5E7EB",
     marginBottom: 8,
   },
   avatarPlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
   },
   changeAvatarText: {
     fontSize: 13,
-    color: PRIMARY,
+    color: colors.primary,
     fontWeight: "500",
   },
 
-  /* Fields */
-  fieldBlock: {
-    marginBottom: 14,
-  },
-  fieldLabel: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    marginBottom: 4,
-  },
+  fieldBlock: { marginBottom: 14 },
+  fieldLabel: { fontSize: 12, color: colors.muted, marginBottom: 4 },
   input: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    borderColor: colors.border,
+    padding: 10,
     fontSize: 14,
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
-  phoneRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  countryCodeInput: {
-    flexBasis: 90,
-    flexShrink: 0,
-  },
-  phoneInput: {
-    flex: 1,
-  },
+  phoneRow: { flexDirection: "row", gap: 8 },
+  countryCodeInput: { flexBasis: 90 },
+  phoneInput: { flex: 1 },
 
-  /* Update button */
   updateButton: {
     marginTop: 24,
     borderRadius: 6,
     paddingVertical: 12,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: PRIMARY,
+    backgroundColor: colors.primary,
   },
-  updateButtonDisabled: {
-    backgroundColor: "#9CA3AF",
-  },
+  updateButtonDisabled: { backgroundColor: colors.muted },
   updateButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontWeight: "600",
     fontSize: 15,
   },
-  updateButtonTextDisabled: {
-    color: "#E5E7EB",
-  },
+  updateButtonTextDisabled: { color: colors.surface },
 
-  /* Delete button */
   deleteButton: {
     marginTop: 16,
     borderWidth: 1,
@@ -372,7 +330,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingVertical: 12,
     alignItems: "center",
-    justifyContent: "center",
   },
   deleteButtonText: {
     color: "#EF4444",

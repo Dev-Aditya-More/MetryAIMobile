@@ -1,5 +1,6 @@
 import { AuthService } from "@/api/auth";
 import BottomNav from "@/components/BottomNav";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -159,19 +160,21 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
   },
+
   scrollContent: {
-    paddingBottom: 90, // space above bottom nav
+    paddingBottom: 90,
   },
 
   /* Profile header */
   profileHeader: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     alignItems: "center",
     paddingTop: 24,
     paddingBottom: 24,
   },
+
   avatarWrapper: {
     width: 96,
     height: 96,
@@ -181,19 +184,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative",
   },
+
   profileImage: {
     width: "100%",
     height: "100%",
     borderRadius: 48,
   },
+
   avatarPlaceholder: {
     width: "100%",
     height: "100%",
     borderRadius: 48,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
+
   cameraBadge: {
     position: "absolute",
     bottom: 4,
@@ -201,37 +207,40 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#111827",
+    backgroundColor: colors.textPrimary,
     alignItems: "center",
     justifyContent: "center",
   },
+
   profileName: {
     marginTop: 12,
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   /* Sections */
   sectionBlock: {
     marginTop: 16,
   },
+
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#9CA3AF",
+    color: colors.muted,
     letterSpacing: 1,
     textTransform: "uppercase",
     marginBottom: 6,
     paddingHorizontal: 16,
   },
+
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 10,
     marginHorizontal: 16,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
   },
 
   /* Rows */
@@ -241,25 +250,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    backgroundColor: "#FFFFFF",
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
+
   rowPressed: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.primarySoft,
   },
+
   rowNoBorder: {
     borderBottomWidth: 0,
   },
+
   rowLeft: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
+
   rowIcon: {
     marginRight: 12,
   },
+
   rowLabel: {
     fontSize: 15,
-    color: "#111827",
+    color: colors.textPrimary,
   },
 });

@@ -1,3 +1,4 @@
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
@@ -8,12 +9,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ContactProvider, useContact } from "./_context/ContactContext";
 
+/* ---------------- Badge ---------------- */
 function Badge({ label }: { label: string }) {
   return (
     <View style={styles.badge}>
@@ -22,6 +23,7 @@ function Badge({ label }: { label: string }) {
   );
 }
 
+/* ---------------- Person Row ---------------- */
 function PersonRow({
   id,
   name,
@@ -39,15 +41,16 @@ function PersonRow({
 }) {
   const router = useRouter();
 
-  const openChat = () => {
-    router.push({
-      pathname: "./chat",
-      params: { userId: id, name, avatar },
-    });
-  };
-
   return (
-    <Pressable onPress={openChat} style={styles.row}>
+    <Pressable
+      onPress={() =>
+        router.push({
+          pathname: "./chat",
+          params: { userId: id, name, avatar },
+        })
+      }
+      style={styles.row}
+    >
       <Image
         source={{
           uri:
@@ -63,14 +66,13 @@ function PersonRow({
         <Text
           style={[
             styles.personStatus,
-            { color: online ? "#10B981" : "#6B7280" },
+            { color: online ? colors.success : colors.muted },
           ]}
         >
           {online ? "Online" : "Offline"}
         </Text>
       </View>
 
-      {/* Badges */}
       {!isClient && (
         <View style={{ flexDirection: "row", gap: 6 }}>
           {tags?.map((t, i) => (
@@ -82,8 +84,10 @@ function PersonRow({
   );
 }
 
+/* ---------------- Content ---------------- */
 function ContactContent() {
   const { state, setQuery } = useContact();
+  const router = useRouter();
 
   const filtered = useMemo(
     () =>
@@ -93,70 +97,58 @@ function ContactContent() {
     [state.staff, state.query]
   );
 
-  function backButton() {
-    const router = useRouter();
-    router.back();
-  }
-
   const staff = filtered.filter((p) => !p.isClient);
   const clients = filtered.filter((p) => p.isClient);
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => backButton()} hitSlop={20}>
-        <Ionicons name="arrow-back" size={24} color="#111" />
-      </TouchableOpacity>
-      {/* Search Bar */}
+      {/* Header */}
+      <View style={styles.header}>
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color={colors.textPrimary}
+          onPress={() => router.back()}
+        />
+        <Text style={styles.headerTitle}>Contacts</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
+      {/* Search */}
       <View style={styles.searchBox}>
         <TextInput
           placeholder="Search"
+          placeholderTextColor={colors.muted}
           value={state.query}
           onChangeText={setQuery}
           style={styles.input}
         />
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* STAFF SECTION */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+        {/* STAFF */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionLabel}>STAFF</Text>
-          <Text style={styles.sectionCount}>
-            {staff.length}/{state.staff.filter((p) => !p.isClient).length}
-          </Text>
         </View>
 
         {staff.map((p) => (
-          <PersonRow
-            key={p.id}
-            id={p.id}
-            name={p.name}
-            online={p.online}
-            tags={p.tags}
-            avatar={p.avatar}
-            isClient={false}
-          />
+          <PersonRow key={p.id} {...p} isClient={false} />
         ))}
 
-        {/* CLIENT SECTION */}
+        {/* CLIENT */}
         <View style={[styles.sectionHeader, { marginTop: 16 }]}>
           <Text style={styles.sectionLabel}>CLIENT</Text>
         </View>
 
         {clients.map((p) => (
-          <PersonRow
-            key={p.id}
-            id={p.id}
-            name={p.name}
-            online={p.online}
-            avatar={p.avatar}
-            isClient={true}
-          />
+          <PersonRow key={p.id} {...p} isClient />
         ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+/* ---------------- Screen Wrapper ---------------- */
 export default function ContactScreen() {
   return (
     <ContactProvider>
@@ -165,35 +157,64 @@ export default function ContactScreen() {
   );
 }
 
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF", paddingHorizontal: 16 },
-
-  searchBox: {
-    marginTop: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
 
-  input: { paddingHorizontal: 12, paddingVertical: 10 },
-
-  sectionHeader: {
+  /* Header */
+  header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textPrimary,
+  },
+
+  /* Search */
+  searchBox: {
+    margin: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+  },
+  input: {
+    padding: 12,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+
+  /* Section */
+  sectionHeader: {
+    marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 6,
   },
-  sectionLabel: { color: "#9CA3AF", fontSize: 12, letterSpacing: 0.5 },
-  sectionCount: { color: "#9CA3AF", fontSize: 12 },
+  sectionLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    letterSpacing: 0.5,
+  },
 
+  /* Row */
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
 
   avatar: {
@@ -203,14 +224,27 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
 
-  personName: { fontSize: 16, color: "#111827", fontWeight: "600" },
-  personStatus: { fontSize: 12, marginTop: 2 },
+  personName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textPrimary,
+  },
 
+  personStatus: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+
+  /* Badge */
   badge: {
-    backgroundColor: "#FFE8CC",
+    backgroundColor: colors.primarySoft,
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  badgeText: { color: "#FB923C", fontSize: 12, fontWeight: "600" },
+  badgeText: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
 });

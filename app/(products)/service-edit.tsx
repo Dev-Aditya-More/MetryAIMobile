@@ -1,4 +1,5 @@
 import { ProductService } from "@/api/products";
+import { colors } from "@/theme/colors";
 import { pickImage, uploadImage } from "@/utils/pickImage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -335,121 +336,143 @@ export default function ServiceEditScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F4F4F5",
+    backgroundColor: colors.surface,
   },
+
   container: {
     flex: 1,
   },
+
   contentContainer: {
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
     marginTop: 16,
     marginBottom: 8,
-    color: "#111827",
+    color: colors.textPrimary,
   },
+
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 10,
     padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+
   fieldGroup: {
     marginBottom: 12,
   },
+
   label: {
     fontSize: 13,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginBottom: 4,
   },
+
   input: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
   },
+
   textArea: {
     height: 80,
     textAlignVertical: "top",
   },
+
   toggleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
   },
+
   toggleItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   toggleLabel: {
     fontSize: 13,
-    color: "#111827",
+    color: colors.textPrimary,
   },
+
   uploadBox: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderStyle: "dashed",
     borderRadius: 10,
     paddingVertical: 24,
     alignItems: "center",
     marginBottom: 16,
+    backgroundColor: colors.surface,
   },
+
   uploadIconCircle: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.primarySoft,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
   },
+
   uploadIconText: {
     fontSize: 24,
   },
+
   uploadText: {
     fontSize: 13,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginBottom: 12,
   },
+
   uploadButton: {
     borderRadius: 8,
     paddingHorizontal: 18,
     paddingVertical: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: colors.border,
   },
+
   uploadButtonText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#111827",
+    color: colors.textPrimary,
   },
+
   thumbnailRow: {
     flexDirection: "row",
     gap: 12,
   },
+
   thumbnailWrapper: {
     position: "relative",
     width: 120,
     height: 80,
     borderRadius: 8,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+
   thumbnail: {
     width: "100%",
     height: "100%",
   },
+
   thumbClose: {
     position: "absolute",
     top: 4,
@@ -461,54 +484,64 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   thumbCloseText: {
     color: "#FFFFFF",
     fontSize: 14,
     marginTop: -1,
   },
+
   helperText: {
     fontSize: 11,
-    color: "#6B7280",
+    color: colors.muted,
     marginTop: 8,
   },
+
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 6,
   },
+
   summaryLabel: {
     fontSize: 13,
-    color: "#6B7280",
+    color: colors.textSecondary,
   },
+
   summaryValue: {
     fontSize: 13,
-    color: "#111827",
+    color: colors.textPrimary,
     fontWeight: "500",
   },
+
   statusPill: {
-    backgroundColor: "#DCFCE7",
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
   },
+
   statusText: {
     fontSize: 12,
-    color: "#15803D",
-    fontWeight: "500",
+    color: colors.primary,
+    fontWeight: "600",
   },
+
   saveButton: {
     marginTop: 24,
     marginBottom: 8,
-    backgroundColor: "#4F46E5",
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
   },
+
   saveButtonText: {
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
   },
+
   deleteButton: {
     marginTop: 32,
     borderWidth: 1,
@@ -518,9 +551,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   deleteButtonText: {
     color: "#EF4444",
     fontWeight: "600",
     fontSize: 15,
   },
 });
+

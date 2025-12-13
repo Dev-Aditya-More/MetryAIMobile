@@ -2,6 +2,7 @@ import { AppointmentService } from "@/api/appointment";
 import { BusinessService } from "@/api/business";
 import { StaffService } from "@/api/staff";
 import BottomNav from "@/components/BottomNav";
+import { colors } from "@/theme/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import React, { useEffect, useMemo, useState } from "react";
@@ -457,27 +458,47 @@ export default function CalendarScreen() {
 /* ---------- Styles ---------- */
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: 16,
+  },
 
+  /* Search */
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: 16, color: "#333" },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
 
+  /* Header */
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 18,
   },
-  headerCenter: { flexDirection: "row", alignItems: "center", gap: 6 },
-  headerDate: { fontSize: 18, fontWeight: "600", color: "#333" },
+  headerCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  headerDate: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.textPrimary,
+  },
 
+  /* Week selector */
   weekRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -488,60 +509,81 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
-  daySelected: { backgroundColor: "#C2B19C" },
-  shadowEffect: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
+  daySelected: {
+    backgroundColor: colors.primary,
   },
-  dayLabel: { fontSize: 12, color: "#777" },
-  dayNumber: { fontSize: 16, color: "#333", fontWeight: "600" },
-  dayLabelSelected: { color: "#fff" },
+  dayLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  dayNumber: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    fontWeight: "600",
+  },
+  dayLabelSelected: {
+    color: "#FFFFFF",
+  },
 
+  /* Dropdown */
   dropdown: {
     marginTop: 12,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
-  dropdownLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
-  avatar: { width: 28, height: 28, borderRadius: 14 },
-  dropdownText: { fontSize: 15, fontWeight: "500", color: "#333" },
+  dropdownLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  dropdownText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.textPrimary,
+  },
   dropdownList: {
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: colors.border,
     borderRadius: 12,
     marginTop: 6,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   dropdownItem: {
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: colors.surface,
   },
-  dropdownItemText: { fontSize: 15, color: "#333" },
+  dropdownItemText: {
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
 
+  /* Time grid */
   timeRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
+    borderBottomColor: colors.surface,
     height: 80,
   },
   timeLabel: {
     width: 50,
-    color: "#999",
+    color: colors.muted,
     fontSize: 12,
     textAlign: "right",
     marginRight: 10,
@@ -550,15 +592,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  /* Event card */
   eventCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 16,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 10,
+    backgroundColor: colors.eventBg,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -566,7 +610,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: "100%",
     borderRadius: 999,
-    backgroundColor: "#8D7BFF",
+    backgroundColor: colors.primary,
     marginRight: 8,
   },
   eventContent: {
@@ -575,38 +619,46 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#222",
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   eventFooterRow: {
     flexDirection: "row",
     alignItems: "center",
   },
-  eventStaff: { fontSize: 12, color: "#555", fontWeight: "500" },
+  eventStaff: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
   dot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#777",
+    backgroundColor: colors.muted,
     marginHorizontal: 6,
-    opacity: 0.6,
   },
-  eventTime: { fontSize: 12, color: "#555" },
+  eventTime: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
 
   noEvents: {
     textAlign: "center",
-    color: "#777",
+    color: colors.textSecondary,
     fontSize: 15,
     marginTop: 20,
   },
+
+  /* Bottom nav */
   bottomNavContainer: {
     position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: colors.border,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,

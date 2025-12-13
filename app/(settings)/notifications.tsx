@@ -1,3 +1,4 @@
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -150,25 +151,34 @@ export default function Notifications() {
 const PRIMARY = "#6366F1";
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
+
   headerTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
   },
-  content: { flex: 1 },
+
+  content: {
+    flex: 1,
+  },
+
   contentInner: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -178,17 +188,20 @@ const styles = StyleSheet.create({
   sectionBlock: {
     marginBottom: 16,
   },
+
   sectionTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#6B7280",
+    color: colors.muted,
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
+
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     overflow: "hidden",
   },
 
@@ -198,31 +211,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
+
   toggleLeft: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
     marginRight: 12,
   },
+
   toggleIconWrapper: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: colors.primarySoft,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
   },
+
   toggleTitle: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#111827",
+    color: colors.textPrimary,
   },
+
   toggleDescription: {
     fontSize: 12,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginTop: 2,
   },
 });
+

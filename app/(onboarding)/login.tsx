@@ -1,4 +1,5 @@
 // this is the login screen
+import { colors } from "@/theme/colors";
 import { handleError } from "@/utils/handleError";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -25,7 +26,7 @@ export default function LoginScreen() {
   const [input, setInput] = useState({ email: "shahviraj030@gmail.com", password: "123456" });
   const [error, setError] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [userType, setUserType] = useState<"customber" | "business">(
+  const [userType, setUserType] = useState<"customer" | "business">(
     "business"
   );
 
@@ -71,7 +72,7 @@ export default function LoginScreen() {
           params: { email: input.email },
         });
       } else {
-        // Implement customber login
+        // Implement customer login
       }
     } catch (err) {
       let message = handleError(err);
@@ -141,19 +142,19 @@ export default function LoginScreen() {
                 <TouchableOpacity
                   style={[
                     styles.toggleButton,
-                    userType === "customber"
+                    userType === "customer"
                       ? styles.toggleActive
                       : styles.toggleInactive,
                   ]}
-                  onPress={() => setUserType("customber")}
+                  onPress={() => setUserType("customer")}
                 >
                   <Text
                     style={[
                       styles.toggleText,
-                      userType === "customber" && styles.toggleTextActive,
+                      userType === "customer" && styles.toggleTextActive,
                     ]}
                   >
-                    Customber
+                    Customer
                   </Text>
                 </TouchableOpacity>
 
@@ -245,7 +246,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#EAF6FB" },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
   wrapper: {
     flex: 1,
@@ -258,132 +262,212 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#F2FAFF",
-    borderRadius: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
     paddingVertical: 32,
     paddingHorizontal: 28,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
-  logoArea: { alignItems: "center", marginBottom: 14 },
+  /* Logo */
+  logoArea: {
+    alignItems: "center",
+    marginBottom: 14,
+  },
+
   logoCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#2F3B47",
+    backgroundColor: colors.primarySoft,
     marginBottom: 12,
   },
+
   brand: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.textPrimary,
     letterSpacing: 0.6,
   },
-  tagline: { fontSize: 13, color: "#6B7280", marginTop: 6 },
+
+  tagline: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 6,
+  },
+
   sectionText: {
     fontSize: 15,
-    color: "#374151",
+    color: colors.textSecondary,
     marginTop: 14,
     marginBottom: 8,
   },
 
-  actions: { width: "100%", marginTop: 8, alignItems: "center" },
+  /* Actions */
+  actions: {
+    width: "100%",
+    marginTop: 8,
+    alignItems: "center",
+  },
+
   socialButton: {
     width: "100%",
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 12,
     marginVertical: 6,
     borderWidth: 1,
-    borderColor: "#E6EEF6",
+    borderColor: colors.border,
   },
+
   socialInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
   },
-  socialText: { marginLeft: 10, fontSize: 15, color: "#111827" },
 
+  socialText: {
+    marginLeft: 10,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+
+  /* Separator */
   separatorRow: {
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
     marginVertical: 14,
   },
-  sepLine: { flex: 1, height: 1, backgroundColor: "#D1D9E0" },
+
+  sepLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+
   sepPill: {
     paddingHorizontal: 12,
-    backgroundColor: "#F2FAFF",
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
-  sepText: { color: "#6B7280", fontSize: 13 },
 
+  sepText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+
+  /* Toggle */
   toggleContainer: {
     flexDirection: "row",
     alignSelf: "stretch",
-    borderRadius: 8,
-    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E6EEF6",
+    borderColor: colors.border,
     overflow: "hidden",
     marginBottom: 12,
   },
+
   toggleButton: {
     flex: 1,
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  toggleActive: { backgroundColor: "#ffffff" },
-  toggleInactive: { backgroundColor: "#F8FBFD" },
-  toggleText: { fontSize: 14, color: "#6B7280" },
-  toggleTextActive: { color: "#111827", fontWeight: "600" },
 
-  fieldWrap: { alignSelf: "stretch", marginTop: 4 },
-  fieldLabel: { color: "#374151", marginBottom: 6, fontSize: 13 },
+  toggleActive: {
+    backgroundColor: colors.primarySoft,
+  },
+
+  toggleInactive: {
+    backgroundColor: colors.background,
+  },
+
+  toggleText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+
+  toggleTextActive: {
+    color: colors.primary,
+    fontWeight: "600",
+  },
+
+  /* Fields */
+  fieldWrap: {
+    alignSelf: "stretch",
+    marginTop: 4,
+  },
+
+  fieldLabel: {
+    color: colors.textSecondary,
+    marginBottom: 6,
+    fontSize: 13,
+  },
+
   input: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 15,
     borderWidth: 1,
-    borderColor: "#E6EEF6",
+    borderColor: colors.border,
+    color: colors.textPrimary,
   },
 
-  error: { color: "#D14343", marginTop: 6, alignSelf: "flex-start" },
+  error: {
+    color: "#DC2626",
+    marginTop: 6,
+    alignSelf: "flex-start",
+    fontSize: 13,
+  },
 
+  /* Buttons */
   continueBtn: {
     width: "100%",
-    backgroundColor: "#F97316",
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 18,
-    shadowColor: "#F97316",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 4,
   },
-  continueText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 
-  footer: { marginTop: 16, color: "#374151", textAlign: "center" },
-  linkText: { color: "#F97316", fontWeight: "600" },
-  terms: { marginTop: 10, fontSize: 12, textAlign: "center", color: "#9AA3AD" },
+  continueText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+
   forgotText: {
     alignSelf: "flex-end",
-    color: "#007AFF",
+    color: colors.accentBlue,
     fontWeight: "500",
     marginTop: 4,
     marginBottom: 16,
+  },
+
+  footer: {
+    marginTop: 16,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+
+  linkText: {
+    color: colors.primary,
+    fontWeight: "600",
+  },
+
+  terms: {
+    marginTop: 10,
+    fontSize: 12,
+    textAlign: "center",
+    color: colors.muted,
   },
 });

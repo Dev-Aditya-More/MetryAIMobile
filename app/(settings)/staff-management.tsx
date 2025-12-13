@@ -1,5 +1,6 @@
 import { BusinessService } from "@/api/business";
 import { StaffService } from "@/api/staff";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+/* ------------------------------ TYPES ------------------------------ */
 type Staff = {
   id: string;
   name: string;
@@ -21,41 +23,17 @@ type Staff = {
   email: string;
   phone: string;
   active: boolean;
-  raw?: any; // keep full API object if needed
+  raw?: any;
 };
-
-const INITIAL_STAFF: Staff[] = [
-  {
-    id: "1",
-    name: "Emma Wilson",
-    role: "Senior Stylist",
-    email: "emma@salon.com",
-    phone: "(555) 111-2222",
-    active: true,
-  },
-  {
-    id: "2",
-    name: "Emma Wilson",
-    role: "Senior Stylist",
-    email: "emma@salon.com",
-    phone: "(555) 111-2222",
-    active: true,
-  },
-  {
-    id: "3",
-    name: "Emma Wilson",
-    role: "Senior Stylist",
-    email: "emma@salon.com",
-    phone: "(555) 111-2222",
-    active: true,
-  },
-];
 
 const PRIMARY = "#6366F1";
 
+/* ------------------------------ SCREEN ------------------------------ */
 export default function StaffManagement() {
   const router = useRouter();
-  const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const activeCount = useMemo(
@@ -63,9 +41,12 @@ export default function StaffManagement() {
     [staff]
   );
 
+  /* ---------------- LOAD STAFF ---------------- */
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
+
         const businessId = await BusinessService.getBusinessesId();
         const apiStaff = await StaffService.getStaff(businessId);
 
@@ -80,15 +61,18 @@ export default function StaffManagement() {
         }));
 
         setStaff(mappedStaff);
-        console.log(mappedStaff);
       } catch (error) {
         console.error("Failed to load staff:", error);
+        Alert.alert("Error", "Unable to load staff members");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadData();
-  }, []); // 👈 empty deps: only once
+  }, []);
 
+  /* ---------------- ACTIONS ---------------- */
   const toggleActive = (id: string) => {
     setStaff((prev) =>
       prev.map((s) => (s.id === id ? { ...s, active: !s.active } : s))
@@ -97,16 +81,12 @@ export default function StaffManagement() {
 
   const handleDelete = (id: string) => {
     setDeleteId(id);
-    console.log(id);
-    Alert.alert("Delete Staff ", "Are you sure you want to delete?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
+    Alert.alert("Delete Staff", "Are you sure you want to delete?", [
+      { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => confirmDelete(),
+        onPress: confirmDelete,
       },
     ]);
   };
@@ -118,58 +98,56 @@ export default function StaffManagement() {
       const res = await StaffService.deleteStaff(deleteId);
 
       if (res) {
-        // remove from UI immediately
         setStaff((prev) => prev.filter((s) => s.id !== deleteId));
-        setDeleteId(null);
-        Alert.alert("Staff Deleted Successfully");
+        Alert.alert("Staff deleted successfully");
       } else {
-        Alert.alert("Something went wrong , Not able to delete");
+        Alert.alert("Unable to delete staff");
       }
-    } catch (err) {
-      console.log("Delete Staff Error:", err);
-      Alert.alert("Something went wrong , Not able to delete");
+    } catch {
+      Alert.alert("Something went wrong");
+    } finally {
+      setDeleteId(null);
     }
   };
 
   const handleEdit = (member: Staff) => {
-    // push full staff object (prefer raw API object if present)
     router.replace({
       pathname: "/(settings)/staff-edit",
       params: {
         staffId: member.id,
-        staff: member.raw ? JSON.stringify(member.raw) : JSON.stringify(member),
+        staff: JSON.stringify(member.raw ?? member),
       },
     });
   };
 
   const handleAddStaff = () => {
     router.replace("/(settings)/staff-add");
-    console.log("Add Staff Member");
   };
 
   const getInitials = (name: string) => {
     const parts = name.trim().split(" ");
-    if (parts.length === 1) return (parts[0][0] || "").toUpperCase();
-    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+    return parts.length === 1
+      ? parts[0][0]?.toUpperCase()
+      : `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   };
 
+  /* ---------------- UI ---------------- */
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={22} color="#111827" />
+          <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Staff Management</Text>
         <View style={{ width: 22 }} />
       </View>
 
       <ScrollView
-        style={styles.content}
         contentContainerStyle={styles.contentInner}
         showsVerticalScrollIndicator={false}
       >
-        {/* Team header */}
+        {/* Team Header */}
         <View style={styles.teamHeader}>
           <Text style={styles.teamTitle}>Team Members</Text>
           <Text style={styles.teamSubtitle}>
@@ -177,84 +155,88 @@ export default function StaffManagement() {
           </Text>
 
           <TouchableOpacity
-            onPress={handleAddStaff}
-            activeOpacity={0.8}
             style={styles.addButtonWrapper}
+            onPress={handleAddStaff}
           >
-            <Ionicons name="add" size={16} color={PRIMARY} />
+            <Ionicons name="add" size={16} color={colors.primary} />
             <Text style={styles.teamAddText}>Add Staff Member</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Staff cards */}
-        {staff.map((member) => (
-          <View key={member.id} style={styles.staffCard}>
-            <View style={styles.staffTopRow}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {getInitials(member.name)}
-                </Text>
-              </View>
+        {/* Loading */}
+        {loading && (
+          <Text style={styles.loadingText}>Loading staff members...</Text>
+        )}
 
-              <View style={styles.staffMainInfo}>
-                <View style={styles.nameBadgeRow}>
-                  <Text style={styles.staffName}>{member.name}</Text>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusBadgeText}>
-                      {member.active ? "Active" : "Inactive"}
-                    </Text>
+        {/* Empty */}
+        {!loading && staff.length === 0 && (
+          <Text style={styles.emptyText}>No staff members found</Text>
+        )}
+
+        {/* Staff Cards */}
+        {!loading &&
+          staff.map((member) => (
+            <View key={member.id} style={styles.staffCard}>
+              <View style={styles.staffTopRow}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>
+                    {getInitials(member.name)}
+                  </Text>
+                </View>
+
+                <View style={styles.staffMainInfo}>
+                  <View style={styles.nameBadgeRow}>
+                    <Text style={styles.staffName}>{member.name}</Text>
+                    <View style={styles.statusBadge}>
+                      <Text style={styles.statusBadgeText}>
+                        {member.active ? "Active" : "Inactive"}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text style={styles.staffRole}>{member.role}</Text>
+
+                  <View style={styles.infoRow}>
+                    <Ionicons
+                      name="mail-outline"
+                      size={14}
+                      color={colors.textSecondary}
+                    />
+                    <Text style={styles.infoText}>{member.email}</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Ionicons
+                      name="call-outline"
+                      size={14}
+                      color={colors.textSecondary}
+                    />
+                    <Text style={styles.infoText}>{member.phone}</Text>
                   </View>
                 </View>
 
-                <Text style={styles.staffRole}>{member.role}</Text>
-
-                <View style={styles.infoRow}>
-                  <Ionicons
-                    name="mail-outline"
-                    size={14}
-                    color="#6B7280"
-                    style={styles.infoIcon}
-                  />
-                  <Text style={styles.infoText}>{member.email}</Text>
-                </View>
-
-                <View style={styles.infoRow}>
-                  <Ionicons
-                    name="call-outline"
-                    size={14}
-                    color="#6B7280"
-                    style={styles.infoIcon}
-                  />
-                  <Text style={styles.infoText}>{member.phone}</Text>
-                </View>
+                <Switch
+                  value={member.active}
+                  onValueChange={() => toggleActive(member.id)}
+                  trackColor={{ false: colors.border, true: PRIMARY }}
+                  thumbColor="#FFFFFF"
+                />
               </View>
 
-              <Switch
-                value={member.active}
-                onValueChange={() => toggleActive(member.id)}
-                trackColor={{ false: "#E5E7EB", true: PRIMARY }}
-                thumbColor="#FFFFFF"
-              />
+              <View style={styles.staffFooter}>
+                <TouchableOpacity onPress={() => handleEdit(member)}>
+                  <Ionicons
+                    name="pencil-outline"
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDelete(member.id)}>
+                  <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
             </View>
-
-            <View style={styles.staffFooter}>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={styles.footerButton}
-                onPress={() => handleEdit(member)}
-              >
-                <Ionicons name="pencil-outline" size={18} color="#6B7280" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={styles.footerButton}
-                onPress={() => handleDelete(member.id)}
-              >
-                <Ionicons name="trash-outline" size={18} color="#EF4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+          ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -263,106 +245,88 @@ export default function StaffManagement() {
 /* ------------------------------ STYLES ------------------------------ */
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
-
-  addButtonWrapper: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 10,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  teamAddText: {
-    marginLeft: 4,
-    fontSize: 14,
-    fontWeight: "500",
-    color: PRIMARY,
-  },
+  container: { flex: 1, backgroundColor: colors.surface },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    backgroundColor: "#F3F4F6",
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
-  content: { flex: 1 },
-  contentInner: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    paddingBottom: 32,
-  },
+  contentInner: { padding: 16, paddingBottom: 32 },
 
-  teamHeader: {
-    marginBottom: 12,
-  },
-
-  teamTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-  },
-
+  teamHeader: { marginBottom: 12 },
+  teamTitle: { fontSize: 16, fontWeight: "600", color: colors.textPrimary },
   teamSubtitle: {
     fontSize: 13,
-    color: "#6B7280",
-    marginTop: 2,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
 
-  staffCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 8,
-    marginBottom: 12,
-  },
-  staffTopRow: {
+  addButtonWrapper: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
+  teamAddText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.primary,
+  },
+
+  loadingText: {
+    textAlign: "center",
+    marginTop: 24,
+    color: colors.textSecondary,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 24,
+    color: colors.muted,
+  },
+
+  staffCard: {
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  staffTopRow: { flexDirection: "row" },
   avatar: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: PRIMARY,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
-  avatarText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  staffMainInfo: {
-    flex: 1,
-  },
-  nameBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 2,
-  },
+  avatarText: { color: colors.onPrimary, fontWeight: "600" },
+
+  staffMainInfo: { flex: 1 },
+  nameBadgeRow: { flexDirection: "row", alignItems: "center" },
   staffName: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
     marginRight: 8,
   },
   statusBadge: {
@@ -373,37 +337,20 @@ const styles = StyleSheet.create({
   },
   statusBadgeText: {
     fontSize: 11,
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontWeight: "600",
   },
-  staffRole: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 4,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 2,
-  },
-  infoIcon: {
-    marginRight: 6,
-  },
-  infoText: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
+
+  staffRole: { fontSize: 13, color: colors.textSecondary },
+  infoRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  infoText: { fontSize: 13, color: colors.textSecondary },
 
   staffFooter: {
     marginTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: colors.border,
     paddingTop: 6,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  footerButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 4,
   },
 });

@@ -1,3 +1,4 @@
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -112,7 +113,7 @@ export default function OrderSent() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
 
   overlay: {
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.25)",
+    backgroundColor: "rgba(0,0,0,0.25)", // overlay should stay neutral
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   popup: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     alignItems: "center",
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   },
 
   checkCircle: {
-    backgroundColor: "#C5B9A1",
+    backgroundColor: colors.primary,
     width: 70,
     height: 70,
     borderRadius: 35,
@@ -164,12 +165,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111",
+    color: colors.textPrimary,
     marginTop: 16,
   },
 
   subtitle: {
-    color: "#6B7280",
+    color: colors.textSecondary,
     fontSize: 14,
     textAlign: "center",
     marginTop: 4,
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   },
 
   orderBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     width: "100%",
     padding: 14,
@@ -191,13 +192,26 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-  label: { color: "#6B7280", fontSize: 14 },
-  value: { color: "#111827", fontSize: 14, fontWeight: "500" },
-  valueBold: { color: "#111827", fontWeight: "700", fontSize: 15 },
+  label: {
+    color: colors.textSecondary,
+    fontSize: 14,
+  },
+
+  value: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  valueBold: {
+    color: colors.textPrimary,
+    fontWeight: "700",
+    fontSize: 15,
+  },
 
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     marginVertical: 8,
   },
 
@@ -207,15 +221,35 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-  serviceName: { fontWeight: "500", color: "#111827", fontSize: 15 },
-  staff: { color: "#9CA3AF", fontSize: 13 },
-  servicePrice: { color: "#111827", fontSize: 15 },
+  serviceName: {
+    fontWeight: "500",
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
 
-  totalLabel: { fontWeight: "600", color: "#111827" },
-  totalValue: { fontWeight: "700", color: "#111827", fontSize: 16 },
+  staff: {
+    color: colors.muted,
+    fontSize: 13,
+  },
+
+  servicePrice: {
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
+
+  totalLabel: {
+    fontWeight: "600",
+    color: colors.textPrimary,
+  },
+
+  totalValue: {
+    fontWeight: "700",
+    color: colors.textPrimary,
+    fontSize: 16,
+  },
 
   infoBox: {
-    backgroundColor: "#FAFAF9",
+    backgroundColor: colors.primarySoft,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 12,
@@ -225,23 +259,24 @@ const styles = StyleSheet.create({
 
   infoText: {
     textAlign: "center",
-    color: "#6B7280",
+    color: colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
   },
 
   doneButton: {
-    backgroundColor: "#C5B9A1",
+    backgroundColor: colors.primary,
     width: "100%",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: "auto", // Push button to bottom
+    marginTop: "auto",
   },
 
   doneButtonText: {
-    color: "#fff",
+    color: "#FFFFFF", // using existing pattern in your app
     fontWeight: "600",
     fontSize: 15,
   },
 });
+

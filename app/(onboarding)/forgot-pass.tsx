@@ -1,4 +1,5 @@
 
+import { colors } from "@/theme/colors";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
@@ -104,79 +105,78 @@ export default function ForgotPass() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#EAF6FB",
+    backgroundColor: colors.background,
   },
+
   wrapper: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 20,
     paddingHorizontal: 16,
   },
+
   card: {
-    width: "100%",
-    backgroundColor: "#F2FAFF",
-    borderRadius: 8,
-    paddingVertical: 36,
-    paddingHorizontal: 28,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
-    elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.textPrimary,
     marginBottom: 8,
+    textAlign: "center",
   },
+
   subtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.textSecondary,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 24,
   },
+
   fieldWrap: {
-    alignSelf: "stretch",
     marginBottom: 16,
   },
+
   fieldLabel: {
-    color: "#374151",
-    marginBottom: 6,
     fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 6,
   },
+
   input: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 15,
     borderWidth: 1,
-    borderColor: "#E6EEF6",
+    borderColor: colors.border,
+    color: colors.textPrimary,
   },
+
   resetBtn: {
-    width: "100%",
-    backgroundColor: "#F97316",
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 8,
-    shadowColor: "#F97316",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 4,
   },
+
   resetText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontWeight: "700",
     fontSize: 16,
   },
+
   backText: {
-    color: "#007AFF",
-    marginTop: 16,
+    color: colors.accentBlue,
+    marginTop: 18,
+    textAlign: "center",
     fontWeight: "600",
     fontSize: 14,
   },

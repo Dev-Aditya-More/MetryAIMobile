@@ -1,4 +1,5 @@
 import { AuthService } from "@/api/auth";
+import { colors } from "@/theme/colors";
 import { handleError } from "@/utils/handleError";
 import { PickedImage, pickImage, uploadImage } from "@/utils/pickImage";
 import { getFromSecureStore, saveToSecureStore } from "@/utils/secureStorage";
@@ -37,7 +38,7 @@ export default function ProfileSetup() {
   const [phone, setPhone] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-   const [image, setImage] = useState<PickedImage | null>(null);
+  const [image, setImage] = useState<PickedImage | null>(null);
 
   // --- Validation Logic
   const canContinue = useMemo(
@@ -51,12 +52,11 @@ export default function ProfileSetup() {
 
   // --- Upload Button
   const onUploadPress = async () => {
+    const img = await pickImage();
+    if (img) setImage(img);
 
-     const img = await pickImage();
-     if (img) setImage(img);
-
-      const uploadedData = await uploadImage(img);
-      setAvatarUri(uploadedData.data.url);
+    const uploadedData = await uploadImage(img);
+    setAvatarUri(uploadedData.data.url);
   };
 
   // --- Continue Handler
@@ -80,14 +80,15 @@ export default function ProfileSetup() {
       let fullname = `${firstName.trim()} ${lastName.trim()}`.trim();
       let phoneCode = countryCode.trim();
       let phoneNumber = phone.trim();
-      let avatarUrl = "avatar";
+      let avatarUrl = avatarUri ?? "";
+      const payload = {
+        fullName: fullname,
+        avatarUrl: avatarUrl,
+        phoneCode: phoneCode,
+        phone: phoneNumber,
+      };
       // Call API
-      await AuthService.setupProfile(
-        fullname,
-        avatarUri ?? avatarUrl,
-        phoneCode,
-        phoneNumber
-      );
+      await AuthService.setupProfile(payload);
 
       // Save onboarding completion flags
 
@@ -264,9 +265,21 @@ export default function ProfileSetup() {
 
 /* ------------------------------ STYLES ------------------------------ */
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#EAF6FB" },
-  wrapper: { flex: 1 },
-  centerColumn: { flex: 1, alignItems: "center", justifyContent: "center" },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.primarySoft,
+  },
+
+  wrapper: {
+    flex: 1,
+  },
+
+  centerColumn: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   outerScrollContent: {
     alignItems: "center",
     justifyContent: "center",
@@ -274,18 +287,14 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingTop: 12,
     paddingBottom: 12,
     paddingHorizontal: 12,
     alignItems: "stretch",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
-    elevation: 6,
-    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
   headerRow: {
@@ -295,39 +304,79 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
-  backBtn: { flexDirection: "row", alignItems: "center" },
-  backText: { marginLeft: 8, color: "#374151", fontSize: 14 },
-  progressWrap: { flex: 1, marginLeft: 8, marginRight: 8 },
-  stepText: { fontSize: 12, color: "#9AA3AD", textAlign: "right" },
+
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  backText: {
+    marginLeft: 8,
+    color: colors.textSecondary,
+    fontSize: 14,
+  },
+
+  progressWrap: {
+    flex: 1,
+    marginLeft: 8,
+    marginRight: 8,
+  },
+
+  stepText: {
+    fontSize: 12,
+    color: colors.muted,
+    textAlign: "right",
+  },
+
   progressBarTrack: {
     height: 8,
-    backgroundColor: "#EEF2F6",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     marginTop: 8,
     overflow: "hidden",
   },
-  progressBarFill: { height: "100%", backgroundColor: "#1F2937" },
 
-  innerScroll: { flex: 1 },
-  contentInner: { paddingHorizontal: 20, paddingBottom: 8 },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: colors.primaryDark,
+  },
+
+  innerScroll: {
+    flex: 1,
+  },
+
+  contentInner: {
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
 
   titleWrap: {
     alignItems: "center",
     paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F6F9",
+    borderBottomColor: colors.border,
   },
-  avatarArea: { marginBottom: 12 },
+
+  avatarArea: {
+    marginBottom: 12,
+  },
+
   avatarCircle: {
     width: 84,
     height: 84,
     borderRadius: 42,
-    backgroundColor: "#F3F8FF",
+    backgroundColor: colors.primarySoft,
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
   },
-  avatarImage: { width: 84, height: 84, borderRadius: 42 },
+
+  avatarImage: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+  },
+
   uploadBadge: {
     position: "absolute",
     right: -6,
@@ -335,43 +384,84 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#0F172A",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
-  heading: { fontSize: 20, fontWeight: "700", color: "#111827", marginTop: 6 },
-  subheading: { fontSize: 13, color: "#6B7280", marginTop: 6 },
 
-  form: { paddingTop: 18 },
-  row: { flexDirection: "row", justifyContent: "space-between" },
-  field: { flex: 1, minWidth: 0, marginRight: 8 },
-  label: { fontSize: 12, color: "#6B7280", marginBottom: 6 },
+  heading: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginTop: 6,
+  },
+
+  subheading: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 6,
+  },
+
+  form: {
+    paddingTop: 18,
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  field: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: 8,
+  },
+
+  label: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 6,
+  },
+
   input: {
-    backgroundColor: "#F8FAFB",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 12,
-    color: "#111827",
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+
   phoneRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   countryCodeInput: {
     flex: 0.3,
     textAlign: "center",
   },
+
   phoneInput: {
     flex: 0.7,
   },
+
   continueBtn: {
     marginTop: 18,
-    backgroundColor: "#F97316",
+    backgroundColor: colors.primaryDark,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
-  continueDisabled: { opacity: 0.6 },
-  continueText: { color: "#fff", fontWeight: "700" },
+
+  continueDisabled: {
+    opacity: 0.5,
+  },
+
+  continueText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
 });

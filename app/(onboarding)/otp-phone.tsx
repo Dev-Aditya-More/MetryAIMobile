@@ -1,3 +1,4 @@
+import { colors } from "@/theme/colors";
 import { FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -228,7 +229,10 @@ export default function OtpPhone() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#EAF6FB" },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
   wrapper: {
     flex: 1,
@@ -240,17 +244,14 @@ const styles = StyleSheet.create({
 
   card: {
     width: "100%",
-    backgroundColor: "#F2FAFF",
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
     paddingVertical: 36,
     paddingHorizontal: 40,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
-    elevation: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
   backRow: {
@@ -261,61 +262,118 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 2,
   },
-  backText: { marginLeft: 8, color: "#374151", fontSize: 14 },
 
-  logoWrap: { alignItems: "center", marginBottom: 18 },
+  backText: {
+    marginLeft: 8,
+    color: colors.textSecondary,
+    fontSize: 14,
+  },
+
+  logoWrap: {
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
   logoCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#2F3B47",
+    backgroundColor: colors.primarySoft,
     marginBottom: 12,
   },
-  title: { fontSize: 22, fontWeight: "700", color: "#111827", marginBottom: 6 },
-  subtitle: { fontSize: 13, color: "#6B7280", marginBottom: 4 },
-  phoneText: { fontWeight: "700", color: "#111827", marginBottom: 18 },
 
-  otpContainer: { flexDirection: "row", justifyContent: "center", marginBottom: 12 },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginBottom: 6,
+  },
+
+  subtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+
+  phoneText: {
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginBottom: 18,
+  },
+
+  otpContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+
   otpBox: {
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E6EEF6",
+    borderRadius: 10,
+    backgroundColor: colors.background,
+    borderColor: colors.border,
     borderWidth: 1,
-    color: "#111827",
-    padding: 0,
+    color: colors.textPrimary,
     textAlignVertical: "center",
   },
 
-  timerLine: { color: "#6B7280", marginTop: 6, marginBottom: 8 },
-  timerValue: { color: "#D14343", fontWeight: "700" },
+  timerLine: {
+    color: colors.textSecondary,
+    marginTop: 6,
+    marginBottom: 8,
+  },
+
+  timerValue: {
+    color: "#DC2626",
+    fontWeight: "700",
+  },
 
   resendRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
-  resendText: { color: "#111827", marginLeft: 6 },
-  resendDisabled: { color: "#9AA3AD" },
+
+  resendText: {
+    color: colors.textPrimary,
+    marginLeft: 6,
+  },
+
+  resendDisabled: {
+    color: colors.muted,
+  },
 
   keyboardDismissBtn: {
     alignSelf: "center",
     marginTop: 6,
-    backgroundColor: "#EFF6F9",
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  keyboardDismissText: { color: "#6B7280", fontSize: 13 },
+
+  keyboardDismissText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
 
   verifyBtn: {
     width: "100%",
-    backgroundColor: "#F97316",
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 12,
   },
-  verifyText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 
-  bottomText: { marginTop: 18, color: "#6B7280" },
+  verifyText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+
+  bottomText: {
+    marginTop: 18,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
 });

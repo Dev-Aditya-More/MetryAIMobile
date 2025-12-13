@@ -59,7 +59,6 @@ export const AuthService = {
   avatarUrl: string;
   phoneCode: string;
   phone: string;
-  email: string;
 }) {
   try {
     const token = await getFromSecureStore("access_token");
@@ -87,7 +86,7 @@ export const AuthService = {
   //4 reset password email supabase
   async resetPassword(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: Linking.createURL("reset-password"), // your frontend redirect
+      redirectTo: Linking.createURL("reset-password"), // your frontend redirect 
       // redirectTo: "exp://192.168.29.102:8081/--/reset-password", // your frontend redirect
     });
     return { data, error };

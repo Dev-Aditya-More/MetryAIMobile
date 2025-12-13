@@ -1,10 +1,10 @@
-/* ------------------------------ IMPORTS ------------------------------ */
 import { ProductService } from "@/api/products";
 import facialImg from "@/assets/images/facial.jpg";
 import haircutImg from "@/assets/images/haircut.jpg";
 import manicureImg from "@/assets/images/manicure.jpg";
 import massageImg from "@/assets/images/massage.jpg";
 import BottomNav from "@/components/BottomNav";
+import { colors } from "@/theme/colors";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -365,7 +365,7 @@ const CARD_GAP = 10;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingTop: 12,
   },
@@ -374,17 +374,19 @@ const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 15,
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   /* Categories */
@@ -397,16 +399,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     marginRight: 8,
     alignSelf: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   activeCategory: {
-    backgroundColor: "#4F46E5",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   categoryText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.textSecondary,
     textAlign: "center",
   },
   activeCategoryText: {
@@ -425,15 +430,12 @@ const styles = StyleSheet.create({
 
   card: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 10,
     overflow: "hidden",
     marginHorizontal: CARD_GAP / 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardImage: {
     width: "100%",
@@ -446,7 +448,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   cardRatingRow: {
@@ -456,7 +458,7 @@ const styles = StyleSheet.create({
   },
   cardRatingText: {
     fontSize: 12,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginLeft: 4,
   },
   cardFooterRow: {
@@ -467,11 +469,11 @@ const styles = StyleSheet.create({
   cardPrice: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#2563EB",
+    color: colors.accentBlue,
   },
   cardSold: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: colors.muted,
   },
 
   /* FAB */
@@ -482,13 +484,9 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#4F46E5",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 5,
   },
 });
+

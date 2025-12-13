@@ -5,6 +5,7 @@ import haircutImg from "@/assets/images/haircut.jpg";
 import manicureImg from "@/assets/images/manicure.jpg";
 import massageImg from "@/assets/images/massage.jpg";
 import BottomNav from "@/components/BottomNav";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -340,8 +341,12 @@ export default function SalesScreen() {
 
 /* ------------------------------ STYLES ------------------------------ */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
+  /* ---------- HEADER ---------- */
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -350,10 +355,19 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
 
-  addButton: { flexDirection: "row", alignItems: "center" },
-  addButtonText: { marginLeft: 6, fontWeight: "500", color: "#111827" },
+  addButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  addButtonText: {
+    marginLeft: 6,
+    fontWeight: "500",
+    color: colors.textPrimary,
+  },
 
   cart: { position: "relative" },
+
   cartBadge: {
     position: "absolute",
     right: -6,
@@ -362,8 +376,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 5,
   },
-  cartCount: { color: "#FFF", fontSize: 10 },
 
+  cartCount: {
+    color: "#FFFFFF",
+    fontSize: 10,
+  },
+
+  /* ---------- CATEGORIES ---------- */
   categoryContainer: {
     flexDirection: "row",
     marginTop: 12,
@@ -371,33 +390,69 @@ const styles = StyleSheet.create({
   },
 
   categoryButton: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
     marginRight: 8,
   },
 
-  activeCategory: { backgroundColor: "#111827" },
-  categoryText: { color: "#6B7280" },
-  activeCategoryText: { color: "#FFF" },
+  activeCategory: {
+    backgroundColor: colors.primary,
+  },
 
-  serviceList: { padding: 16, paddingBottom: 120 },
+  categoryText: {
+    color: colors.textSecondary,
+  },
+
+  activeCategoryText: {
+    color: colors.onPrimary,
+    fontWeight: "600",
+  },
+
+  /* ---------- SERVICES ---------- */
+  serviceList: {
+    padding: 16,
+    paddingBottom: 120,
+  },
 
   card: {
     width: "48%",
-    backgroundColor: "#FFF",
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  cardSelected: { borderWidth: 2, borderColor: "#D1CCC2" },
-  cardDisabled: { opacity: 0.5 },
 
-  cardImage: { width: "100%", height: 130 },
-  cardContent: { padding: 8 },
-  cardTitle: { fontWeight: "500" },
-  cardPrice: { color: "#6B7280" },
+  cardSelected: {
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
 
+  cardDisabled: {
+    opacity: 0.5,
+  },
+
+  cardImage: {
+    width: "100%",
+    height: 130,
+  },
+
+  cardContent: {
+    padding: 8,
+  },
+
+  cardTitle: {
+    fontWeight: "500",
+    color: colors.textPrimary,
+  },
+
+  cardPrice: {
+    color: colors.textSecondary,
+  },
+
+  /* ---------- SUMMARY ---------- */
   summaryContainer: {
     position: "absolute",
     bottom: 70,
@@ -407,47 +462,79 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#FFF",
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
 
-  itemCount: { color: "#6B7280" },
-  totalText: { fontWeight: "500" },
-  totalAmount: { fontWeight: "700" },
+  itemCount: {
+    color: colors.textSecondary,
+  },
+
+  totalText: {
+    fontWeight: "500",
+    color: colors.textPrimary,
+  },
+
+  totalAmount: {
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
 
   viewOrderButton: {
-    backgroundColor: "#D1CCC2",
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 10,
   },
-  viewOrderText: { fontWeight: "600" },
 
+  viewOrderText: {
+    fontWeight: "600",
+    color: colors.primary,
+  },
+
+  /* ---------- MODAL ---------- */
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
   },
+
   modalCard: {
     width: "88%",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.background,
     borderRadius: 16,
     padding: 20,
   },
-  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 16 },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 16,
+    color: colors.textPrimary,
+  },
+
   modalInput: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 10,
     marginBottom: 12,
+    color: colors.textPrimary,
+    backgroundColor: colors.surface,
   },
+
   saveButton: {
-    backgroundColor: "#D1CCC2",
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
   },
-  saveButtonText: { fontWeight: "600" },
+
+  saveButtonText: {
+    fontWeight: "600",
+    color: colors.onPrimary,
+  },
 });
+
+

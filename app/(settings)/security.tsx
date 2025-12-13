@@ -1,4 +1,5 @@
 import { AuthService } from "@/api/auth";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -116,63 +117,80 @@ export default function Security() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: colors.border,
   },
+
   headerTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.textPrimary,
   },
-  content: { flex: 1 },
+
+  content: {
+    flex: 1,
+  },
+
   contentInner: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
+
   fieldBlock: {
     marginBottom: 14,
   },
+
   fieldLabel: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: colors.muted,
     marginBottom: 4,
   },
+
   input: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 14,
-    color: "#111827",
+    color: colors.textPrimary,
   },
+
   errorText: {
     marginTop: 2,
     marginBottom: 8,
     fontSize: 12,
-    color: "#DC2626",
+    color: "#DC2626", // destructive error color stays explicit
   },
+
   updateButton: {
     marginTop: 32,
     borderRadius: 6,
     paddingVertical: 13,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: colors.primary,
   },
+
   updateButtonText: {
-    color: "#FFFFFF",
+    color: colors.onPrimary,
     fontWeight: "600",
     fontSize: 15,
   },
 });
+

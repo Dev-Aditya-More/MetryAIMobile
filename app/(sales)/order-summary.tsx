@@ -1,8 +1,8 @@
 //services.reduce((acc, s) => acc + s.price, 0)
 // the above function is higher order with callback funciton
 // callback functions is (acc, s) => acc + s.price, 0
-
 import profileImg from "@/assets/images/profile.jpg";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -174,80 +174,160 @@ export default function OrderSummary() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: "700", color: "#111827" },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: colors.background,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+
   subtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 20,
   },
 
-  // Customer box
+  /* ---------------- CUSTOMER ---------------- */
   customerBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
   },
+
   sectionLabel: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.textSecondary,
     marginBottom: 8,
   },
-  customerRow: { flexDirection: "row", alignItems: "center" },
-  avatar: { width: 44, height: 44, borderRadius: 22, marginRight: 10 },
-  customerInfo: { flex: 1 },
-  customerName: { fontWeight: "600", color: "#111827", fontSize: 15 },
-  customerEmail: { color: "#6B7280", fontSize: 13 },
-  customerPhone: { color: "#6B7280", fontSize: 13 },
 
-  // Service box
+  customerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 10,
+  },
+
+  customerInfo: {
+    flex: 1,
+  },
+
+  customerName: {
+    fontWeight: "600",
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
+
+  customerEmail: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+
+  customerPhone: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+
+  /* ---------------- SERVICES ---------------- */
   serviceBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     padding: 12,
     marginBottom: 10,
   },
+
   serviceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  serviceName: { fontWeight: "500", color: "#111827" },
-  serviceType: { color: "#9CA3AF", fontSize: 13 },
-  priceSection: { flexDirection: "row", alignItems: "center", gap: 8 },
-  servicePrice: { fontSize: 15, color: "#111827", marginRight: 4 },
 
-  // Totals
+  serviceName: {
+    fontWeight: "500",
+    color: colors.textPrimary,
+  },
+
+  serviceType: {
+    color: colors.muted,
+    fontSize: 13,
+  },
+
+  priceSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  servicePrice: {
+    fontSize: 15,
+    color: colors.textPrimary,
+    marginRight: 4,
+  },
+
+  /* ---------------- TOTALS ---------------- */
   totalBox: {
     borderTopWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     paddingTop: 12,
     marginBottom: 16,
     marginTop: 10,
   },
+
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  totalLabel: { color: "#6B7280", fontSize: 15 },
-  totalValue: { color: "#111827", fontSize: 15 },
-  totalLabelBold: { color: "#111827", fontWeight: "700", fontSize: 16 },
-  totalValueBold: { color: "#111827", fontWeight: "700", fontSize: 16 },
+
+  totalLabel: {
+    color: colors.textSecondary,
+    fontSize: 15,
+  },
+
+  totalValue: {
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
+
+  totalLabelBold: {
+    color: colors.textPrimary,
+    fontWeight: "700",
+    fontSize: 16,
+  },
+
+  totalValueBold: {
+    color: colors.textPrimary,
+    fontWeight: "700",
+    fontSize: 16,
+  },
+
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     marginVertical: 8,
   },
 
-  // Buttons row
+  /* ---------------- BUTTONS ---------------- */
   buttonsRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -255,35 +335,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  // When there are no services, single back button
-  cancelOnlyButton: {
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#fff",
-    paddingVertical: 14,
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  cancelOnlyButtonText: {
-    color: "#6B7280",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-
-  noServices: {
-    textAlign: "center",
-    color: "#6B7280",
-    marginTop: 20,
-    fontSize: 15,
-  },
-  // Buttons column (stacked vertically)
   buttonsColumn: {
     flexDirection: "column",
     gap: 12,
   },
 
+  cancelOnlyButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+
+  cancelOnlyButtonText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
   sendButton: {
-    backgroundColor: "#C5B9A1",
+    backgroundColor: colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -292,7 +365,7 @@ const styles = StyleSheet.create({
   },
 
   sendButtonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontWeight: "600",
     marginLeft: 6,
     fontSize: 15,
@@ -300,8 +373,8 @@ const styles = StyleSheet.create({
 
   cancelButton: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#fff",
+    borderColor: colors.border,
+    backgroundColor: colors.background,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
@@ -309,8 +382,16 @@ const styles = StyleSheet.create({
   },
 
   cancelButtonText: {
-    color: "#6B7280",
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: "600",
   },
+
+  noServices: {
+    textAlign: "center",
+    color: colors.textSecondary,
+    marginTop: 20,
+    fontSize: 15,
+  },
 });
+

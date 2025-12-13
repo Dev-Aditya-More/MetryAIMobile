@@ -1,3 +1,5 @@
+// this screen is redirected when user click the reset password via magic url
+import { colors } from "@/theme/colors";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -13,7 +15,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AuthService } from "../../api/auth";
 
 export default function ResetPassword() {
   const [input, setInput] = useState({
@@ -33,30 +34,8 @@ export default function ResetPassword() {
     Alert.alert("Mismatch", "Passwords do not match.");
     return;
   }
+  // call the api to update the password this screen 
 
-  try {
-    setLoading(true);
-    Keyboard.dismiss();
-
-    const { data, error } = await AuthService.updatePassword(input.password);
-
-    // 🔥 CHECK FOR ERROR BEFORE SHOWING SUCCESS
-    if (error) {
-      Alert.alert("Error", error.message || "Unable to reset password.");
-      return;
-    }
-
-    Alert.alert(
-      "Password Updated",
-      "Your password has been successfully reset.",
-      [{ text: "Done", onPress: () => router.push("/(onboarding)/signup-pass") }]
-    );
-
-  } catch (err) {
-    Alert.alert("Error", "Something went wrong.");
-  } finally {
-    setLoading(false);
-  }
 };
 
 
@@ -127,8 +106,9 @@ export default function ResetPassword() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#EAF6FB",
+    backgroundColor: colors.primarySoft,
   },
+
   wrapper: {
     flex: 1,
     justifyContent: "center",
@@ -136,71 +116,74 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 16,
   },
+
   card: {
     width: "100%",
-    backgroundColor: "#F2FAFF",
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 36,
     paddingHorizontal: 28,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.textPrimary,
     marginBottom: 8,
   },
+
   subtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: 20,
   },
+
   fieldWrap: {
     alignSelf: "stretch",
     marginBottom: 16,
   },
+
   fieldLabel: {
-    color: "#374151",
+    color: colors.textSecondary,
     marginBottom: 6,
     fontSize: 13,
   },
+
   input: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 15,
+    color: colors.textPrimary,
     borderWidth: 1,
-    borderColor: "#E6EEF6",
+    borderColor: colors.border,
   },
+
   resetBtn: {
     width: "100%",
-    backgroundColor: "#F97316",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 8,
-    shadowColor: "#F97316",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 4,
   },
+
   resetText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 16,
   },
+
   backText: {
-    color: "#007AFF",
+    color: colors.accentBlue,
     marginTop: 16,
     fontWeight: "600",
     fontSize: 14,
   },
 });
+

@@ -1,6 +1,7 @@
 // app/(home)/index.tsx
 
 import BottomNav from "@/components/BottomNav";
+import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -66,7 +67,11 @@ function BusinessDropdown() {
         <Text style={styles.dropdownText}>
           {selectedBusiness?.name || "Select Business"}
         </Text>
-        <Ionicons name="chevron-down" size={16} color="#6B7280" />
+        <Ionicons
+          name="chevron-down"
+          size={16}
+          color={colors.textSecondary}
+        />
       </TouchableOpacity>
 
       {open && (
@@ -96,7 +101,7 @@ function HomeContent() {
   if (state.loading) {
     return (
       <SafeAreaView style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -122,17 +127,16 @@ function HomeContent() {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* ---------- Welcome Header ---------- */}
+        {/* Welcome */}
         <View style={styles.welcomeRow}>
           <View>
             <Text style={styles.welcome}>Welcome back,</Text>
             <Text style={styles.welcomeName}>{state.welcomeName}</Text>
           </View>
-
           <BusinessDropdown />
         </View>
 
-        {/* ---------- Metrics ---------- */}
+        {/* Metrics */}
         {metrics.map((m, i) => (
           <MetricCard
             key={i}
@@ -142,7 +146,7 @@ function HomeContent() {
           />
         ))}
 
-        {/* ---------- Attendance ---------- */}
+        {/* Attendance */}
         <View style={styles.card}>
           <View style={styles.rowBetween}>
             <Text style={styles.sectionTitle}>Today's Attendance</Text>
@@ -161,7 +165,7 @@ function HomeContent() {
           </View>
         </View>
 
-        {/* ---------- Appointments ---------- */}
+        {/* Appointments */}
         <View style={styles.card}>
           <View style={styles.rowBetween}>
             <Text style={styles.sectionTitle}>Today's Appointments</Text>
@@ -170,9 +174,11 @@ function HomeContent() {
 
           {appointments.length === 0 ? (
             <View style={{ paddingVertical: 18 }}>
-              <Text style={{ color: "#6B7280" }}>No appointments today</Text>
+              <Text style={{ color: colors.textSecondary }}>
+                No appointments today
+              </Text>
               <TouchableOpacity onPress={reload} style={{ marginTop: 8 }}>
-                <Text style={{ color: "#2563EB" }}>Refresh</Text>
+                <Text style={{ color: colors.accentBlue }}>Refresh</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -186,15 +192,14 @@ function HomeContent() {
                         {appt.service_name || "—"}
                       </Text>
                       <Text style={styles.itemSub}>
-                        {appt.staff_name ?? "—"} ·{" "}
-                        {formatTimeRange(appt.start_time, appt.end_time)}
+                        {appt.staff_name ?? "—"}
                       </Text>
                     </View>
                   </View>
                   <Ionicons
                     name="chevron-forward"
                     size={18}
-                    color="#9CA3AF"
+                    color={colors.muted}
                   />
                 </View>
                 <View style={styles.separator} />
@@ -203,7 +208,7 @@ function HomeContent() {
           )}
         </View>
 
-        {/* ---------- Sales Graph ---------- */}
+        {/* Sales */}
         <View style={styles.card}>
           <View style={styles.rowBetween}>
             <Text style={styles.sectionTitle}>Sales Report</Text>
@@ -211,7 +216,7 @@ function HomeContent() {
           </View>
 
           <View style={styles.chartContainer}>
-            <Ionicons name="stats-chart" size={28} color="#9CA3AF" />
+            <Ionicons name="stats-chart" size={28} color={colors.muted} />
             <Text style={styles.chartText}>
               Sales graph will appear here
             </Text>
@@ -219,9 +224,9 @@ function HomeContent() {
         </View>
       </ScrollView>
 
-      {/* ---------- Floating Action Button ---------- */}
+      {/* FAB */}
       <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
-        <Ionicons name="add" size={24} color="#fff" />
+        <Ionicons name="add" size={24} color={colors.onPrimary} />
       </TouchableOpacity>
 
       <BottomNav />
@@ -238,25 +243,11 @@ export default function HomeScreen() {
   );
 }
 
-/* ---------- Helpers ---------- */
-function formatTimeRange(start?: string, end?: string) {
-  if (!start || !end) return "";
-  try {
-    const s = new Date(start);
-    const e = new Date(end);
-    return `${s.toLocaleTimeString([], {
-      hour: "numeric",
-      hour12: true,
-    })} - ${e.toLocaleTimeString([], { hour: "numeric", hour12: true })}`;
-  } catch {
-    return "";
-  }
-}
-
 /* ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: colors.background },
   center: { justifyContent: "center", alignItems: "center" },
+
   scroll: {
     padding: 16,
     paddingBottom: Platform.OS === "ios" ? 120 : 100,
@@ -268,8 +259,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-  welcome: { color: "#6B7280", fontSize: 13 },
-  welcomeName: { color: "#111827", fontSize: 20, fontWeight: "700" },
+  welcome: { color: colors.textSecondary, fontSize: 13 },
+  welcomeName: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: "700",
+  },
 
   dropdownTrigger: {
     flexDirection: "row",
@@ -277,24 +272,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   dropdownText: {
     fontSize: 13,
     fontWeight: "500",
     marginRight: 4,
-    color: "#111827",
+    color: colors.textPrimary,
   },
   dropdownMenu: {
     position: "absolute",
     top: 38,
     right: 0,
     width: 180,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 8,
     elevation: 4,
     zIndex: 999,
@@ -305,24 +300,29 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: {
     fontSize: 13,
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   metricCard: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 12,
     marginBottom: 10,
+    backgroundColor: colors.background,
   },
-  metricTitle: { fontSize: 12, color: "#6B7280" },
-  metricValue: { fontSize: 18, fontWeight: "700" },
+  metricTitle: { fontSize: 12, color: colors.textSecondary },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
   delta: { fontSize: 12, fontWeight: "600" },
 
   card: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 12,
     marginBottom: 12,
@@ -334,37 +334,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  sectionTitle: { fontSize: 14, fontWeight: "700" },
-  link: { fontSize: 12, color: "#6B7280" },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+  link: { fontSize: 12, color: colors.textSecondary },
 
   avatarSmall: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     marginRight: 10,
   },
 
-  itemTitle: { fontSize: 14, fontWeight: "600" },
-  itemSub: { fontSize: 12, color: "#6B7280" },
-  bold: { fontWeight: "700" },
+  itemTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textPrimary,
+  },
+  itemSub: { fontSize: 12, color: colors.textSecondary },
+  bold: { fontWeight: "700", color: colors.textPrimary },
 
-  separator: { height: 1, backgroundColor: "#E5E7EB" },
+  separator: { height: 1, backgroundColor: colors.border },
 
   chartContainer: {
     height: 180,
     marginTop: 12,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.border,
     justifyContent: "center",
     alignItems: "center",
   },
   chartText: {
     marginTop: 6,
     fontSize: 12,
-    color: "#6B7280",
+    color: colors.textSecondary,
   },
 
   fab: {
@@ -374,7 +382,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#BFA78A",
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
