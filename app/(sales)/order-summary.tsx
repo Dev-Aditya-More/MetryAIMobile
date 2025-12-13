@@ -33,9 +33,11 @@ export default function OrderSummary() {
   useEffect(() => {
     if (booking.services?.length) {
       setServices(booking.services);
-      console.log(booking.services);
-      console.log(booking.customerDetails);
+      console.log("Booking Service Details:", booking.services);
+      console.log("customer Service Details:", booking.customerDetails);
     }
+    console.log("Booking Service Details:", booking.services);
+    console.log("customer Service Details:", booking.customerDetails);
   }, [booking.services]);
 
   const handleRemoveService = (id: string) => {
@@ -53,6 +55,7 @@ export default function OrderSummary() {
 
   const handleSend = () => {
     // your existing send flow
+    console.log("id", booking.services);
     router.push("/order-sent");
   };
 
