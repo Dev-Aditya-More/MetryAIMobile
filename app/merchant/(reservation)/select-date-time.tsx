@@ -144,13 +144,13 @@ export default function SelectDateTime() {
   const handleContinue = () => {
     if (isContinueEnabled) {
       updateDateTime(selectedDate as number, selectedTimes[0]);
-      router.push("/customer-details");
+      router.push("/merchant/(reservation)/customer-details");
     }
   };
 
   const handleBack = () => {
     resetAfterStaff();
-    router.push("/select-staff");
+    router.push("/merchant/(reservation)/select-staff");
   };
 
   return (
@@ -218,8 +218,8 @@ export default function SelectDateTime() {
                     styles.dateItem,
                     !d.available && d.date && styles.unavailableItem,
                     selectedDate === d.date &&
-                      d.available &&
-                      styles.selectedDateItem,
+                    d.available &&
+                    styles.selectedDateItem,
                   ]}
                   onPress={() => d.date && handleDatePress(d)}
                 >
@@ -228,8 +228,8 @@ export default function SelectDateTime() {
                       styles.dateText,
                       !d.available && d.date && styles.unavailableText,
                       selectedDate === d.date &&
-                        d.available &&
-                        styles.selectedDateText,
+                      d.available &&
+                      styles.selectedDateText,
                     ]}
                   >
                     {d.date ? d.date : ""}
@@ -251,8 +251,8 @@ export default function SelectDateTime() {
                   styles.timeSlot,
                   !slot.available && styles.unavailableItem,
                   selectedTimes.includes(slot.time) &&
-                    slot.available &&
-                    styles.selectedTimeSlot,
+                  slot.available &&
+                  styles.selectedTimeSlot,
                 ]}
                 onPress={() => handleTimePress(slot)}
               >
@@ -261,8 +261,8 @@ export default function SelectDateTime() {
                     styles.timeText,
                     !slot.available && styles.unavailableText,
                     selectedTimes.includes(slot.time) &&
-                      slot.available &&
-                      styles.selectedTimeText,
+                    slot.available &&
+                    styles.selectedTimeText,
                   ]}
                 >
                   {slot.time}

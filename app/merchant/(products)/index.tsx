@@ -227,7 +227,7 @@ export default function ProductsScreen() {
     (item: Product) => {
       // 👉 Send the original backend row (item.raw), not the mapped Product
       router.push({
-        pathname: "/(products)/service-edit",
+        pathname: "/merchant/(products)/service-edit",
         params: {
           productId: item.id,
           service: item.raw ? JSON.stringify(item.raw) : "",
@@ -347,7 +347,7 @@ export default function ProductsScreen() {
         style={styles.fab}
         activeOpacity={0.9}
         onPress={() => {
-          router.push("/(products)/service-add");
+          router.push("/merchant/(products)/service-add");
         }}
       >
         <Ionicons name="add" size={26} color="#FFFFFF" />

@@ -9,7 +9,7 @@ import { useBooking } from "./context/SalesContext";
 
 export default function OrderSent() {
   const router = useRouter();
- const {booking} = useBooking()
+  const { booking } = useBooking()
 
   const order = {
     id: "#ORD-529540",
@@ -18,11 +18,11 @@ export default function OrderSent() {
     //   { name: "Haircut", staff: "Emily Chen", price: 50.0 },
     //   { name: "Manicure", staff: "Emily Chen", price: 35.0 },
     // ],
-    services:booking.services,
+    services: booking.services,
     total: 90,
   };
 
- 
+
 
 
   return (
@@ -41,7 +41,7 @@ export default function OrderSent() {
           {/* Close Button */}
           <TouchableOpacity
             style={styles.closeButton}
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/merchant/(sales)")}
           >
             <Ionicons name="close-outline" size={26} color="#111" />
           </TouchableOpacity>
@@ -100,7 +100,7 @@ export default function OrderSent() {
           {/* Done Button */}
           <TouchableOpacity
             style={styles.doneButton}
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/merchant/(sales)")}
           >
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>

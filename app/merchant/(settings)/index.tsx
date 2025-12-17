@@ -28,9 +28,10 @@ export default function SettingsScreen() {
         console.log("Profile response:", res);
 
         if (!res) return;
+        const data = res as any;
 
-        const loadedFullName = res.fullName ?? "";
-        const loadedAvatarUrl = res.avatarUrl || null;
+        const loadedFullName = data.fullName ?? "";
+        const loadedAvatarUrl = data.avatarUrl || null;
 
         setFullName(loadedFullName);
         setAvatarUrl(loadedAvatarUrl);
@@ -112,19 +113,19 @@ export default function SettingsScreen() {
             {renderRow(
               "Profile",
               "person-outline",
-              "/(settings)/profile" as Href,
+              "merchant/(settings)/profile" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "Chat",
               "chatbubble-ellipses-outline",
-              "/(contact)/" as Href,
+              "merchant/(contact)/" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "Security",
               "lock-closed-outline",
-              "/(settings)/security" as Href,
+              "merchant/(settings)/security" as Href,
               { showBorder: false }
             )}
           </View>
@@ -137,13 +138,13 @@ export default function SettingsScreen() {
             {renderRow(
               "Staff Management",
               "people-outline",
-              "/(settings)/staff-management" as Href,
+              "merchant/(settings)/staff-management" as Href,
               { showBorder: true }
             )}
             {renderRow(
               "Notifications",
               "notifications-outline",
-              "/(settings)/notifications" as Href,
+              "merchant/(settings)/notifications" as Href,
               { showBorder: false }
             )}
           </View>

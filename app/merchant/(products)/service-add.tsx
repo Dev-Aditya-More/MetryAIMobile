@@ -70,11 +70,11 @@ export default function ServiceAddScreen() {
     // console.log("Add service response:", res);
 
     // after successful save:
-    router.push("/(products)");
+    router.push("/merchant/(products)");
   };
 
   const handleCancel = () => {
-    router.push("/(products)");
+    router.push("/merchant/(products)");
   };
 
   const handleUpload = async () => {

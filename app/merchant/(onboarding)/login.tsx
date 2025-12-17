@@ -1,5 +1,4 @@
-// this is screen the signup methode for taking email and password
-import { AuthService } from "@/api/auth";
+// this is the login screen
 import { colors } from "@/theme/colors";
 import { handleError } from "@/utils/handleError";
 import { FontAwesome } from "@expo/vector-icons";
@@ -19,14 +18,17 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthService } from "../../../api/auth";
 
 const { width } = Dimensions.get("window");
 
-export default function SignupScreen() {
-  const [input, setInput] = useState({ email: "", password: "" });
+export default function LoginScreen() {
+  const [input, setInput] = useState({ email: "shahviraj030@gmail.com", password: "123456" });
   const [error, setError] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [userType, setUserType] = useState<"customer" | "business">("business");
+  const [userType, setUserType] = useState<"customer" | "business">(
+    "business"
+  );
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () =>
@@ -41,13 +43,7 @@ export default function SignupScreen() {
     };
   }, []);
 
-  const signinPreesed = () => {
-    router.push("/(onboarding)/login");
-  };
-
- 
   const handleContinue = async () => {
-    // ✅ Basic input validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
       setError("Please enter a valid email address");
       return;
@@ -58,24 +54,25 @@ export default function SignupScreen() {
     }
 
     try {
-      if (userType == "business"){
-      setError("");
+      if (userType == "business") {
+        setError("");
 
-      const data = await AuthService.signup("user",input.email, input.password);
+        let data = await AuthService.login(input.email, input.password);
 
-      console.log("✅ Signup successful:", data);
+        Keyboard.dismiss();
 
-      Keyboard.dismiss();
+        console.log("✅ login successful:", data);
 
-      router.push({
-        pathname: "/(onboarding)/profile-setup",
-        params: { email: input.email, type: userType },
-      });
-    }else{
-      // implement the customer signup
-    }
+        router.push({
+          pathname: "/merchant/(home)",
+          params: { email: input.email },
+        });
+      } else {
+        // Implement customer login
+      }
     } catch (err) {
       let message = handleError(err);
+
       setError(message);
     }
   };
@@ -128,7 +125,7 @@ export default function SignupScreen() {
               <View style={styles.separatorRow}>
                 <View style={styles.sepLine} />
                 <View style={styles.sepPill}>
-                  <Text style={styles.sepText}>Or sign up with email</Text>
+                  <Text style={styles.sepText}>Or sign in with email</Text>
                 </View>
                 <View style={styles.sepLine} />
               </View>
@@ -207,6 +204,11 @@ export default function SignupScreen() {
                 />
               </View>
 
+              {/* Forgot Password */}
+              <TouchableOpacity onPress={() => router.push("/merchant/(onboarding)/forgot-pass")}>
+                <Text style={styles.forgotText}>Forgot Password?</Text>
+              </TouchableOpacity>
+
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
               <TouchableOpacity
@@ -216,10 +218,10 @@ export default function SignupScreen() {
                 <Text style={styles.continueText}>Continue</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={signinPreesed}>
+              <TouchableOpacity onPress={() => router.push("/merchant/(onboarding)/signup-pass")}>
                 <Text style={styles.footer}>
-                  Already have an account?{" "}
-                  <Text style={styles.linkText}>Sign in</Text>
+                  Don&apos;t have an account?{" "}
+                  <Text style={styles.linkText}>SignUp</Text>
                 </Text>
               </TouchableOpacity>
 
@@ -239,7 +241,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.background,
   },
 
   wrapper: {
@@ -253,8 +255,8 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     width: "100%",
-    backgroundColor: colors.background,
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
     paddingVertical: 32,
     paddingHorizontal: 28,
     alignItems: "center",
@@ -263,13 +265,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
 
-  logoArea: { alignItems: "center", marginBottom: 14 },
+  /* Logo */
+  logoArea: {
+    alignItems: "center",
+    marginBottom: 14,
+  },
 
   logoCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primarySoft,
     marginBottom: 12,
   },
 
@@ -293,6 +299,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
+  /* Actions */
   actions: {
     width: "100%",
     marginTop: 8,
@@ -301,8 +308,8 @@ const styles = StyleSheet.create({
 
   socialButton: {
     width: "100%",
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 12,
     marginVertical: 6,
     borderWidth: 1,
@@ -322,6 +329,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
 
+  /* Separator */
   separatorRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -337,7 +345,7 @@ const styles = StyleSheet.create({
 
   sepPill: {
     paddingHorizontal: 12,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -347,11 +355,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
+  /* Toggle */
   toggleContainer: {
     flexDirection: "row",
     alignSelf: "stretch",
-    borderRadius: 8,
-    backgroundColor: colors.surface,
+    borderRadius: 10,
+    backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: "hidden",
@@ -366,11 +375,11 @@ const styles = StyleSheet.create({
   },
 
   toggleActive: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.primarySoft,
   },
 
   toggleInactive: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
 
   toggleText: {
@@ -379,10 +388,11 @@ const styles = StyleSheet.create({
   },
 
   toggleTextActive: {
-    color: colors.textPrimary,
+    color: colors.primary,
     fontWeight: "600",
   },
 
+  /* Fields */
   fieldWrap: {
     alignSelf: "stretch",
     marginTop: 4,
@@ -395,26 +405,28 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: colors.textPrimary,
     borderWidth: 1,
     borderColor: colors.border,
+    color: colors.textPrimary,
   },
 
   error: {
     color: "#DC2626",
     marginTop: 6,
     alignSelf: "flex-start",
+    fontSize: 13,
   },
 
+  /* Buttons */
   continueBtn: {
     width: "100%",
     backgroundColor: colors.primary,
-    borderRadius: 10,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 18,
@@ -424,6 +436,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 16,
+  },
+
+  forgotText: {
+    alignSelf: "flex-end",
+    color: colors.accentBlue,
+    fontWeight: "500",
+    marginTop: 4,
+    marginBottom: 16,
   },
 
   footer: {

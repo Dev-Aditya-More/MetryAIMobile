@@ -97,7 +97,7 @@ export default function OtpEmail() {
     setTimeout(() => {
       setSending(false);
       Keyboard.dismiss();
-      router.push("/(onboarding)/profile-setup");
+      router.push("/merchant/(onboarding)/profile-setup");
     }, 800);
   };
 

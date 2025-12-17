@@ -106,7 +106,7 @@ export default function ServiceEditScreen() {
     try {
       const res = await ProductService.updateProducts(payload);
       Alert.alert("Service Updated Successfully!");
-      router.push("/(products)");
+      router.push("/merchant/(products)");
     } catch (err) {
       console.log("Update Occur While Updating Service:", err);
       Alert.alert("Something wrong happens not able to update!");
@@ -139,11 +139,11 @@ export default function ServiceEditScreen() {
       console.log("Delete Service Error:", err);
       Alert.alert("Something went wrong , Not able to delete");
     }
-    router.push("/(products)");
+    router.push("/merchant/(products)");
   };
 
   const handleCancel = () => {
-    router.push("/(products)");
+    router.push("/merchant/(products)");
   };
 
   const handleUpload = async () => {

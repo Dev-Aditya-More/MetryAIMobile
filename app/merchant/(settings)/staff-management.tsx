@@ -50,7 +50,7 @@ export default function StaffManagement() {
         const businessId = await BusinessService.getBusinessesId();
         const apiStaff = await StaffService.getStaff(businessId);
 
-        const mappedStaff: Staff[] = apiStaff.map((s: any) => ({
+        const mappedStaff: Staff[] = (apiStaff as any[]).map((s: any) => ({
           id: String(s.id),
           name: s.name ?? "Unnamed",
           role: "Staff",
@@ -112,7 +112,7 @@ export default function StaffManagement() {
 
   const handleEdit = (member: Staff) => {
     router.replace({
-      pathname: "/(settings)/staff-edit",
+      pathname: "/merchant/(settings)/staff-edit",
       params: {
         staffId: member.id,
         staff: JSON.stringify(member.raw ?? member),
@@ -121,7 +121,7 @@ export default function StaffManagement() {
   };
 
   const handleAddStaff = () => {
-    router.replace("/(settings)/staff-add");
+    router.replace("/merchant/(settings)/staff-add");
   };
 
   const getInitials = (name: string) => {

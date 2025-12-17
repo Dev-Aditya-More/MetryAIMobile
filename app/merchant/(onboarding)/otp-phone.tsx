@@ -119,7 +119,7 @@ export default function OtpPhone() {
       return;
     }
     Keyboard.dismiss();
-    router.push("/(onboarding)/profile-setup");
+    router.push("/merchant/(onboarding)/profile-setup");
   };
 
   const handleBack = () => router.back();

@@ -84,7 +84,7 @@ export default function SalesScreen() {
       try {
         setLoading(true);
         const res = await ProductService.searchProduct("", "1", "50");
-        setServicesApi(res.list || []);
+        setServicesApi((res as any).list || []);
       } catch {
         Alert.alert("Error", "Unable to load services");
       } finally {
@@ -100,8 +100,8 @@ export default function SalesScreen() {
     selectedCategory === "All"
       ? services
       : services.filter(
-          (s) => mapServiceToCategory(s.serviceTypeId) === selectedCategory
-        );
+        (s) => mapServiceToCategory(s.serviceTypeId) === selectedCategory
+      );
 
   /* ---------------- CART ---------------- */
   const toggleSelectService = (id: string) => {
@@ -134,7 +134,7 @@ export default function SalesScreen() {
     );
     setCustomer({ ...selectedCustomer, phone });
 
-    router.push("/order-summary");
+    router.push("/merchant/(sales)/order-summary");
   };
 
   /* ---------------- ADD CUSTOMER ---------------- */

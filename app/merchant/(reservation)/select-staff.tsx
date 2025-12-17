@@ -21,19 +21,19 @@ type Staff = {
 
 export default function SelectStaff() {
 
-  const { booking, updateStaff, resetAfterService  } = useBooking();
+  const { booking, updateStaff, resetAfterService } = useBooking();
   const router = useRouter();
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [showList, setShowList] = useState(false);
   const [showSelectedCard, setShowSelectedCard] = useState(false);
 
-  useEffect(()=>{
-    if(booking.staff){
-    setSelectedStaff(booking.staff);
-    setShowSelectedCard(true);
+  useEffect(() => {
+    if (booking.staff) {
+      setSelectedStaff(booking.staff);
+      setShowSelectedCard(true);
     }
 
-  },[booking.staff])
+  }, [booking.staff])
 
   const staffList: Staff[] = [
     { id: "1", name: "Emma Johnson", specialty: "Professional Specialist" },
@@ -62,13 +62,13 @@ export default function SelectStaff() {
   const handleContinue = (item: Staff) => {
     if (selectedStaff) {
       updateStaff(item)
-      router.push("/select-date-time");
+      router.push("/merchant/(reservation)/select-date-time");
     }
   };
 
   const handleBack = () => {
     resetAfterService();
-    router.push("/select-service");
+    router.push("/merchant/(reservation)/select-service");
   };
 
   return (
@@ -153,7 +153,7 @@ export default function SelectStaff() {
             <TouchableOpacity
               style={[styles.continueBtn, !selectedStaff && styles.disabledBtn]}
               disabled={!selectedStaff}
-              onPress={()=>handleContinue(selectedStaff!)}
+              onPress={() => handleContinue(selectedStaff!)}
             >
               <Text style={styles.continueText}>Continue</Text>
             </TouchableOpacity>

@@ -21,24 +21,24 @@ export default function BottomNav() {
   const active: TabKey = has("(home)")
     ? "home"
     : has("(calendar)")
-    ? "calendar"
-    : has("(contact)")
-    ? "contact"
-    : has("(products)")
-    ? "services"
-    : has("(sales)")
-    ? "sales"
-    : has("(settings)")
-    ? "settings"
-    : "home";
+      ? "calendar"
+      : has("(contact)")
+        ? "contact"
+        : has("(products)")
+          ? "services"
+          : has("(sales)")
+            ? "sales"
+            : has("(settings)")
+              ? "settings"
+              : "home";
 
   const go = (key: TabKey) => {
-    if (key === "home") router.replace("/(home)" as Href);
-    if (key === "calendar") router.replace("/(calendar)" as Href);
-    if (key === "contact") router.replace("/(contact)" as Href);
-    if (key === "services") router.replace("/(products)" as Href);
-    if (key === "sales") router.replace("/(sales)" as Href);
-    if (key === "settings") router.replace("/(settings)" as Href);
+    if (key === "home") router.replace("merchant/(home)" as Href);
+    if (key === "calendar") router.replace("merchant/(calendar)" as Href);
+    if (key === "contact") router.replace("merchant/(contact)" as Href);
+    if (key === "services") router.replace("merchant/(products)" as Href);
+    if (key === "sales") router.replace("merchant/(sales)" as Href);
+    if (key === "settings") router.replace("merchant/(settings)" as Href);
   };
 
   const item = (

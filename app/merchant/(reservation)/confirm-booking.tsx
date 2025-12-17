@@ -39,7 +39,7 @@ export default function ConfirmBooking() {
   };
 
   const handleBack = () => {
-    router.push("/customer-details");
+    router.push("/merchant/(reservation)/customer-details");
   };
 
   return (

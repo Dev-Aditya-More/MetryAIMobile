@@ -46,7 +46,7 @@ export default function OrderSummary() {
       // If only one service left, remove & redirect (existing behavior)
       setServices([]);
       resetBooking();
-      router.push("/");
+      router.push("/merchant/(sales)");
     } else {
       setServices((prev) => prev.filter((s) => s.id !== id));
       updateServices(updatedServices);
@@ -56,7 +56,7 @@ export default function OrderSummary() {
   const handleSend = () => {
     // your existing send flow
     console.log("id", booking.services);
-    router.push("/order-sent");
+    router.push("/merchant/(sales)/order-sent");
   };
 
   const handleCancel = () => {
@@ -64,7 +64,7 @@ export default function OrderSummary() {
     setServices([]);
     resetBooking();
     // Use router.back() to go to previous screen, or router.push('/') to go home
-    router.push("/");
+    router.push("/merchant/(sales)");
   };
 
   const subtotal = services.reduce((acc, s) => acc + s.price, 0);

@@ -19,7 +19,7 @@ const { width } = Dimensions.get("window");
 
 export default function CustomerDetails() {
 
-  const {booking,updateCustomerDetails,resetAfterDateTime} = useBooking();
+  const { booking, updateCustomerDetails, resetAfterDateTime } = useBooking();
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -28,12 +28,12 @@ export default function CustomerDetails() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
-  useEffect(()=>{
-    if(booking.customerDetails){
+  useEffect(() => {
+    if (booking.customerDetails) {
       setName(booking.customerDetails.name);
       setPhone(booking.customerDetails.phone.toString());
     }
-  },[booking.customerDetails])
+  }, [booking.customerDetails])
 
   const showPopup = (message: React.SetStateAction<string>) => {
     setPopupMessage(message);
@@ -69,12 +69,12 @@ export default function CustomerDetails() {
       phone: Number(cleanedPhone),
     });
 
-    router.push("/confirm-booking");
+    router.push("/merchant/(reservation)/confirm-booking");
   };
 
   const handleBack = () => {
     resetAfterDateTime();
-    router.push("/select-date-time");
+    router.push("/merchant/(reservation)/select-date-time");
   };
 
   return (

@@ -99,7 +99,7 @@ export default function ProfileSetup() {
         saveToSecureStore({ customer_name: fullName });
       }
       // Navigate to home
-      router.replace("/(home)" as Href);
+      router.replace("/merchant/(home)" as Href);
     } catch (err) {
       const message = handleError(err);
       console.error("message:", err);

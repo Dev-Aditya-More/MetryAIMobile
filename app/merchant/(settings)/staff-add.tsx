@@ -1,8 +1,9 @@
+import { BusinessService } from "@/api/business";
 import { StaffService } from "@/api/staff";
 import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -16,83 +17,50 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const PRIMARY = "#6366F1";
 
-export default function StaffEdit() {
-  const { staff } = useLocalSearchParams();
+export default function StaffAdd() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [businessID, setBusinessId] = useState("");
-  const [staffId, setStaffId] = useState("");
-  // store initial values for DIRTY CHECK
-  const [initialValues, setInitialValues] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-  });
-
-  // parse staff from params and pre-fill fields
-  useEffect(() => {
-    try {
-      if (staff) {
-        const parsed = JSON.parse(staff as string);
-
-        const nameFromApi = parsed.name ?? parsed.fullName ?? "";
-        const phoneFromApi = parsed.fullPhone ?? parsed.phone ?? "";
-        const emailFromApi = parsed.email ?? "";
-        const businessidApi = parsed.businessId ?? "";
-        const staffidApi = parsed.id ?? "";
-
-        setFullName(nameFromApi);
-        setPhone(phoneFromApi);
-        setEmail(emailFromApi);
-        setBusinessId(businessidApi);
-        setStaffId(staffidApi);
-
-        setInitialValues({
-          fullName: nameFromApi,
-          phone: phoneFromApi,
-          email: emailFromApi,
-        });
-      }
-    } catch (e) {
-      console.log("Failed to parse staff param", e);
-    }
-  }, [staff]);
-
-  // DIRTY CHECK: enable Save only if something changed
-  const isDirty = useMemo(() => {
-    return (
-      fullName !== initialValues.fullName ||
-      phone !== initialValues.phone ||
-      email !== initialValues.email
-    );
-  }, [fullName, phone, email, initialValues]);
+  const [phoneCode, setPhoneCode] = useState("");
+  const [phone, setPhone] = useState("");
 
   const savePressed = async () => {
-    if (!isDirty) return;
+    try {
+      const businessId = await BusinessService.getBusinessesId();
 
-    // collect everything here and send to your API
-    const payload = {
-      id: staffId,
-      businessId: businessID,
-      name: fullName,
-      email,
-      fullPhone: phone,
-    };
+      if (!fullName || !email || !phoneCode || !phone) {
+        Alert.alert("All fields are required");
+        return;
+      }
 
-    console.log("Payload", payload);
-    const res = await StaffService.updateStaff(payload);
+      const payload = {
+        businessId,
+        name: fullName,
+        email,
+        phoneCode,
+        phone,
+      };
 
-    if (res) {
-      Alert.alert("Updated Successfully");
-    } else {
-      Alert.alert("Not able Update");
+      console.log("Payload for add staff:", payload);
+
+      const res = await StaffService.addStaff(payload);
+
+      if (res) {
+        Alert.alert("Added Successfully");
+      } else {
+        Alert.alert("Something went wrong");
+      }
+
+      router.replace("/merchant/(settings)/staff-management");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error while adding staff");
     }
+  };
 
-    // after successful save:
-    router.replace("/(settings)/staff-management");
+  const cancelPressed = () => {
+    router.replace("/merchant/(settings)/staff-management");
   };
 
   const renderField = (
@@ -113,15 +81,7 @@ export default function StaffEdit() {
     </View>
   );
 
-  const getInitials = (name: string) => {
-    const cleaned = name.trim();
-    if (!cleaned) return "";
-    const parts = cleaned.split(" ");
-    if (parts.length === 1) return (parts[0][0] || "").toUpperCase();
-    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
-  };
-
-  const initials = getInitials(fullName || "Staff");
+  const initials = fullName ? fullName[0].toUpperCase() : "S";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,7 +90,7 @@ export default function StaffEdit() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Staff Management</Text>
+        <Text style={styles.headerTitle}>Add Staff</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -146,24 +106,37 @@ export default function StaffEdit() {
           </View>
         </View>
 
+        {/* FIELDS */}
         {renderField("Full Name", fullName, setFullName)}
-        {renderField("Phone Number", phone, setPhone, {
-          keyboardType: "phone-pad",
-        })}
         {renderField("Email", email, setEmail, {
           keyboardType: "email-address",
         })}
+        {renderField("Phone Code", phoneCode, setPhoneCode, {
+          keyboardType: "phone-pad",
+        })}
+        {renderField("Phone Number", phone, setPhone, {
+          keyboardType: "phone-pad",
+        })}
 
+        {/* SAVE BUTTON */}
+        <TouchableOpacity
+          style={styles.saveButton}
+          activeOpacity={0.85}
+          onPress={savePressed}
+        >
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
+
+        {/* CANCEL BUTTON */}
         <TouchableOpacity
           style={[
             styles.saveButton,
-            !isDirty && styles.saveButtonDisabled, // greyed out when not dirty
+            { backgroundColor: "#9CA3AF", marginTop: 12 },
           ]}
-          activeOpacity={isDirty ? 0.85 : 1}
-          onPress={savePressed}
-          disabled={!isDirty}
+          activeOpacity={0.85}
+          onPress={cancelPressed}
         >
-          <Text style={styles.saveButtonText}>Save</Text>
+          <Text style={styles.saveButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -254,10 +227,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primary,
-  },
-
-  saveButtonDisabled: {
-    backgroundColor: colors.muted,
   },
 
   saveButtonText: {

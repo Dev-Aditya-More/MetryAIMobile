@@ -75,12 +75,12 @@ export default function SelectService() {
       });
     }
 
-    if (selected) router.push("/select-staff");
+    if (selected) router.push("/merchant/(reservation)/select-staff");
   };
 
   const handleCancel = () => {
     setSelected(null);
-    router.replace("/(home)" as Href);
+    router.replace("/merchant/(home)" as Href);
   };
 
   return (

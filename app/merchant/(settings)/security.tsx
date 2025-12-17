@@ -42,14 +42,14 @@ export default function Security() {
     if (!canSubmit) return;
 
     // TODO: call API to update password here
-    try{
+    try {
       await AuthService.updatePassword(currentPassword, newPassword);
     }
-    catch(err){
+    catch (err) {
       Alert.alert("Error", "Failed to update password. Please try again.");
     }
     // after successful update:
-    router.replace("/(onboarding)/login");
+    router.replace("/merchant/(onboarding)/login");
   };
 
   const renderField = (

@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
+import { FontAwesome } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
   Dimensions,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -39,13 +39,13 @@ export default function SignupScreen() {
         setError("Please enter a valid 10-digit phone number");
         return;
       }
-      router.push({ pathname: "/(onboarding)/otp-phone", params: { phone: input } });
+      router.push({ pathname: "/merchant/(onboarding)/otp-phone", params: { phone: input } });
     } else {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) {
         setError("Please enter a valid email address");
         return;
       }
-      router.push({ pathname: "/(onboarding)/otp-email", params: { email: input } });
+      router.push({ pathname: "/merchant/(onboarding)/otp-email", params: { email: input } });
     }
     setError("");
     Keyboard.dismiss();
