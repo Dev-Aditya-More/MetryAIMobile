@@ -1,4 +1,4 @@
-import { ProductService } from "@/api/products";
+import { ProductService } from "@/api/merchant/products";
 import { colors } from "@/theme/colors";
 import { pickImage, uploadImage } from "@/utils/pickImage";
 import { useLocalSearchParams, useRouter } from "expo-router";

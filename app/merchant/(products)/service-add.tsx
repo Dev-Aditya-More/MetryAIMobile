@@ -1,5 +1,5 @@
-import { BusinessService } from "@/api/business";
-import { ProductService } from "@/api/products";
+import { BusinessService } from "@/api/merchant/business";
+import { ProductService } from "@/api/merchant/products";
 import { colors } from "@/theme/colors";
 import { pickImage, uploadImage } from "@/utils/pickImage";
 import { useRouter } from "expo-router";

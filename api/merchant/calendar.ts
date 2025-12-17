@@ -1,5 +1,5 @@
-import api from "../constants/api";
-import { getFromSecureStore } from "../utils/secureStorage";
+import api from "../../constants/api";
+import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const CalendarService = {
   // fetch appointments

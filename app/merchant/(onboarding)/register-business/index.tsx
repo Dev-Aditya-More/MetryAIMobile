@@ -17,7 +17,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BusinessService } from "../../../../api/business"; // Adjust path if needed
+import { BusinessService } from "../../../../api/merchant/business"; // Adjust path if needed
 
 export default function RegisterBusiness() {
     const [step, setStep] = useState(0); // 0: General, 1: Location, 2: About

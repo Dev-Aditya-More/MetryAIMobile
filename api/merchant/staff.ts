@@ -1,6 +1,6 @@
 import api from "@/constants/api";
 import { handleApiResponse } from "@/utils/apiResponse";
-import { getFromSecureStore } from "../utils/secureStorage";
+import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const StaffService = {
   // 1 add staff

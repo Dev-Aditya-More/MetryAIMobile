@@ -1,6 +1,6 @@
 import { handleApiResponse } from "@/utils/apiResponse";
-import api from "../constants/api";
-import { getFromSecureStore } from "../utils/secureStorage";
+import api from "../../constants/api";
+import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const BusinessService = {
   //1 get businesses for current user

@@ -1,6 +1,6 @@
 import api from "@/constants/api";
 import { handleApiResponse } from "@/utils/apiResponse";
-import { getFromSecureStore } from "../utils/secureStorage";
+import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const ProductService = {
   // 1 add products
@@ -62,7 +62,7 @@ export const ProductService = {
   },
 
   // 3 search products
-  async searchProduct(name: string,pageNo: string, pageSize: string) {
+  async searchProduct(name: string, pageNo: string, pageSize: string) {
     try {
       const token = await getFromSecureStore("access_token");
 
@@ -76,7 +76,7 @@ export const ProductService = {
         "/api/biz/service/search",
         {
           name: name ?? "",
-          id:id ?? "",
+          id: id ?? "",
           pageNo: pageNo,
           pageSize: pageSize,
         },

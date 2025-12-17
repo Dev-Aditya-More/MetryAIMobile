@@ -1,5 +1,5 @@
 // this is screen the signup methode for taking email and password
-import { AuthService } from "@/api/auth";
+import { AuthService } from "@/api/merchant/auth";
 import { colors } from "@/theme/colors";
 import { handleError } from "@/utils/handleError";
 import { FontAwesome } from "@expo/vector-icons";

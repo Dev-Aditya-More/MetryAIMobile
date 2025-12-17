@@ -1,4 +1,4 @@
-import { AuthService } from "@/api/auth";
+import { AuthService } from "@/api/merchant/auth";
 import { colors } from "@/theme/colors";
 import { pickImage, uploadImage } from "@/utils/pickImage";
 import { Ionicons } from "@expo/vector-icons";

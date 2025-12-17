@@ -1,6 +1,6 @@
 import { AppointmentService } from "@/api/appointment";
-import { BusinessService } from "@/api/business";
-import { StaffService } from "@/api/staff";
+import { BusinessService } from "@/api/merchant/business";
+import { StaffService } from "@/api/merchant/staff";
 import BottomNav from "@/components/BottomNav";
 import { colors } from "@/theme/colors";
 import { MaterialIcons } from "@expo/vector-icons";

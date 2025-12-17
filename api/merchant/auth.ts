@@ -1,9 +1,9 @@
 import { handleApiResponse } from "@/utils/apiResponse";
 import { saveToSecureStore } from "@/utils/secureStorage";
 import * as Linking from "expo-linking";
-import api from "../constants/api";
-import { getFromSecureStore } from "../utils/secureStorage";
-import { supabase } from "../utils/supabaseClient";
+import api from "../../constants/api";
+import { getFromSecureStore } from "../../utils/secureStorage";
+import { supabase } from "../../utils/supabaseClient";
 
 // this is deep url it will handle in root _layout.tsx file in useEffect
 // redirectTo: 'MetryMobile://reset-password' when your app is standalone
@@ -55,33 +55,33 @@ export const AuthService = {
 
   // 3 setup profile
   async setupProfile(payload: {
-  fullName: string;
-  avatarUrl: string;
-  phoneCode: string;
-  phone: string;
-}) {
-  try {
-    const token = await getFromSecureStore("access_token");
+    fullName: string;
+    avatarUrl: string;
+    phoneCode: string;
+    phone: string;
+  }) {
+    try {
+      const token = await getFromSecureStore("access_token");
 
-    if (!token) {
-      throw new Error("Authentication token not found");
-    }
-
-    console.log("Profile update payload:", payload);
-
-    const response = await api.put(
-      "/api/auth/merchant/user",
-      payload,
-      {
-        headers: { Authorization: `Bearer ${token}` },
+      if (!token) {
+        throw new Error("Authentication token not found");
       }
-    );
 
-    return handleApiResponse(response.data);
-  } catch (err) {
-    throw err;
-  }
-},
+      console.log("Profile update payload:", payload);
+
+      const response = await api.put(
+        "/api/auth/merchant/user",
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
 
   //4 reset password email supabase
   async resetPassword(email: string) {
@@ -118,19 +118,19 @@ export const AuthService = {
   },
 
   // 6 get the profile
-  async getProfile(){
-    try{
+  async getProfile() {
+    try {
       const token = await getFromSecureStore("access_token");
-      
+
       if (!token) {
         throw new Error("Authentication token not found");
       }
-      const response = await api.get("/api/auth/merchant/user",{
-        headers:{Authorization: `Bearer ${token}`}
+      const response = await api.get("/api/auth/merchant/user", {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       return handleApiResponse(response.data);
-    }catch(err){
+    } catch (err) {
       throw err
     }
   }

@@ -9,9 +9,9 @@ import React, {
 } from "react";
 
 import { AppointmentService } from "@/api/appointment";
-import { AuthService } from "@/api/auth";
-import { BusinessService } from "@/api/business";
-import { StaffService } from "@/api/staff";
+import { AuthService } from "@/api/merchant/auth";
+import { BusinessService } from "@/api/merchant/business";
+import { StaffService } from "@/api/merchant/staff";
 import {
   getFromSecureStore,
   saveToSecureStore,

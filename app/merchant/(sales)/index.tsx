@@ -1,5 +1,5 @@
 /* ------------------------------ IMPORTS ------------------------------ */
-import { ProductService } from "@/api/products";
+import { ProductService } from "@/api/merchant/products";
 import facialImg from "@/assets/images/facial.jpg";
 import haircutImg from "@/assets/images/haircut.jpg";
 import manicureImg from "@/assets/images/manicure.jpg";

@@ -1,5 +1,5 @@
-import { BusinessService } from "@/api/business";
-import { StaffService } from "@/api/staff";
+import { BusinessService } from "@/api/merchant/business";
+import { StaffService } from "@/api/merchant/staff";
 import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";

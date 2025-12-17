@@ -1,4 +1,4 @@
-import { StaffService } from "@/api/staff";
+import { StaffService } from "@/api/merchant/staff";
 import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
