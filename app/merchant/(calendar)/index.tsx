@@ -1,4 +1,4 @@
-import { AppointmentService } from "@/api/appointment";
+import { AppointmentService } from "@/api/merchant/appointment";
 import { BusinessService } from "@/api/merchant/business";
 import { StaffService } from "@/api/merchant/staff";
 import BottomNav from "@/components/BottomNav";

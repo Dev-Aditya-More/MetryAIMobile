@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 
-import { AppointmentService } from "@/api/appointment";
+import { AppointmentService } from "@/api/merchant/appointment";
 import { AuthService } from "@/api/merchant/auth";
 import { BusinessService } from "@/api/merchant/business";
 import { StaffService } from "@/api/merchant/staff";
