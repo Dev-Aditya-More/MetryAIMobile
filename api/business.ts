@@ -58,4 +58,81 @@ export const BusinessService = {
       throw err;
     }
   },
+
+  //4 create new business
+  async createBusiness(payload: {
+    name: string,
+    logoUrl: string,
+    website: string,
+    location: string,
+    rooms: number,
+    chairs: number,
+    description: string,
+  }) {
+    try {
+      const token = await getFromSecureStore("access_token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.post(
+        "/api/biz/business/add",
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // update business
+  async updateBusiness(payload: {
+    id: string,
+    name: string,
+    logoUrl: string,
+    website: string,
+    location: string,
+    rooms: number,
+    chairs: number,
+    description: string,
+  }) {
+    try {
+      const token = await getFromSecureStore("access_token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.post(
+        `/api/biz/business/update`, payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 6 delete business
+  async deleteBusiness(businessId: string) {
+    try {
+      const token = await getFromSecureStore("access_token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+      const response = await api.post(
+        `/api/biz/business/delete`, {
+        id: businessId
+      },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return handleApiResponse(response.data);
+    } catch (err) {
+      throw err;
+    }
+  },
 };
