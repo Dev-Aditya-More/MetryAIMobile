@@ -24,19 +24,19 @@ export default function ResetPassword() {
 
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async () => {
-  if (!input.password || !input.confirm) {
-    Alert.alert("Missing Fields", "Please fill in all fields.");
-    return;
-  }
+  const handleSubmit = async () => {
+    if (!input.password || !input.confirm) {
+      Alert.alert("Missing Fields", "Please fill in all fields.");
+      return;
+    }
 
-  if (input.password !== input.confirm) {
-    Alert.alert("Mismatch", "Passwords do not match.");
-    return;
-  }
-  // call the api to update the password this screen 
+    if (input.password !== input.confirm) {
+      Alert.alert("Mismatch", "Passwords do not match.");
+      return;
+    }
+    // call the api to update the password this screen 
 
-};
+  };
 
 
   return (
@@ -93,7 +93,7 @@ export default function ResetPassword() {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.replace("/login")}>
+            <TouchableOpacity onPress={() => router.replace("/merchant/(onboarding)/login")}>
               <Text style={styles.backText}>← Back to Login</Text>
             </TouchableOpacity>
           </View>
