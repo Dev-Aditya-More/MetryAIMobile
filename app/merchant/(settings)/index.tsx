@@ -1,5 +1,6 @@
 import { AuthService } from "@/api/merchant/auth";
 import BottomNav from "@/components/BottomNav";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
@@ -10,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +22,10 @@ export default function SettingsScreen() {
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
+
+  const logoutCall = async () => {
+    console.log("Logging out..."); // Debug log
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -148,6 +154,16 @@ export default function SettingsScreen() {
               { showBorder: false }
             )}
           </View>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={logoutCall}>
+            <IconSymbol
+              name="arrow.right.square"
+              size={20}
+              color="#EF4444"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -276,5 +292,20 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 15,
     color: colors.textPrimary,
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#f0f0f0", // Slight border as per screenshot
+    borderRadius: 12,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#EF4444",
   },
 });

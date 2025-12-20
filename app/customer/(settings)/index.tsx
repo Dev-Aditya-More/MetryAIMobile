@@ -41,20 +41,6 @@ export default function AccountScreen() {
                 {/* Logout Button */}
                 <TouchableOpacity style={styles.logoutButton}>
                     <IconSymbol name="arrow.right.square" size={20} color="#EF4444" style={{ marginRight: 8 }} />
-                    {/* Fallback icon if arrow.right... not supported in our map yet, let's use a text or existing icon. 
-               Wait, I didn't map a logout icon. Let's use text only or add a mapping.
-               For now I'll use a simple text or a generic icon if available, but the design shows an icon. 
-               I'll use 'paperplane.fill' as a placeholder or just no icon if it's cleaner to avoid errors.
-               Actually, I'll use a simple View with Logout text as per design which shows a red icon.
-               Let's assume the user wants the "Log Out" text and icon.
-               I'll stick to text-only if I can't map it, or use 'house.fill' as placeholder? No.
-               Let's update the IconSymbol mapping in next step if needed. 
-               For now, I'll use a placeholder icon from what I have like 'shield.fill' but red, or just text.
-               Actually, I can just use a specific material icon directly here if I wanted to bypass the wrapper, 
-               but that breaks consistency. 
-               I will assume 'arrow.right.start.on.rectangle' is not mapped.
-               I will use a simple text layout with an improvised icon or just text.
-           */}
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
 
