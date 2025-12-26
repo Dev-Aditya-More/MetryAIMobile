@@ -22,7 +22,7 @@ export function useResetPasswordDeepLink() {
       console.log("Successfully exchanged code for session:", data.session);
 
       if (url && url.includes("reset-password")) {
-        router.push("/(onboarding)/reset-password");
+        router.push("/merchant/(onboarding)/reset-password");
       }
     };
 
