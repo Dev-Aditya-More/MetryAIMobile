@@ -1,5 +1,6 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { colors } from "@/theme/colors";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Image,
@@ -42,6 +43,11 @@ const SALONS = [
 
 export default function ServicesScreen() {
     const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+
+    const handlePressSalon = (id: string) => {
+        router.push(`/customer/(services)/${id}`);
+    };
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -61,7 +67,12 @@ export default function ServicesScreen() {
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {SALONS.map((salon) => (
-                    <View key={salon.id} style={styles.card}>
+                    <TouchableOpacity
+                        key={salon.id}
+                        style={styles.card}
+                        onPress={() => handlePressSalon(salon.id)}
+                        activeOpacity={0.9}
+                    >
                         <View style={styles.imageContainer}>
                             <Image source={{ uri: salon.image }} style={styles.image} />
                         </View>
@@ -73,11 +84,11 @@ export default function ServicesScreen() {
                                     <Text style={styles.salonAddress}>{salon.address}</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity style={styles.arrowButton}>
+                            <View style={styles.arrowButton}>
                                 <IconSymbol name="arrow.up.right" size={20} color="#fff" />
-                            </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 ))}
                 {/* Helper view to pad bottom for tab bar */}
                 <View style={{ height: 20 }} />
