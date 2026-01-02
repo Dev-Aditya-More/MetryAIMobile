@@ -1,10 +1,13 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { colors } from "@/theme/colors";
+import { useRouter } from "expo-router";
 import React from "react";
 import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AccountScreen() {
+    const router = useRouter();
+
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <StatusBar barStyle="dark-content" />
@@ -16,7 +19,10 @@ export default function AccountScreen() {
 
                 {/* Profile Section */}
                 <Text style={styles.sectionHeader}>PROFILE</Text>
-                <TouchableOpacity style={styles.profileCard}>
+                <TouchableOpacity
+                    style={styles.profileCard}
+                    onPress={() => router.push("/customer/(settings)/edit-profile")}
+                >
                     <Image
                         source={{ uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" }}
                         style={styles.avatar}
@@ -30,7 +36,10 @@ export default function AccountScreen() {
 
                 {/* Settings Section */}
                 <Text style={styles.sectionHeader}>SETTINGS</Text>
-                <TouchableOpacity style={styles.menuItem}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => router.push("/customer/(settings)/security")}
+                >
                     <View style={styles.iconBox}>
                         <IconSymbol name="shield.fill" size={20} color={colors.textPrimary} />
                     </View>
