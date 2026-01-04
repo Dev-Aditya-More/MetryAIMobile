@@ -1,7 +1,7 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { colors } from "@/theme/colors";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     Image,
     ScrollView,
@@ -11,7 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Mock Data
 const DATES = [
@@ -63,6 +63,7 @@ const SERVICES = [
 export default function BookingScreen() {
     const { id } = useLocalSearchParams(); // In a real app, use this to fetch salon details
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -109,7 +110,6 @@ export default function BookingScreen() {
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
-                    stickyHeaderIndices={[1]} // Stick the "Select Date" section if desired, strictly optional
                 >
                     {/* Salon Info */}
                     <View style={styles.section}>
@@ -206,7 +206,7 @@ export default function BookingScreen() {
                     </View>
 
                     {/* Padding for bottom footer */}
-                    <View style={{ height: 100 }} />
+                    <View style={{ height: 180 }} />
                 </ScrollView>
 
                 {/* Footer */}
@@ -439,18 +439,22 @@ const styles = StyleSheet.create({
     },
     footer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 80, // Lifted above Tab Bar
         left: 0,
         right: 0,
         backgroundColor: '#fff',
         borderTopWidth: 1,
         borderTopColor: '#f0f0f0',
         paddingHorizontal: 20,
-        paddingTop: 16,
-        paddingBottom: 40, // Safe area padding
+        paddingVertical: 16, // Fixed padding
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 5,
     },
     totalLabel: {
         fontSize: 14,
