@@ -27,6 +27,11 @@ const MAPPING = {
   'gear': 'settings',
   'shield.fill': 'security',
   'arrow.right.square': 'logout',
+  'map.fill': 'map',
+  'building.2.fill': 'business',
+  'minus': 'remove',
+  'plus': 'add',
+  'xmark': 'close',
 } as IconMapping;
 
 /**

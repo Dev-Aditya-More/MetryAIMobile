@@ -13,6 +13,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FilterFlow } from "./components/FilterFlow";
 
 const SALONS = [
     {
@@ -43,29 +44,67 @@ const SALONS = [
 
 export default function ServicesScreen() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [hasFiltered, setHasFiltered] = useState(false);
+    const [filterData, setFilterData] = useState<any>(null);
     const router = useRouter();
 
     const handlePressSalon = (id: string) => {
         router.push(`/customer/(services)/${id}`);
     };
 
+    const handleFilterComplete = (data: any) => {
+        console.log("Filter Data:", data);
+        setFilterData(data);
+        setHasFiltered(true);
+    };
+
+    if (!hasFiltered) {
+        return (
+            <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+                <StatusBar barStyle="dark-content" />
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Services</Text>
+                    <TouchableOpacity onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            // If we can't go back, likely we are at the tab root.
+                            // However, we are in a 'filter mode' which replaced the main content.
+                            // But wait, this is the main screen. If the user wants to 'close' the services screen
+                            // they probably want to go to the previous tab or home.
+                            // A safe bet is replacing to the home route.
+                            router.replace('/');
+                        }
+                    }} style={styles.closeBtn}>
+                        <IconSymbol name="xmark" size={20} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                </View>
+                <FilterFlow onComplete={handleFilterComplete} />
+            </SafeAreaView>
+        );
+    }
+
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.header}>
                 <View style={styles.searchContainer}>
                     <IconSymbol name="magnifyingglass" size={20} color={colors.textSecondary} style={{ marginRight: 8 }} />
                     <TextInput
                         style={styles.input}
-                        placeholder="Find a salon..."
+                        placeholder={filterData?.where || "Find a salon..."}
                         placeholderTextColor={colors.textSecondary}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
                 </View>
+                <TouchableOpacity onPress={() => setHasFiltered(false)}>
+                    <Text style={styles.filterText}>Filter</Text>
+                </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                {/* Maybe show a summary of filters here? */}
                 {SALONS.map((salon) => (
                     <TouchableOpacity
                         key={salon.id}
@@ -108,19 +147,36 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
         backgroundColor: '#fff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    closeBtn: {
+        padding: 4,
     },
     searchContainer: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.surface,
         borderRadius: 8,
         paddingHorizontal: 10,
         height: 44,
+        marginRight: 10,
     },
     input: {
         flex: 1,
         fontSize: 16,
         color: colors.textPrimary,
+    },
+    filterText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.primary,
     },
     scrollContent: {
         padding: 20,
