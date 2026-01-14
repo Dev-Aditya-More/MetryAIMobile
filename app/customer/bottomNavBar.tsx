@@ -1,3 +1,4 @@
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter, useSegments } from "expo-router";

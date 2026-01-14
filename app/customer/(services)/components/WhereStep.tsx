@@ -1,7 +1,9 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { colors } from '@/theme/colors';
+import * as Location from 'expo-location';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
 
 interface WhereStepProps {
     onNext: (location: string) => void;
@@ -9,7 +11,42 @@ interface WhereStepProps {
     value: string;
 }
 
+
+
 export function WhereStep({ onNext, isActive, value }: WhereStepProps) {
+
+    const handleNearbyPress = async () => {
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission denied', 'Location permission is required');
+                return;
+            }
+
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+            });
+
+            const { latitude, longitude } = location.coords;
+
+            const address = await Location.reverseGeocodeAsync({
+                latitude,
+                longitude,
+            });
+
+            if (address.length > 0) {
+                const place = `${address[0].city || address[0].region}, ${address[0].country}`;
+                onNext(place);
+            } else {
+                onNext('Nearby');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Unable to fetch location');
+        }
+    };
+
+
     if (!isActive) {
         return (
             <View style={styles.collapsedContainer}>
@@ -36,7 +73,7 @@ export function WhereStep({ onNext, isActive, value }: WhereStepProps) {
             <View style={styles.suggestionsContainer}>
                 <Text style={styles.suggestionsTitle}>Suggested destinations</Text>
 
-                <TouchableOpacity style={styles.suggestionItem} onPress={() => onNext('Nearby')}>
+                <TouchableOpacity style={styles.suggestionItem} onPress={handleNearbyPress}>
                     <View style={styles.iconContainer}>
                         <IconSymbol name="location.fill" size={24} color={colors.textPrimary} />
                     </View>
