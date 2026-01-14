@@ -3,12 +3,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter, useSegments } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type TabKey = "home" | "services" | "bookings" | "account";
 
 export default function BottomNav() {
     const segments = useSegments();
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const has = (g: string) => (segments as unknown as string[]).includes(g);
 
@@ -62,7 +64,7 @@ export default function BottomNav() {
     };
 
     return (
-        <View style={styles.root}>
+        <View style={[styles.root, { paddingBottom: Math.max(insets.bottom, 20), height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }]}>
             {item("home", "home-outline", "home", "Home")}
             {item("services", "grid-outline", "grid", "Services")}
             {item("bookings", "calendar-outline", "calendar", "Bookings")}
@@ -80,8 +82,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-around",
-        paddingTop: 10,
-        paddingBottom: 24, // Added extra padding for safe area
         backgroundColor: colors.background,
         borderTopWidth: 1,
         borderTopColor: colors.border,
@@ -99,11 +99,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: 12,
+        height: 50, // Fixed height for touch target
     },
 
     label: {
         fontSize: 10,
-        marginTop: 4,
         fontWeight: "500",
+        marginTop: 4,
     },
 });

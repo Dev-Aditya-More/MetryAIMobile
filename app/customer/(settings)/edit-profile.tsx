@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -14,10 +15,11 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function EditProfileScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const [name, setName] = useState("Jane Doe");
     const [email, setEmail] = useState("jane.doe@example.com");
     const [phone, setPhone] = useState("+1 (555) 123-4567");
@@ -102,6 +104,7 @@ export default function EditProfileScreen() {
 
                 </ScrollView>
             </KeyboardAvoidingView>
+            <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
         </SafeAreaView>
     );
 }

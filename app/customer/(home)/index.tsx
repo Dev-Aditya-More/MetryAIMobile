@@ -1,3 +1,4 @@
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import React from "react";
 import {
@@ -10,7 +11,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -60,6 +61,7 @@ const TREND_FORECAST = [
 
 
 export default function CustomerHome() {
+    const insets = useSafeAreaInsets();
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
@@ -188,7 +190,8 @@ export default function CustomerHome() {
                 </View>
 
                 {/* Bottom padding for tab bar */}
-                <View style={{ height: 80 }} />
+                {/* Bottom padding for tab bar */}
+                <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
 
             </ScrollView>
         </SafeAreaView>

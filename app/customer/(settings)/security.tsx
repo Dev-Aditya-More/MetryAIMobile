@@ -1,20 +1,23 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SecurityScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
@@ -34,7 +37,7 @@ export default function SecurityScreen() {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
             >
-                <View style={styles.content}>
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                     {/* Current Password */}
                     <View style={styles.inputGroup}>
@@ -80,7 +83,10 @@ export default function SecurityScreen() {
                         We recommend using a strong password with a mix of letters, numbers, and symbols to keep your account secure.
                     </Text>
 
-                </View>
+                    {/* Bottom Padding */}
+                    <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
+
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -109,9 +115,9 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
         textTransform: 'uppercase',
     },
-    content: {
+    scrollContent: {
         padding: 20,
-        flex: 1,
+        flexGrow: 1,
     },
     inputGroup: {
         marginBottom: 24,

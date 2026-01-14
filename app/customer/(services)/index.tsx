@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -12,7 +13,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { FilterFlow } from "./components/FilterFlow";
 
 const SALONS = [
@@ -47,6 +48,7 @@ export default function ServicesScreen() {
     const [hasFiltered, setHasFiltered] = useState(false);
     const [filterData, setFilterData] = useState<any>(null);
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const handlePressSalon = (id: string) => {
         router.push(`/customer/(services)/${id}`);
@@ -60,7 +62,7 @@ export default function ServicesScreen() {
 
     if (!hasFiltered) {
         return (
-            <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+            <SafeAreaView style={styles.container} edges={['top']}>
                 <StatusBar barStyle="dark-content" />
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Services</Text>
@@ -80,12 +82,14 @@ export default function ServicesScreen() {
                     </TouchableOpacity>
                 </View>
                 <FilterFlow onComplete={handleFilterComplete} />
+                {/* Bottom padding for tab bar */}
+                <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
             </SafeAreaView>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <SafeAreaView style={styles.container} edges={['top']}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.header}>
                 <View style={styles.searchContainer}>
@@ -130,7 +134,8 @@ export default function ServicesScreen() {
                     </TouchableOpacity>
                 ))}
                 {/* Helper view to pad bottom for tab bar */}
-                <View style={{ height: 20 }} />
+                {/* Helper view to pad bottom for tab bar */}
+                <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
             </ScrollView>
         </SafeAreaView>
     );

@@ -1,8 +1,9 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import React from "react";
 import { Image, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const BOOKINGS = [
     {
@@ -24,6 +25,7 @@ const BOOKINGS = [
 ];
 
 export default function BookingsScreen() {
+    const insets = useSafeAreaInsets();
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <StatusBar barStyle="dark-content" />
@@ -55,7 +57,8 @@ export default function BookingsScreen() {
                     </View>
                 ))}
                 {/* Padding for tab bar */}
-                <View style={{ height: 20 }} />
+                {/* Padding for tab bar */}
+                <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
             </ScrollView>
         </SafeAreaView>
     );
