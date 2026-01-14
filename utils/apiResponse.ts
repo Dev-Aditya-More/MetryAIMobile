@@ -17,7 +17,7 @@ export class ApiError extends Error {
   }
 }
 
-const SUCCESS_CODE = "0";
+export const SUCCESS_CODE = "0";
 
 export interface ApiEnvelope<T = any> {
   code: string;
