@@ -46,8 +46,8 @@ export const CustomerAuthService = {
 
   // 3. setup profile
   async setupProfile(payload: {
-    fullName: string;
     avatarUrl: string;
+    fullName: string;
     phoneCode: string;
     phone: string;
   }) {
