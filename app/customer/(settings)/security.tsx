@@ -1,9 +1,12 @@
+import { CustomerAuthService } from "@/api/customer/auth";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+    ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -20,6 +23,44 @@ export default function SecurityScreen() {
     const insets = useSafeAreaInsets();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleUpdatePassword = async () => {
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            Alert.alert("Error", "Please fill in all fields");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            Alert.alert("Error", "New passwords do not match");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            Alert.alert("Error", "Password must be at least 6 characters");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await CustomerAuthService.updatePassword(currentPassword, newPassword);
+
+            if (response.success) {
+                Alert.alert("Success", "Password updated successfully", [
+                    { text: "OK", onPress: () => router.replace("/customer/(tabs)") }
+                ]);
+            } else {
+                Alert.alert("Error", response.error || "Failed to update password");
+            }
+
+        } catch (error: any) {
+            console.error("Update password error", error);
+            Alert.alert("Error", error.message || "Failed to update password");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -71,11 +112,35 @@ export default function SecurityScreen() {
                         </View>
                     </View>
 
+                    {/* Confirm Password */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>CONFIRM NEW PASSWORD</Text>
+                        <View style={styles.inputContainer}>
+                            <IconSymbol name="lock.fill" size={20} color={colors.textSecondary} style={{ marginRight: 10 }} />
+                            <TextInput
+                                style={styles.input}
+                                value={confirmPassword}
+                                onChangeText={setConfirmPassword}
+                                placeholder="••••••••••••"
+                                placeholderTextColor={colors.textSecondary}
+                                secureTextEntry
+                            />
+                        </View>
+                    </View>
+
                     <View style={{ height: 40 }} />
 
                     {/* Update Button */}
-                    <TouchableOpacity style={styles.updateButton}>
-                        <Text style={styles.buttonText}>Update Password</Text>
+                    <TouchableOpacity
+                        style={styles.updateButton}
+                        onPress={handleUpdatePassword}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Update Password</Text>
+                        )}
                     </TouchableOpacity>
 
                     {/* Helper Text */}
