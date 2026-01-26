@@ -1,14 +1,56 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { DEFAULT_AVATAR } from "@/constants/images";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
-import { useRouter } from "expo-router";
-import React from "react";
-import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { CustomerAuthService } from "../../../api/customer/auth";
+
+interface ProfileData {
+    avatarUrl: string;
+    fullName: string;
+    phoneCode: string;
+    phone: string;
+    email: string;
+}
 
 export default function AccountScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const [profile, setProfile] = useState<ProfileData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [avatarError, setAvatarError] = useState(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadProfile();
+        }, [])
+    );
+
+    const loadProfile = async () => {
+        try {
+            // Only set loading to true on first load to avoid flickering on re-focus
+            if (!profile) setLoading(true);
+
+            const response = await CustomerAuthService.getProfile();
+            if (response.success && response.data) {
+                setProfile(response.data);
+            }
+        } catch (error) {
+            console.error("Failed to load profile", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEditProfile = () => {
+        router.push({
+            pathname: "/customer/(settings)/edit-profile",
+            params: { profileData: profile ? JSON.stringify(profile) : undefined }
+        });
+    };
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -21,20 +63,30 @@ export default function AccountScreen() {
 
                 {/* Profile Section */}
                 <Text style={styles.sectionHeader}>PROFILE</Text>
-                <TouchableOpacity
-                    style={styles.profileCard}
-                    onPress={() => router.push("/customer/(settings)/edit-profile")}
-                >
-                    <Image
-                        source={{ uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" }}
-                        style={styles.avatar}
-                    />
-                    <View style={styles.profileInfo}>
-                        <Text style={styles.userName}>Jane Doe</Text>
-                        <Text style={styles.userEmail}>jane.doe@example.com</Text>
+
+                {loading && !profile ? (
+                    <View style={[styles.profileCard, { justifyContent: 'center' }]}>
+                        <ActivityIndicator size="small" color={colors.primary} />
                     </View>
-                    <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-                </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={styles.profileCard}
+                        onPress={handleEditProfile}
+                    >
+                        <Image
+                            source={{
+                                uri: (profile?.avatarUrl && !avatarError) ? profile.avatarUrl : DEFAULT_AVATAR
+                            }}
+                            style={styles.avatar}
+                            onError={() => setAvatarError(true)}
+                        />
+                        <View style={styles.profileInfo}>
+                            <Text style={styles.userName}>{profile?.fullName || "Guest User"}</Text>
+                            <Text style={styles.userEmail}>{profile?.email || "No email"}</Text>
+                        </View>
+                        <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+                    </TouchableOpacity>
+                )}
 
                 {/* Settings Section */}
                 <Text style={styles.sectionHeader}>SETTINGS</Text>
@@ -99,6 +151,7 @@ const styles = StyleSheet.create({
         borderColor: '#f0f0f0',
         borderRadius: 12,
         marginBottom: 10,
+        minHeight: 80,
     },
     avatar: {
         width: 50,
@@ -127,7 +180,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#f0f0f0',
         borderRadius: 12,
-        marginBottom: 30,
+        marginBottom: 30, // Separated a bit more from logout
     },
     iconBox: {
         width: 36,
@@ -151,7 +204,7 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: '#f0f0f0', // Slight border as per screenshot
+        borderColor: '#f0f0f0',
         borderRadius: 12,
     },
     logoutText: {

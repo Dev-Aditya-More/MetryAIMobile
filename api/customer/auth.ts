@@ -44,7 +44,7 @@ export const CustomerAuthService = {
     });
   },
 
-  // 3. setup profile
+  // 3. setup profile / update profile
   async setupProfile(payload: {
     avatarUrl: string;
     fullName: string;
