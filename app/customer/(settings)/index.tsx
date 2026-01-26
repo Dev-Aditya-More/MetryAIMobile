@@ -3,6 +3,7 @@ import { DEFAULT_AVATAR } from "@/constants/images";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import { colors } from "@/theme/colors";
 import { useFocusEffect, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -50,6 +51,26 @@ export default function AccountScreen() {
             pathname: "/customer/(settings)/edit-profile",
             params: { profileData: profile ? JSON.stringify(profile) : undefined }
         });
+    };
+
+    // ======================
+    // LOGOUT IMPLEMENTATION
+    // ======================
+
+    const handleLogout = async () => {
+        try {
+            // Clear Secure Storage
+            await SecureStore.deleteItemAsync("access_token");
+            await SecureStore.deleteItemAsync("refresh_token");
+            await SecureStore.deleteItemAsync("user");
+
+            setProfile(null);
+
+            router.replace("/customer/(onboarding)/login");
+
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
 
     return (
@@ -102,12 +123,13 @@ export default function AccountScreen() {
                 </TouchableOpacity>
 
                 {/* Logout Button */}
-                <TouchableOpacity style={styles.logoutButton}>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                     <IconSymbol name="arrow.right.square" size={20} color="#EF4444" style={{ marginRight: 8 }} />
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
 
             </ScrollView>
+
             {/* Bottom padding for tab bar */}
             <View style={{ height: TAB_BAR_HEIGHT + Math.max(insets.bottom, 20) }} />
         </SafeAreaView>
@@ -180,7 +202,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#f0f0f0',
         borderRadius: 12,
-        marginBottom: 30, // Separated a bit more from logout
+        marginBottom: 30,
     },
     iconBox: {
         width: 36,
