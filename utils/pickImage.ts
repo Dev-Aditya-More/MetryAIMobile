@@ -25,8 +25,8 @@ export const pickImage = async (): Promise<PickedImage | null> => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: false,
+      mediaTypes: ['images'],
+      allowsEditing: true,
       quality: 0.8,
     });
 
@@ -37,8 +37,8 @@ export const pickImage = async (): Promise<PickedImage | null> => {
         width: asset.width,
         height: asset.height,
         fileSize: asset.fileSize,
-        type: asset.type,
-        fileName: asset.fileName,
+        type: asset.type ?? "image", // Fallback if null
+        fileName: asset.fileName ?? "unknown.jpg", // Fallback if null
       };
     }
 

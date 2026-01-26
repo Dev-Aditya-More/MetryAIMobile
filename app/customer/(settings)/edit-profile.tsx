@@ -319,11 +319,9 @@ export default function EditProfileScreen() {
 
         const nameChanged = formData.fullName !== initialData.fullName;
         const phoneChanged = currentPhoneStr !== initialPhoneStr;
-        // Email not editable via this form in typical setupProfile? 
-        // User wants `setupProfile` called.
-        // It has fullName, phone, phoneCode, avatarUrl.
+        const avatarChanged = formData.avatarUrl !== initialData.avatarUrl;
 
-        return nameChanged || phoneChanged;
+        return nameChanged || phoneChanged || avatarChanged;
     }, [formData, displayPhone, initialData]);
 
     if (isLoading) {

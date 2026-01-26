@@ -10,17 +10,29 @@ export const UploadService = {
         throw new Error("Authentication token not found");
       }
 
-      const response = await api.post("/api/biz/upload", formData, {
+      // Using fetch instead of axios for reliable FormData handling in RN
+      const response = await fetch(`${api.defaults.baseURL}/api/biz/upload`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          // Content-Type is set automatically by fetch for FormData
         },
+        body: formData,
       });
 
-      console.log("Upload raw response:", response.status, response.data);
+      const responseText = await response.text();
+      console.log("Upload raw response:", response.status, responseText);
 
-      // Now see if handleApiResponse is causing the error
-      return handleApiResponse(response.data);
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error("Invalid JSON response from server");
+      }
+
+      return handleApiResponse(data);
     } catch (err: any) {
+      console.error("Upload service error:", err);
       throw err;
     }
   },
