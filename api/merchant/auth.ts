@@ -1,8 +1,7 @@
-import { handleApiResponse } from "@/utils/apiResponse";
 import { saveToSecureStore } from "@/utils/secureStorage";
+import { serviceHandler } from "@/utils/serviceHandler";
 import * as Linking from "expo-linking";
 import api from "../../constants/api";
-import { getFromSecureStore } from "../../utils/secureStorage";
 import { supabase } from "../../utils/supabaseClient";
 
 // this is deep url it will handle in root _layout.tsx file in useEffect
@@ -11,7 +10,7 @@ import { supabase } from "../../utils/supabaseClient";
 export const AuthService = {
   //1 login user
   async login(email: string, password: string) {
-    try {
+    return serviceHandler(async () => {
       const response = await api.post("/api/auth/merchant/login", {
         email: email,
         password: password,
@@ -22,15 +21,13 @@ export const AuthService = {
           refresh_token: response.data.data.refreshToken,
         });
       }
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   //2 signup user
   async signup(fullname: string, email: string, password: string) {
-    try {
+    return serviceHandler(async () => {
       const response = await api.post("/api/auth/merchant/register", {
         fullName: fullname,
         email: email,
@@ -38,19 +35,14 @@ export const AuthService = {
       });
 
       if (response.data.data?.token) {
-        console.log("Access Token:", response.data.data?.token);
         saveToSecureStore({
           access_token: response.data.data.token,
           refresh_token: response.data.data.refreshToken,
         });
       }
 
-      console.log(response.data);
-      return handleApiResponse(response.data);
-    } catch (err) {
-      console.log("🔥 Signup API Error (Raw):", err);
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // 3 setup profile
@@ -60,78 +52,48 @@ export const AuthService = {
     phoneCode: string;
     phone: string;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      console.log("Profile update payload:", payload);
-
+    return serviceHandler(async () => {
       const response = await api.put(
         "/api/auth/merchant/user",
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        payload
       );
 
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   //4 reset password email supabase
   async resetPassword(email: string) {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: Linking.createURL("reset-password"), // your frontend redirect 
-      // redirectTo: "exp://192.168.29.102:8081/--/reset-password", // your frontend redirect
+    return serviceHandler(async () => {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: Linking.createURL("reset-password"), // your frontend redirect 
+        // redirectTo: "exp://192.168.29.102:8081/--/reset-password", // your frontend redirect
+      });
+      if (error) throw error;
+      return data;
     });
-    return { data, error };
   },
 
   //5 Update password
   async updatePassword(oldPassword: string, newPassword: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/auth/merchant/user/update-pwd",
         {
           oldPassword: oldPassword,
           newPassword: newPassword,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // 6 get the profile
   async getProfile() {
-    try {
-      const token = await getFromSecureStore("access_token");
+    return serviceHandler(async () => {
+      const response = await api.get("/api/auth/merchant/user");
 
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-      const response = await api.get("/api/auth/merchant/user", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err
-    }
+      return response.data;
+    });
   }
 };

@@ -48,7 +48,9 @@ export default function StaffManagement() {
         setLoading(true);
 
         const businessId = await BusinessService.getBusinessesId();
-        const apiStaff = await StaffService.getStaff(businessId);
+        const apiStaffRes = await StaffService.getStaff(businessId);
+
+        const apiStaff = apiStaffRes.success && Array.isArray(apiStaffRes.data) ? apiStaffRes.data : [];
 
         const mappedStaff: Staff[] = (apiStaff as any[]).map((s: any) => ({
           id: String(s.id),
@@ -97,7 +99,7 @@ export default function StaffManagement() {
     try {
       const res = await StaffService.deleteStaff(deleteId);
 
-      if (res) {
+      if (res.success) {
         setStaff((prev) => prev.filter((s) => s.id !== deleteId));
         Alert.alert("Staff deleted successfully");
       } else {

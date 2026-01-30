@@ -34,12 +34,32 @@ export default function ForgotPass() {
       setLoading(true);
       Keyboard.dismiss();
 
-      const { data, error } = await AuthService.resetPassword(input.email);
+      const response = await AuthService.resetPassword(input.email);
+      const { data, error } = response as any; // Previous code expected { data, error } from API directly, but now it is wrapped or unwrapped by serviceHandler.
+      // Wait, AuthService.resetPassword refactored returns serviceHandler result which is { success, data, error? } OR the data itself if using simple unwrapping but my serviceHandler implementation returns { success: boolean, ... }
 
-      if (error) {
-        Alert.alert("Error", error.message || "Unable to send reset email.");
+      // Getting actual return type of AuthService.resetPassword:
+      // return serviceHandler(async () => { return { data, error } })
+      // So if success, data property of serviceResponse contains { data, error } from supabase?
+      // Let's check AuthService.resetPassword again.
+
+      /*
+      async resetPassword(email: string) {
+        return serviceHandler(async () => {
+          const { data, error } = await supabase.auth.resetPasswordForEmail...
+          if (error) throw error;
+          return data;
+        });
+      },
+      */
+      // It returns `data` on success. If error, serviceHandler catches it and returns { success: false, error: ... }
+
+      if (!response.success) {
+        Alert.alert("Error", response.error || "Unable to send reset email.");
         return;
       }
+
+      // If success, we proceed.
 
       Alert.alert(
         "Reset Link Sent",

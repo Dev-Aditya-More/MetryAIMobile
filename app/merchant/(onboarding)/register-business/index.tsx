@@ -86,10 +86,10 @@ export default function RegisterBusiness() {
                 description: formData.description,
             };
 
-            const { data, error } = await BusinessService.createBusiness(payload);
+            const response = await BusinessService.createBusiness(payload);
 
-            if (error) {
-                Alert.alert("Error", error.message || "Failed to create business.");
+            if (!response.success) {
+                Alert.alert("Error", response.error || "Failed to create business.");
                 return;
             }
 

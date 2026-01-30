@@ -1,22 +1,14 @@
-import { handleApiResponse } from "@/utils/apiResponse";
+import { Business } from "@/types/api/business";
+import { serviceHandler } from "@/utils/serviceHandler";
 import api from "../../constants/api";
-import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const BusinessService = {
   //1 get businesses for current user
   async getBusinesses() {
-    try {
-      const token = await getFromSecureStore("access_token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-      const response = await api.get("/api/biz/business/list", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler<Business[]>(async () => {
+      const response = await api.get("/api/biz/business/list");
+      return response.data;
+    });
   },
 
   //2 return 1st business id
@@ -24,7 +16,11 @@ export const BusinessService = {
     try {
       const businessesRes = await BusinessService.getBusinesses();
 
-      const businesses = businessesRes ?? [];
+      if (!businessesRes.success) {
+        throw new Error(businessesRes.error);
+      }
+
+      const businesses = businessesRes.data;
       if (!Array.isArray(businesses) || businesses.length === 0) {
         throw new Error("No business found for current user");
       }
@@ -39,24 +35,14 @@ export const BusinessService = {
   },
 
   //3 getting all the business dropdown list
-
   async getBusinessesDropDown() {
-    try {
-      const token = await getFromSecureStore("access_token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/business/dropdown",
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        {}
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   //4 create new business
@@ -69,22 +55,13 @@ export const BusinessService = {
     chairs: number,
     description: string,
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/business/add",
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        payload
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // update business
@@ -98,41 +75,23 @@ export const BusinessService = {
     chairs: number,
     description: string,
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
+    return serviceHandler(async () => {
       const response = await api.post(
-        `/api/biz/business/update`, payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `/api/biz/business/update`, payload
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // 6 delete business
   async deleteBusiness(businessId: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
+    return serviceHandler(async () => {
       const response = await api.post(
         `/api/biz/business/delete`, {
         id: businessId
-      },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      }
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 };

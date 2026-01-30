@@ -1,5 +1,5 @@
 import api from "@/constants/api";
-import { handleApiResponse } from "@/utils/apiResponse";
+import { serviceHandler } from "@/utils/serviceHandler";
 import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const ProductService = {
@@ -15,21 +15,10 @@ export const ProductService = {
     rooms: number;
     description: string;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.post("/api/biz/service/add", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/service/add", payload);
+      return response.data;
+    });
   },
 
   // 2 update products
@@ -45,32 +34,16 @@ export const ProductService = {
     rooms: number;
     description: string;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-      const response = await api.post("/api/biz/service/update", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/service/update", payload);
+      return response.data;
+    });
   },
 
   // 3 search products
   async searchProduct(name: string, pageNo: string, pageSize: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const id = await getFromSecureStore("businessId")
+    return serviceHandler(async () => {
+      const id = await getFromSecureStore("businessId");
 
       const response = await api.post(
         "/api/biz/service/search",
@@ -79,39 +52,22 @@ export const ProductService = {
           id: id ?? "",
           pageNo: pageNo,
           pageSize: pageSize,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // 4 delete products
   async delteProduct(serviceId: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/service/delete",
         {
           id: serviceId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 };

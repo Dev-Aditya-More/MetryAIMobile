@@ -134,14 +134,16 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 
     try {
       /* 1) Profile */
-      const profile = (await AuthService.getProfile()) as ProfileApi;
+      const profileRes = await AuthService.getProfile();
+      if (!profileRes.success) throw new Error(profileRes.error);
+      const profile = profileRes.data as ProfileApi;
       const welcomeName = profile?.fullName || "";
 
       /* 2) Businesses dropdown */
-      const businessDropDown =
-        (await BusinessService.getBusinessesDropDown()) || [];
+      const businessDropDownRes = await BusinessService.getBusinessesDropDown();
+      const businessDropDown = businessDropDownRes.success ? businessDropDownRes.data : [];
 
-      const businesses: BusinessItem[] = businessDropDown.map((b: any) => ({
+      const businesses: BusinessItem[] = (businessDropDown as any[]).map((b: any) => ({
         id: b.id,
         name: b.name,
       }));
@@ -165,14 +167,12 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
       await saveToSecureStore({ businessId: selectedBusinessId });
 
       /* 4) Staff */
-      const staffResp = (await StaffService.getStaff(
-        selectedBusinessId
-      )) as StaffApi[];
+      const staffRes = await StaffService.getStaff(selectedBusinessId);
+      const staffResp = staffRes.success ? (staffRes.data as StaffApi[]) : [];
 
       /* 5) Appointments */
-      const apptResp = (await AppointmentService.getAppoints(
-        selectedBusinessId
-      )) as AppointmentApi[];
+      const apptRes = await AppointmentService.getAppoints(selectedBusinessId);
+      const apptResp = apptRes.success ? (apptRes.data as AppointmentApi[]) : [];
 
       const staffMap: Record<string, StaffApi> = {};
       staffResp.forEach((s) => (staffMap[s.id] = s));

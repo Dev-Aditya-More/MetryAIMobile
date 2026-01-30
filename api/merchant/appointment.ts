@@ -1,29 +1,16 @@
-import { handleApiResponse } from "@/utils/apiResponse";
+import { serviceHandler } from "@/utils/serviceHandler";
 import api from "../../constants/api";
-import { getFromSecureStore } from "../../utils/secureStorage";
 
 export const AppointmentService = {
   // 1 get appointments for current business
   async getAppoints(businessId: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/appointment/search",
-        { businessId },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { businessId }
       );
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   //   2 add appointments for current business
@@ -35,21 +22,10 @@ export const AppointmentService = {
     timeSlot: string;
     appointmentTime: number;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.post("/api/biz/appointment", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return response;
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/appointment", payload);
+      return response.data;
+    });
   },
 
   //  3 update appointments
@@ -62,43 +38,20 @@ export const AppointmentService = {
     timeSlot: string;
     appointmentTime: number;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.post("/api/biz/appointment/update", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return response;
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/appointment/update", payload);
+      return response.data;
+    });
   },
 
   //  4 delete appointment
   async deleteAppoints(id: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/appointment/delete",
-        { id },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { id }
       );
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 };

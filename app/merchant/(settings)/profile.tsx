@@ -44,14 +44,16 @@ export default function Profile() {
         setLoading(true);
 
         const res = await AuthService.getProfile();
-        if (!res) return;
+        if (!res.success) throw new Error(res.error);
+
+        const data = res.data;
 
         const loadedProfile = {
-          fullName: res.fullName ?? "",
-          email: res.email ?? "",
-          countryCode: res.phoneCode ?? "+91",
-          phone: res.phone ?? res.fullPhone ?? "",
-          avatarUrl: res.avatarUrl ?? null,
+          fullName: data?.fullName ?? "",
+          email: data?.email ?? "",
+          countryCode: data?.phoneCode ?? "+91",
+          phone: data?.phone ?? data?.fullPhone ?? "",
+          avatarUrl: data?.avatarUrl ?? null,
         };
 
         setFullName(loadedProfile.fullName);
@@ -98,7 +100,8 @@ export default function Profile() {
         email,
       };
 
-      await AuthService.setupProfile(payload);
+      const response = await AuthService.setupProfile(payload);
+      if (!response.success) throw new Error(response.error);
 
       Alert.alert("Success", "Profile updated successfully");
 

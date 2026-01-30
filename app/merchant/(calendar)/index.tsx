@@ -142,9 +142,9 @@ export default function CalendarScreen() {
         console.log("Appointments response:", JSON.stringify(apptRes, null, 2));
 
         // Assume both APIs return plain arrays like your samples
-        const staffArray: StaffApi[] = Array.isArray(staffRes) ? staffRes : [];
-        const apptArray: AppointmentApi[] = Array.isArray(apptRes)
-          ? apptRes
+        const staffArray: StaffApi[] = staffRes.success && Array.isArray(staffRes.data) ? staffRes.data : [];
+        const apptArray: AppointmentApi[] = apptRes.success && Array.isArray(apptRes.data)
+          ? apptRes.data
           : [];
 
         // Map staffId → staff name
@@ -525,6 +525,13 @@ const styles = StyleSheet.create({
   },
   dayLabelSelected: {
     color: "#FFFFFF",
+  },
+  shadowEffect: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   /* Dropdown */

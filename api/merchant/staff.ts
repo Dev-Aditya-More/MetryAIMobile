@@ -1,6 +1,5 @@
 import api from "@/constants/api";
-import { handleApiResponse } from "@/utils/apiResponse";
-import { getFromSecureStore } from "../../utils/secureStorage";
+import { serviceHandler } from "@/utils/serviceHandler";
 
 export const StaffService = {
   // 1 add staff
@@ -11,21 +10,10 @@ export const StaffService = {
     phoneCode: string;
     phone: string;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.post("/api/biz/staff/add", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/staff/add", payload);
+      return response.data;
+    });
   },
 
   // 2 update staff
@@ -36,69 +24,34 @@ export const StaffService = {
     email: string;
     fullPhone: string;
   }) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const response = await api.post("/api/biz/staff/update", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+    return serviceHandler(async () => {
+      const response = await api.post("/api/biz/staff/update", payload);
+      return response.data;
+    });
   },
 
   // 3 get staff for current business
   async getStaff(businessId: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/staff/list",
         {
           businessId: businessId,
           name: "",
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 
   // 4 delete staff
   async deleteStaff(id: string) {
-    try {
-      const token = await getFromSecureStore("access_token");
-
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
+    return serviceHandler(async () => {
       const response = await api.post(
         "/api/biz/staff/delete",
-        { id },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { id }
       );
-
-      return handleApiResponse(response.data);
-    } catch (err) {
-      throw err;
-    }
+      return response.data;
+    });
   },
 };

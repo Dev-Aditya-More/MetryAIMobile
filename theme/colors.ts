@@ -16,4 +16,5 @@ export const colors = {
 
   accentBlue: "#2563EB",
   eventBg: "#EEF2FF",
+  success: "#22C55E",
 };
